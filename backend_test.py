@@ -163,8 +163,8 @@ class SpencerGreenAPITester:
         
         # Update reservation status if we have one
         if reservation_id:
-            status_data = {"status": "confirmed"}
-            self.run_test("Update Reservation Status", "PUT", f"admin/reservations/{reservation_id}/status", 200, status_data)
+            status_url = f"admin/reservations/{reservation_id}/status?status=confirmed"
+            self.run_test("Update Reservation Status", "PUT", status_url, 200)
         
         # Get users
         self.run_test("Get Users", "GET", "admin/users", 200)
