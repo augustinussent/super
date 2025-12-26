@@ -70,7 +70,7 @@ class SpencerGreenAPITester:
     def test_init_data(self):
         """Initialize default data"""
         print("\n🔧 Testing Data Initialization...")
-        result = self.run_test("Initialize Default Data", "POST", "", 200)
+        result = self.run_test("Initialize Default Data", "POST", "init", 200)
         return result is not None
 
     def test_auth_endpoints(self):
