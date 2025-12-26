@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -38,6 +38,51 @@ const Home = () => {
   });
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const offersRef = useRef(null);
+
+  // Dummy offers data
+  const offers = [
+    {
+      id: 1,
+      title: 'Weekend Escape',
+      description: 'Get 25% off for weekend stays. Valid for Friday-Sunday bookings.',
+      code: 'WEEKEND25',
+      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600',
+      validUntil: '31 Jan 2026'
+    },
+    {
+      id: 2,
+      title: 'Early Bird Special',
+      description: 'Book 30 days in advance and save 20% on any room type.',
+      code: 'EARLYBIRD20',
+      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600',
+      validUntil: '28 Feb 2026'
+    },
+    {
+      id: 3,
+      title: 'Honeymoon Package',
+      description: 'Romantic getaway with spa credits and dinner included.',
+      code: 'HONEYMOON',
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600',
+      validUntil: '31 Mar 2026'
+    },
+    {
+      id: 4,
+      title: 'Family Fun',
+      description: 'Kids stay free! Plus complimentary breakfast for the whole family.',
+      code: 'FAMILYFUN',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+      validUntil: '30 Apr 2026'
+    },
+    {
+      id: 5,
+      title: 'Long Stay Discount',
+      description: 'Stay 5 nights, pay only 4. Perfect for extended holidays.',
+      code: 'LONGSTAY',
+      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600',
+      validUntil: '31 May 2026'
+    }
+  ];
 
   useEffect(() => {
     fetchContent();
@@ -139,7 +184,6 @@ const Home = () => {
       setShowBookingModal(false);
       setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '' });
       
-      // Redirect to WhatsApp
       const waNumber = '6281334480210';
       const message = `Hi, I just made a booking with code ${response.data.booking_code}. I would like to complete the payment.`;
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
@@ -158,10 +202,20 @@ const Home = () => {
     setCurrentReviewIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
 
+  const scrollOffers = (direction) => {
+    if (offersRef.current) {
+      const scrollAmount = 320;
+      offersRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div>
+    <div className="bg-emerald-50/30">
       {/* Hero Section */}
-      <section className="relative h-screen">
+      <section className="relative h-[100svh] min-h-[600px]">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ 
@@ -171,46 +225,46 @@ const Home = () => {
           <div className="absolute inset-0 hero-overlay" />
         </div>
 
-        <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
+        <div className="relative h-full flex flex-col justify-center items-center text-center px-4 pb-32 sm:pb-40">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-emerald-300 uppercase tracking-[0.3em] text-sm mb-4">Welcome to</p>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6">
+            <p className="text-emerald-300 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4">Welcome to</p>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6">
               {heroContent?.title || 'Spencer Green Hotel'}
             </h1>
-            <p className="text-xl text-emerald-100 max-w-2xl mx-auto mb-8">
+            <p className="text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {heroContent?.subtitle || 'Experience Luxury in the Heart of Batu'}
             </p>
           </motion.div>
         </div>
 
-        {/* Booking Engine - Desktop Only */}
+        {/* Booking Engine - Desktop Only, positioned inside viewport */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="hidden md:block absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-full max-w-5xl px-4"
+          className="hidden md:block absolute bottom-8 left-4 right-4 lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-4xl xl:max-w-5xl"
         >
-          <div className="bg-white rounded-2xl shadow-luxury p-6" data-testid="booking-engine">
-            <div className="grid grid-cols-4 gap-4 items-end">
+          <div className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto" data-testid="booking-engine">
+            <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">
               {/* Check-in */}
               <div>
-                <Label className="text-gray-600 mb-2 block">Check-in</Label>
+                <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       data-testid="checkin-date-picker"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-12",
+                        "w-full justify-start text-left font-normal h-10 lg:h-12 text-sm",
                         !checkIn && "text-muted-foreground"
                       )}
                     >
-                      <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
-                      {checkIn ? format(checkIn, "dd MMM yyyy") : "Select date"}
+                      <Calendar className="mr-2 h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span className="truncate">{checkIn ? format(checkIn, "dd MMM") : "Select"}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -227,19 +281,19 @@ const Home = () => {
 
               {/* Check-out */}
               <div>
-                <Label className="text-gray-600 mb-2 block">Check-out</Label>
+                <Label className="text-gray-600 mb-1.5 block text-sm">Check-out</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       data-testid="checkout-date-picker"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-12",
+                        "w-full justify-start text-left font-normal h-10 lg:h-12 text-sm",
                         !checkOut && "text-muted-foreground"
                       )}
                     >
-                      <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
-                      {checkOut ? format(checkOut, "dd MMM yyyy") : "Select date"}
+                      <Calendar className="mr-2 h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span className="truncate">{checkOut ? format(checkOut, "dd MMM") : "Select"}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -256,14 +310,14 @@ const Home = () => {
 
               {/* Guests */}
               <div>
-                <Label className="text-gray-600 mb-2 block">Guests</Label>
+                <Label className="text-gray-600 mb-1.5 block text-sm">Guests</Label>
                 <div className="relative">
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                   <select
                     value={guests}
                     onChange={(e) => setGuests(Number(e.target.value))}
                     data-testid="guests-select"
-                    className="w-full h-12 pl-10 pr-4 border rounded-lg appearance-none bg-white focus:ring-2 focus:ring-emerald-500"
+                    className="w-full h-10 lg:h-12 pl-10 pr-4 border rounded-lg appearance-none bg-white focus:ring-2 focus:ring-emerald-500 text-sm"
                   >
                     {[1, 2, 3, 4].map(n => (
                       <option key={n} value={n}>{n} Guest{n > 1 ? 's' : ''}</option>
@@ -277,14 +331,15 @@ const Home = () => {
                 onClick={searchAvailability}
                 disabled={isSearching}
                 data-testid="search-availability-btn"
-                className="h-12 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="h-10 lg:h-12 bg-emerald-600 hover:bg-emerald-700 text-white text-sm"
               >
                 {isSearching ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
                 ) : (
                   <>
                     <Search className="mr-2 h-4 w-4" />
-                    Search
+                    <span className="hidden lg:inline">Search</span>
+                    <span className="lg:hidden">Go</span>
                   </>
                 )}
               </Button>
@@ -293,13 +348,78 @@ const Home = () => {
         </motion.div>
       </section>
 
+      {/* Special Offers Section */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-white" data-testid="offers-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-1 sm:mb-2">Limited Time</p>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Special Offers</h2>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => scrollOffers('left')}
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-200 transition-colors"
+                data-testid="offers-scroll-left"
+              >
+                <ChevronLeft className="w-5 h-5 text-emerald-700" />
+              </button>
+              <button
+                onClick={() => scrollOffers('right')}
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-200 transition-colors"
+                data-testid="offers-scroll-right"
+              >
+                <ChevronRight className="w-5 h-5 text-emerald-700" />
+              </button>
+            </div>
+          </div>
+
+          <div 
+            ref={offersRef}
+            className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {offers.map((offer, index) => (
+              <motion.div
+                key={offer.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="flex-shrink-0 w-[280px] sm:w-[300px] bg-white rounded-xl overflow-hidden shadow-soft border border-gray-100 snap-start"
+                data-testid={`offer-card-${offer.id}`}
+              >
+                <div className="relative h-40 overflow-hidden">
+                  <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+                      {offer.code}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-display text-lg font-semibold text-gray-900 mb-2">{offer.title}</h3>
+                  <p className="text-gray-500 text-sm mb-3 line-clamp-2">{offer.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Valid until {offer.validUntil}</span>
+                    <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center">
+                      Book <ArrowRight className="w-4 h-4 ml-1" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Available Rooms Section */}
       {showAvailability && (
-        <section className="py-24 bg-white" data-testid="available-rooms-section">
+        <section className="py-16 sm:py-20 bg-emerald-50/50" data-testid="available-rooms-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Available Rooms</p>
-              <h2 className="font-display text-4xl font-bold text-gray-900">
+            <div className="text-center mb-10 sm:mb-12">
+              <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Available Rooms</p>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
                 {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
               </h2>
             </div>
@@ -307,48 +427,60 @@ const Home = () => {
             {availableRooms.length === 0 ? (
               <p className="text-center text-gray-500">No rooms available for selected dates.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {availableRooms.map((room) => (
+              <div className="space-y-6">
+                {availableRooms.map((room, index) => (
                   <motion.div
                     key={room.room_type_id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-xl overflow-hidden shadow-soft card-hover"
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-xl overflow-hidden shadow-soft"
                     data-testid={`room-card-${room.room_type_id}`}
                   >
-                    <div className="relative aspect-video overflow-hidden">
-                      <img
-                        src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
-                        alt={room.name}
-                        className="w-full h-full object-cover img-zoom"
-                      />
-                      {room.video_url && (
-                        <button
-                          onClick={() => handlePlayVideo(room.video_url)}
-                          data-testid={`room-tour-btn-${room.room_type_id}`}
-                          className="absolute top-4 right-4 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
-                        >
-                          <Play className="w-5 h-5 text-emerald-600 ml-1" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="font-display text-xl font-semibold text-gray-900 mb-2">{room.name}</h3>
-                      <p className="text-gray-500 text-sm mb-4 line-clamp-2">{room.description}</p>
-                      <div className="flex items-center justify-between">
+                    <div className="grid grid-cols-1 lg:grid-cols-3">
+                      <div className="relative h-64 lg:h-auto overflow-hidden">
+                        <img
+                          src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
+                          alt={room.name}
+                          className="w-full h-full object-cover"
+                        />
+                        {room.video_url && (
+                          <button
+                            onClick={() => handlePlayVideo(room.video_url)}
+                            data-testid={`room-tour-btn-${room.room_type_id}`}
+                            className="absolute top-4 right-4 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-lg"
+                          >
+                            <Play className="w-5 h-5 text-emerald-600 ml-1" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="lg:col-span-2 p-6 lg:p-8 flex flex-col justify-between">
                         <div>
-                          <span className="text-emerald-600 font-bold text-lg">
-                            Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
-                          </span>
-                          <span className="text-gray-400 text-sm">/night</span>
+                          <h3 className="font-display text-2xl font-semibold text-gray-900 mb-3">{room.name}</h3>
+                          <p className="text-gray-500 mb-4 line-clamp-2">{room.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {room.amenities?.slice(0, 5).map((amenity, i) => (
+                              <span key={i} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full">
+                                {amenity}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <Button
-                          onClick={() => handleBookRoom(room)}
-                          data-testid={`book-room-btn-${room.room_type_id}`}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        >
-                          Book Now
-                        </Button>
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div>
+                            <span className="text-emerald-600 font-bold text-2xl">
+                              Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
+                            </span>
+                            <span className="text-gray-400 text-sm">/night</span>
+                          </div>
+                          <Button
+                            onClick={() => handleBookRoom(room)}
+                            data-testid={`book-room-btn-${room.room_type_id}`}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                          >
+                            Book Now
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -361,24 +493,21 @@ const Home = () => {
 
       {/* Promo Banner */}
       {promoBanner?.is_active && (
-        <section className="py-20 md:pt-32 bg-emerald-50" data-testid="promo-banner">
+        <section className="py-12 sm:py-16 lg:py-20 bg-white" data-testid="promo-banner">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="relative rounded-2xl overflow-hidden">
               <img
                 src={promoBanner.image || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200'}
                 alt="Promo"
-                className="w-full h-64 md:h-80 object-cover"
+                className="w-full h-56 sm:h-64 md:h-80 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-transparent flex items-center">
-                <div className="p-8 md:p-12 max-w-lg">
-                  <h3 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+                <div className="p-6 sm:p-8 md:p-12 max-w-lg">
+                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
                     {promoBanner.title}
                   </h3>
-                  <p className="text-emerald-100 mb-6">{promoBanner.description}</p>
-                  <Button 
-                    onClick={() => document.querySelector('[data-testid="booking-engine"]')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="bg-white text-emerald-800 hover:bg-emerald-100"
-                  >
+                  <p className="text-emerald-100 text-sm sm:text-base mb-4 sm:mb-6">{promoBanner.description}</p>
+                  <Button className="bg-white text-emerald-800 hover:bg-emerald-100">
                     Book Now
                   </Button>
                 </div>
@@ -388,54 +517,72 @@ const Home = () => {
         </section>
       )}
 
-      {/* Room Types Preview */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Accommodations</p>
-            <h2 className="font-display text-4xl font-bold text-gray-900">Our Rooms</h2>
+      {/* Room Types Preview - Kempinski Style Full Width */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-emerald-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-12">
+          <div className="text-center">
+            <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Accommodations</p>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Our Rooms</h2>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {rooms.slice(0, 3).map((room, index) => (
-              <motion.div
-                key={room.room_type_id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group cursor-pointer"
-                onClick={() => handleBookRoom(room)}
-              >
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
+        <div className="space-y-0">
+          {rooms.slice(0, 3).map((room, index) => (
+            <motion.div
+              key={room.room_type_id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className={`relative ${index % 2 === 0 ? '' : ''}`}
+            >
+              <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
+                <div className={`relative h-[50vh] min-h-[400px] ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
                   <img
                     src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
                     alt={room.name}
-                    className="w-full h-full object-cover img-zoom"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
                 </div>
-                <h3 className="font-display text-xl font-semibold text-gray-900 mb-1">{room.name}</h3>
-                <p className="text-emerald-600 font-medium">
-                  From Rp {room.base_price.toLocaleString('id-ID')}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+                <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                  <div className="p-8 sm:p-10 lg:p-16 max-w-xl mx-auto">
+                    <p className="text-emerald-600 uppercase tracking-widest text-xs mb-3">
+                      From Rp {room.base_price.toLocaleString('id-ID')} / night
+                    </p>
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{room.name}</h3>
+                    <p className="text-gray-500 leading-relaxed mb-6">{room.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {room.amenities?.slice(0, 4).map((amenity, i) => (
+                        <span key={i} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full">
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                    <Button 
+                      onClick={() => handleBookRoom(room)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                    >
+                      Book This Room
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Reviews Section */}
       {reviews.length > 0 && (
-        <section className="py-24 bg-emerald-50" data-testid="reviews-section">
+        <section className="py-12 sm:py-16 lg:py-20 bg-white" data-testid="reviews-section">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Testimonials</p>
-              <h2 className="font-display text-4xl font-bold text-gray-900">What Our Guests Say</h2>
+            <div className="text-center mb-10 sm:mb-12">
+              <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Testimonials</p>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">What Our Guests Say</h2>
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-2xl p-8 md:p-12 shadow-soft">
+              <div className="bg-emerald-50/50 rounded-2xl p-6 sm:p-8 md:p-12">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -444,7 +591,7 @@ const Home = () => {
                     />
                   ))}
                 </div>
-                <p className="text-gray-600 text-lg italic mb-6">
+                <p className="text-gray-600 text-base sm:text-lg italic mb-6">
                   "{reviews[currentReviewIndex]?.comment}"
                 </p>
                 <p className="font-semibold text-gray-900">{reviews[currentReviewIndex]?.guest_name}</p>
@@ -475,7 +622,7 @@ const Home = () => {
 
       {/* Booking Modal */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Complete Your Booking</DialogTitle>
           </DialogHeader>

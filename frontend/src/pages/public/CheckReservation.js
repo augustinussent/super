@@ -1,23 +1,95 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, Phone, Mail, User, MapPin } from 'lucide-react';
+import { Search, Calendar, Phone, Mail, User, MapPin, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { Label } from '../../components/ui/label';
+import { useAuth } from '../../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const CheckReservation = () => {
   const [bookingCode, setBookingCode] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [reservations, setReservations] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showPasswordField, setShowPasswordField] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const checkIfAdmin = async () => {
+    if (!email || bookingCode) {
+      setShowPasswordField(false);
+      return;
+    }
+
+    setIsCheckingAdmin(true);
+    try {
+      // Try to check if this email is an admin
+      const response = await axios.post(`${API_URL}/auth/login`, { 
+        email, 
+        password: 'check-only-invalid' 
+      });
+      // If we get here, something unexpected happened
+      setShowPasswordField(false);
+    } catch (error) {
+      // If error is "Invalid credentials", the email exists as admin
+      if (error.response?.status === 401 && error.response?.data?.detail === 'Invalid credentials') {
+        setShowPasswordField(true);
+      } else {
+        setShowPasswordField(false);
+      }
+    } finally {
+      setIsCheckingAdmin(false);
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (!bookingCode && email) {
+      checkIfAdmin();
+    }
+  };
+
+  const handleBookingCodeChange = (value) => {
+    setBookingCode(value.toUpperCase());
+    if (value) {
+      setShowPasswordField(false);
+    }
+  };
+
+  const handleAdminLogin = async () => {
+    if (!email || !password) {
+      toast.error('Please enter email and password');
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const user = await login(email, password);
+      toast.success(`Welcome back, ${user.name}!`);
+      navigate('/admin');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Login failed');
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const handleSearch = async () => {
+    // If password field is shown, try admin login
+    if (showPasswordField && password) {
+      await handleAdminLogin();
+      return;
+    }
+
     if (!bookingCode && !email) {
       toast.error('Please enter booking code or email');
       return;
@@ -55,7 +127,7 @@ const CheckReservation = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen bg-gray-50">
+    <div className="pt-20 min-h-screen bg-emerald-50/30">
       {/* Hero */}
       <section className="bg-emerald-900 py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -78,7 +150,7 @@ const CheckReservation = () => {
                   <Input
                     id="bookingCode"
                     value={bookingCode}
-                    onChange={(e) => setBookingCode(e.target.value.toUpperCase())}
+                    onChange={(e) => handleBookingCodeChange(e.target.value)}
                     placeholder="e.g., SGH-20250101-ABC123"
                     className="pl-10"
                     data-testid="booking-code-input"
@@ -101,6 +173,7 @@ const CheckReservation = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={handleEmailBlur}
                     placeholder="Enter your email"
                     className="pl-10"
                     data-testid="email-input"
@@ -108,14 +181,51 @@ const CheckReservation = () => {
                 </div>
               </div>
 
+              {/* Password Field - Only shown for admin emails */}
+              {showPasswordField && !bookingCode && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <div className="bg-emerald-50 rounded-lg p-4 mb-4">
+                    <p className="text-emerald-800 text-sm">
+                      This email is registered as staff/admin. Enter your password to access the dashboard.
+                    </p>
+                  </div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative mt-2">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="pl-10 pr-10"
+                      data-testid="password-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
               <Button
                 onClick={handleSearch}
-                disabled={isSearching}
+                disabled={isSearching || isCheckingAdmin}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-12"
                 data-testid="search-reservation-btn"
               >
-                {isSearching ? (
+                {isSearching || isCheckingAdmin ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                ) : showPasswordField && !bookingCode ? (
+                  'Login to Dashboard'
                 ) : (
                   'Search Reservation'
                 )}
@@ -126,7 +236,7 @@ const CheckReservation = () => {
       </section>
 
       {/* Results */}
-      {hasSearched && (
+      {hasSearched && !showPasswordField && (
         <section className="pb-20">
           <div className="max-w-4xl mx-auto px-4">
             {reservations.length === 0 ? (

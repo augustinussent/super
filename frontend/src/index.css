@@ -6,7 +6,7 @@
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
+        --background: 145 30% 98%;
         --foreground: 220 13% 7%;
         --card: 0 0% 100%;
         --card-foreground: 220 13% 7%;
@@ -50,8 +50,16 @@
     * {
         @apply border-border;
     }
+    html {
+        font-size: 16px;
+    }
+    @media (max-width: 640px) {
+        html {
+            font-size: 14px;
+        }
+    }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-emerald-50/30 text-foreground;
         font-family: 'Manrope', sans-serif;
     }
     h1, h2, h3, h4, h5, h6 {
@@ -62,6 +70,7 @@
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -75,6 +84,15 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: #047857;
+}
+
+/* Hide scrollbar for offers carousel */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 /* Smooth scroll */
@@ -146,13 +164,13 @@ html {
 
 /* Glassmorphism */
 .glass {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
 
 .glass-dark {
-    background: rgba(2, 44, 34, 0.9);
+    background: rgba(2, 44, 34, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
@@ -192,4 +210,24 @@ html {
 /* Hero overlay */
 .hero-overlay {
     background: linear-gradient(135deg, rgba(2,44,34,0.7) 0%, rgba(5,150,105,0.3) 100%);
+}
+
+/* Responsive text */
+.text-responsive {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

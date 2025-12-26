@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,7 +9,6 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const PublicLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [footerContent, setFooterContent] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,14 +23,6 @@ const PublicLayout = () => {
     { name: 'Gallery', path: '/gallery' },
     { name: 'Cek Reservasi', path: '/check-reservation' },
   ];
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     fetchFooterContent();
@@ -57,59 +48,34 @@ const PublicLayout = () => {
     } else {
       navigate('/check-reservation');
     }
+    setIsMenuOpen(false);
   };
 
+  // Check if current page is gallery (fullscreen)
+  const isGalleryPage = location.pathname === '/gallery';
+
+  if (isGalleryPage) {
+    return <Outlet />;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'glass shadow-soft py-3' : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-emerald-50/30">
+      {/* Header - Always dark emerald */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-emerald-950 shadow-lg">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2" data-testid="logo-link">
-              <span className={`font-display text-2xl font-bold transition-colors ${
-                isScrolled ? 'text-emerald-800' : 'text-white'
-              }`}>
+            <Link to="/" className="flex items-center flex-shrink-0" data-testid="logo-link">
+              <span className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-white">
                 Spencer Green
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {menuItems.slice(0, -1).map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                  className={`font-medium transition-colors hover:text-emerald-500 ${
-                    isScrolled ? 'text-gray-700' : 'text-white'
-                  } ${location.pathname === item.path ? 'text-emerald-500' : ''}`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <button
-                onClick={handleCheckReservationClick}
-                data-testid="nav-cek-reservasi"
-                className={`font-medium transition-colors hover:text-emerald-500 ${
-                  isScrolled ? 'text-gray-700' : 'text-white'
-                } ${location.pathname === '/check-reservation' ? 'text-emerald-500' : ''}`}
-              >
-                Cek Reservasi
-              </button>
-            </nav>
-
-            {/* Mobile Menu Button */}
+            {/* Hamburger Menu Button - Always visible */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`lg:hidden p-2 rounded-lg transition-colors ${
-                isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'
-              }`}
-              data-testid="mobile-menu-toggle"
+              className="p-2 rounded-lg text-white hover:bg-emerald-800 transition-colors"
+              data-testid="menu-toggle"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -117,14 +83,14 @@ const PublicLayout = () => {
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Slide-out Menu - For all screen sizes */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40"
           >
             <div className="absolute inset-0 bg-black/50" onClick={() => setIsMenuOpen(false)} />
             <motion.nav
@@ -132,30 +98,31 @@ const PublicLayout = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-luxury"
+              className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-emerald-950 shadow-luxury overflow-y-auto"
             >
               <div className="p-6">
-                <div className="flex justify-end mb-8">
-                  <button onClick={() => setIsMenuOpen(false)} className="p-2 text-gray-500">
+                <div className="flex justify-between items-center mb-8">
+                  <span className="font-display text-xl font-bold text-white">Menu</span>
+                  <button onClick={() => setIsMenuOpen(false)} className="p-2 text-emerald-200 hover:text-white">
                     <X size={24} />
                   </button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-1">
                   {menuItems.map((item, index) => (
                     <motion.div
                       key={item.path}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: index * 0.05 }}
                     >
                       {item.name === 'Cek Reservasi' ? (
                         <button
                           onClick={handleCheckReservationClick}
-                          data-testid={`mobile-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                          className={`block w-full text-left py-3 text-lg font-medium border-b border-gray-100 transition-colors ${
+                          data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
+                          className={`block w-full text-left px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
                             location.pathname === item.path
-                              ? 'text-emerald-600'
-                              : 'text-gray-700 hover:text-emerald-600'
+                              ? 'bg-emerald-600 text-white'
+                              : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
                           }`}
                         >
                           {item.name}
@@ -163,11 +130,11 @@ const PublicLayout = () => {
                       ) : (
                         <Link
                           to={item.path}
-                          data-testid={`mobile-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                          className={`block py-3 text-lg font-medium border-b border-gray-100 transition-colors ${
+                          data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
+                          className={`block px-4 py-3 rounded-lg text-lg font-medium transition-colors ${
                             location.pathname === item.path
-                              ? 'text-emerald-600'
-                              : 'text-gray-700 hover:text-emerald-600'
+                              ? 'bg-emerald-600 text-white'
+                              : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
                           }`}
                         >
                           {item.name}
@@ -176,6 +143,15 @@ const PublicLayout = () => {
                     </motion.div>
                   ))}
                 </div>
+
+                {/* Contact info in menu */}
+                <div className="mt-8 pt-8 border-t border-emerald-800">
+                  <p className="text-emerald-400 text-sm mb-4">Contact Us</p>
+                  <div className="space-y-3 text-emerald-200 text-sm">
+                    <p>{footerContent?.phone || '+62 813 3448 0210'}</p>
+                    <p>{footerContent?.email || 'info@spencergreen.com'}</p>
+                  </div>
+                </div>
               </div>
             </motion.nav>
           </motion.div>
@@ -183,18 +159,41 @@ const PublicLayout = () => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 pt-16 sm:pt-18 lg:pt-20">
         <Outlet />
       </main>
 
+      {/* Google Maps Section */}
+      <section className="bg-emerald-900">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12">
+          <div className="text-center mb-6">
+            <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-2">Find Us</h3>
+            <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Jl. Raya Selecta No. 1, Batu, East Java, Indonesia'}</p>
+          </div>
+          <div className="rounded-xl overflow-hidden shadow-xl">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.3689881253584!2d112.52657531478126!3d-7.878569794336901!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e788277c9f2e765%3A0x6c8c9e8e3c8c8c8c!2sJl.%20Raya%20Selecta%2C%20Batu%2C%20East%20Java!5e0!3m2!1sen!2sid!4v1640000000000!5m2!1sen!2sid"
+              width="100%"
+              height="300"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Spencer Green Hotel Location"
+              className="w-full h-[250px] sm:h-[300px] lg:h-[350px]"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-emerald-950 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <footer className="bg-emerald-950 text-white py-10 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Logo & Description */}
             <div>
-              <h3 className="font-display text-2xl font-bold text-white mb-4">Spencer Green Hotel</h3>
-              <p className="text-emerald-200 leading-relaxed">
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-4">Spencer Green Hotel</h3>
+              <p className="text-emerald-200 leading-relaxed text-sm sm:text-base">
                 Experience luxury and comfort in the heart of Batu city. 
                 Your perfect getaway destination.
               </p>
@@ -202,23 +201,32 @@ const PublicLayout = () => {
 
             {/* Contact Info */}
             <div>
-              <h4 className="font-display text-lg font-semibold text-white mb-4">Contact Us</h4>
-              <div className="space-y-3 text-emerald-200">
-                <p>{footerContent?.address || 'Jl. Raya Selecta No. 1, Batu, East Java'}</p>
-                <p>{footerContent?.phone || '+62 813 3448 0210'}</p>
-                <p>{footerContent?.email || 'info@spencergreen.com'}</p>
+              <h4 className="font-display text-base sm:text-lg font-semibold text-white mb-4">Contact Us</h4>
+              <div className="space-y-3 text-emerald-200 text-sm sm:text-base">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <p>{footerContent?.address || 'Jl. Raya Selecta No. 1, Batu, East Java'}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 flex-shrink-0" />
+                  <p>{footerContent?.phone || '+62 813 3448 0210'}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 flex-shrink-0" />
+                  <p>{footerContent?.email || 'info@spencergreen.com'}</p>
+                </div>
               </div>
             </div>
 
             {/* Social Media */}
             <div>
-              <h4 className="font-display text-lg font-semibold text-white mb-4">Follow Us</h4>
-              <div className="flex space-x-4">
+              <h4 className="font-display text-base sm:text-lg font-semibold text-white mb-4">Follow Us</h4>
+              <div className="flex flex-wrap gap-3">
                 <a
                   href={footerContent?.tiktok || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
+                  className="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                   data-testid="social-tiktok"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -229,7 +237,7 @@ const PublicLayout = () => {
                   href={footerContent?.instagram || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
+                  className="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                   data-testid="social-instagram"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -240,7 +248,7 @@ const PublicLayout = () => {
                   href={footerContent?.facebook || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
+                  className="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                   data-testid="social-facebook"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -251,7 +259,7 @@ const PublicLayout = () => {
                   href={`https://wa.me/${footerContent?.whatsapp || '6281334480210'}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
+                  className="w-10 h-10 sm:w-11 sm:h-11 bg-emerald-800 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                   data-testid="social-whatsapp"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -262,7 +270,7 @@ const PublicLayout = () => {
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-emerald-800 text-center text-emerald-300">
+          <div className="mt-8 sm:mt-10 lg:mt-12 pt-6 sm:pt-8 border-t border-emerald-800 text-center text-emerald-300 text-sm">
             <p>&copy; {new Date().getFullYear()} Spencer Green Hotel. All rights reserved.</p>
           </div>
         </div>
