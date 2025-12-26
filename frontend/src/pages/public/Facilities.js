@@ -42,7 +42,7 @@ const Facilities = () => {
   ];
 
   return (
-    <div className="pt-20">
+    <div className="bg-emerald-50/30">
       {/* Hero */}
       <section className="relative h-[40vh] flex items-center justify-center">
         <div 

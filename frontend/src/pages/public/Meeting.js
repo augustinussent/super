@@ -31,7 +31,7 @@ const Meeting = () => {
   ];
 
   return (
-    <div className="pt-20">
+    <div className="bg-emerald-50/30">
       {/* Hero */}
       <section className="relative h-[50vh] flex items-center justify-center">
         <div 
