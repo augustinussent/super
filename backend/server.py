@@ -594,8 +594,10 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
         status="pending"
     ).model_dump()
     
+    # Insert reservation and get the result without _id
     await db.reservations.insert_one(res_doc)
     
+    # Update inventory
     for i in range(nights):
         date_str = (check_in + timedelta(days=i)).strftime("%Y-%m-%d")
         await db.room_inventory.update_one(
@@ -603,9 +605,12 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
             {"$inc": {"allotment": -1}}
         )
     
+    # Send email in background
     background_tasks.add_task(send_reservation_email, res_doc, room)
     
-    return res_doc
+    # Return clean response without MongoDB _id
+    clean_response = {k: v for k, v in res_doc.items() if k != '_id'}
+    return clean_response
 
 @api_router.get("/reservations/check")
 async def check_reservation(booking_code: str = None, email: str = None):
