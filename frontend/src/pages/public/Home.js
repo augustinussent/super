@@ -343,8 +343,9 @@ const Home = () => {
     setShowBookingModal(true);
   };
 
-  const handlePlayVideo = (url) => {
-    setVideoUrl(url || 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+  const handlePlayVideo = (room) => {
+    const videoUrl = room.video_url || 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4';
+    setSelectedVideo({ url: videoUrl, name: room.name });
     setShowVideoModal(true);
   };
 
