@@ -221,6 +221,10 @@ const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState({ url: '', name: '' });
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryRoomName, setGalleryRoomName] = useState('');
 
   const fetchRooms = async () => {
     try {
@@ -239,6 +243,15 @@ const Rooms = () => {
     const videoUrl = room.video_url || 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4';
     setSelectedVideo({ url: videoUrl, name: room.name });
     setShowVideoModal(true);
+  };
+
+  const openGallery = (room, startIndex = 0) => {
+    if (room.images && room.images.length > 0) {
+      setGalleryImages(room.images);
+      setGalleryIndex(startIndex);
+      setGalleryRoomName(room.name);
+      setShowGallery(true);
+    }
   };
 
   return (
