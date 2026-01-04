@@ -23,8 +23,11 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
 
   useEffect(() => {
     if (isOpen && videoRef.current) {
-      videoRef.current.play();
-      setIsPlaying(true);
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        setIsPlaying(false);
+      });
     }
   }, [isOpen]);
 
@@ -808,7 +811,7 @@ const Home = () => {
                   ))}
                 </div>
                 <p className="text-gray-600 text-base sm:text-lg italic mb-6">
-                  "{reviews[currentReviewIndex]?.comment}"
+                  &ldquo;{reviews[currentReviewIndex]?.comment}&rdquo;
                 </p>
                 <p className="font-semibold text-gray-900">{reviews[currentReviewIndex]?.guest_name}</p>
               </div>
