@@ -75,6 +75,14 @@ Build a full-stack Hotel Management System (HMS) for "Spencer Green Hotel Batu" 
 - [x] Animated modal with spring transitions (framer-motion)
 - [x] Implemented on Home page and Rooms page
 
+### Phase 5: Display Approved Reviews ✅ (January 4, 2026)
+- [x] Reviews section on homepage with carousel navigation
+- [x] Star rating display (1-5 stars)
+- [x] Guest name and comment display
+- [x] Prev/Next navigation buttons
+- [x] Created 5 sample reviews with varied ratings
+- [x] Admin approval workflow working (is_visible toggle)
+
 ## API Endpoints
 
 ### Public
@@ -123,7 +131,6 @@ Build a full-stack Hotel Management System (HMS) for "Spencer Green Hotel Batu" 
 - [ ] Auto-scroll ke rooms setelah search availability
 
 ### P1 - High Priority
-- [ ] Display approved reviews on homepage
 - [ ] Gallery dengan kategori thumbnails
 - [ ] Dark/Light mode toggle
 - [ ] Email integration testing (Resend)
