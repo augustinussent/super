@@ -227,6 +227,21 @@ const Home = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const offersRef = useRef(null);
+  
+  // Gallery state
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryRoomName, setGalleryRoomName] = useState('');
+
+  const openGallery = (room, startIndex = 0) => {
+    if (room.images && room.images.length > 0) {
+      setGalleryImages(room.images);
+      setGalleryIndex(startIndex);
+      setGalleryRoomName(room.name);
+      setShowGallery(true);
+    }
+  };
 
   // Dummy offers data
   const offers = [
