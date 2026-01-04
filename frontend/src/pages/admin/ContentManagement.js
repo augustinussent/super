@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Image, Upload, Trash2, Play } from 'lucide-react';
+import { Save, Image, Upload, Trash2, Plus, GripVertical } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
@@ -7,22 +7,23 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Textarea } from '../../components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Switch } from '../../components/ui/switch';
 import MediaUpload from '../../components/MediaUpload';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const ContentManagement = () => {
   const [content, setContent] = useState({});
-  const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const [currentUploadTarget, setCurrentUploadTarget] = useState(null);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
+  const [uploadTarget, setUploadTarget] = useState(null);
+
+  const getToken = () => localStorage.getItem('token');
 
   useEffect(() => {
     fetchContent();
-    fetchRooms();
   }, []);
 
   const fetchContent = async () => {
@@ -41,17 +42,6 @@ const ContentManagement = () => {
     }
   };
 
-  const fetchRooms = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/rooms`);
-      setRooms(response.data);
-    } catch (error) {
-      console.error('Error fetching rooms:', error);
-    }
-  };
-
-  const getToken = () => localStorage.getItem('token');
-
   const saveContent = async (page, section, contentType, contentData) => {
     setIsSaving(true);
     try {
@@ -63,10 +53,10 @@ const ContentManagement = () => {
       }, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
-      toast.success('Content saved');
+      toast.success('Konten berhasil disimpan');
       fetchContent();
     } catch (error) {
-      toast.error('Failed to save content');
+      toast.error('Gagal menyimpan konten');
     } finally {
       setIsSaving(false);
     }
@@ -85,18 +75,23 @@ const ContentManagement = () => {
     }));
   };
 
-  const handleImageUploadSuccess = (mediaData) => {
-    if (currentUploadTarget) {
-      updateField(currentUploadTarget.key, currentUploadTarget.field, mediaData.secure_url);
-      setShowImageUpload(false);
-      setCurrentUploadTarget(null);
-      toast.success('Image uploaded successfully');
-    }
+  const getContent = (page, section, field, defaultValue = '') => {
+    const key = `${page}_${section}`;
+    return content[key]?.content?.[field] ?? defaultValue;
   };
 
-  const openImageUpload = (key, field) => {
-    setCurrentUploadTarget({ key, field });
-    setShowImageUpload(true);
+  const openMediaUpload = (key, field, mediaType = 'image') => {
+    setUploadTarget({ key, field, mediaType });
+    setShowMediaUpload(true);
+  };
+
+  const handleMediaUpload = (mediaData) => {
+    if (uploadTarget) {
+      updateField(uploadTarget.key, uploadTarget.field, mediaData.secure_url);
+      setShowMediaUpload(false);
+      setUploadTarget(null);
+      toast.success('Media berhasil diupload');
+    }
   };
 
   if (isLoading) {
@@ -107,366 +102,459 @@ const ContentManagement = () => {
     );
   }
 
+  // Section Component for reusability
+  const ContentSection = ({ title, children }) => (
+    <div className="bg-white rounded-xl p-6 shadow-soft">
+      <h3 className="font-display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <Image className="w-5 h-5 text-emerald-600" />
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+
+  const ImageField = ({ label, value, onChange, onUpload }) => (
+    <div>
+      <Label>{label}</Label>
+      <div className="flex gap-2">
+        <Input value={value} onChange={onChange} placeholder="https://..." className="flex-1" />
+        <Button type="button" variant="outline" onClick={onUpload}>
+          <Upload className="w-4 h-4 mr-2" />
+          Upload
+        </Button>
+      </div>
+      {value && <img src={value} alt="Preview" className="mt-2 rounded-lg h-24 object-cover" />}
+    </div>
+  );
+
   return (
     <div data-testid="content-management">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-gray-900">Kelola Konten</h1>
-        <p className="text-gray-500">Ubah teks, foto, dan link di setiap halaman</p>
+        <p className="text-gray-500">Edit semua teks, foto, dan video di setiap halaman</p>
       </div>
 
       <Tabs defaultValue="home" className="space-y-6">
-        <TabsList className="bg-white shadow-soft">
+        <TabsList className="bg-white shadow-soft flex-wrap h-auto p-1">
           <TabsTrigger value="home">Home</TabsTrigger>
-          <TabsTrigger value="rooms">Rooms</TabsTrigger>
+          <TabsTrigger value="rooms">Rooms Page</TabsTrigger>
+          <TabsTrigger value="meeting">Meeting</TabsTrigger>
+          <TabsTrigger value="wedding">Wedding</TabsTrigger>
+          <TabsTrigger value="facilities">Facilities</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
         </TabsList>
 
-        {/* Home Content */}
+        {/* ==================== HOME PAGE ==================== */}
         <TabsContent value="home" className="space-y-6">
           {/* Hero Section */}
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <h3 className="font-display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Image className="w-5 h-5 text-emerald-600" />
-              Hero Section
-            </h3>
+          <ContentSection title="Hero Section">
             <div className="space-y-4">
               <div>
-                <Label>Judul</Label>
+                <Label>Judul Utama</Label>
                 <Input
-                  value={content['home_hero']?.content?.title || ''}
+                  value={getContent('home', 'hero', 'title')}
                   onChange={(e) => updateField('home_hero', 'title', e.target.value)}
                   placeholder="Spencer Green Hotel"
-                  data-testid="hero-title-input"
+                  data-testid="home-hero-title"
                 />
               </div>
               <div>
                 <Label>Subtitle</Label>
                 <Input
-                  value={content['home_hero']?.content?.subtitle || ''}
+                  value={getContent('home', 'hero', 'subtitle')}
                   onChange={(e) => updateField('home_hero', 'subtitle', e.target.value)}
-                  placeholder="Experience Luxury in the Heart of Batu"
-                  data-testid="hero-subtitle-input"
+                  placeholder="Experience Luxury..."
+                  data-testid="home-hero-subtitle"
                 />
               </div>
-              <div>
-                <Label>Gambar Hero</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={content['home_hero']?.content?.image || ''}
-                    onChange={(e) => updateField('home_hero', 'image', e.target.value)}
-                    placeholder="https://..."
-                    className="flex-1"
-                    data-testid="hero-image-input"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => openImageUpload('home_hero', 'image')}
-                    data-testid="hero-upload-btn"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload
-                  </Button>
-                </div>
-                {content['home_hero']?.content?.image && (
-                  <img 
-                    src={content['home_hero']?.content?.image} 
-                    alt="Hero preview" 
-                    className="mt-2 rounded-lg h-32 object-cover"
-                  />
-                )}
-              </div>
-              <Button
-                onClick={() => saveContent('home', 'hero', 'hero', content['home_hero']?.content || {})}
-                disabled={isSaving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                data-testid="save-hero-btn"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Simpan Hero
+              <ImageField
+                label="Gambar Hero"
+                value={getContent('home', 'hero', 'image')}
+                onChange={(e) => updateField('home_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('home_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('home', 'hero', 'hero', content['home_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
               </Button>
             </div>
-          </div>
+          </ContentSection>
 
           {/* Promo Banner */}
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <h3 className="font-display text-lg font-semibold text-gray-900 mb-4">Promo Banner</h3>
+          <ContentSection title="Promo Banner">
             <div className="space-y-4">
               <div>
                 <Label>Judul Promo</Label>
-                <Input
-                  value={content['home_promo_banner']?.content?.title || ''}
-                  onChange={(e) => updateField('home_promo_banner', 'title', e.target.value)}
-                  placeholder="Special Weekend Offer"
-                  data-testid="promo-title-input"
+                <Input value={getContent('home', 'promo_banner', 'title')} onChange={(e) => updateField('home_promo_banner', 'title', e.target.value)} placeholder="Special Offer" />
+              </div>
+              <div>
+                <Label>Deskripsi Promo</Label>
+                <Textarea value={getContent('home', 'promo_banner', 'description')} onChange={(e) => updateField('home_promo_banner', 'description', e.target.value)} rows={2} />
+              </div>
+              <ImageField
+                label="Gambar Promo"
+                value={getContent('home', 'promo_banner', 'image')}
+                onChange={(e) => updateField('home_promo_banner', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('home_promo_banner', 'image')}
+              />
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={getContent('home', 'promo_banner', 'is_active', false)}
+                  onCheckedChange={(v) => updateField('home_promo_banner', 'is_active', v)}
                 />
+                <Label>Tampilkan Promo</Label>
+              </div>
+              <Button onClick={() => saveContent('home', 'promo_banner', 'banner', content['home_promo_banner']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Promo
+              </Button>
+            </div>
+          </ContentSection>
+
+          {/* About Section */}
+          <ContentSection title="About Section">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('home', 'about', 'title')} onChange={(e) => updateField('home_about', 'title', e.target.value)} placeholder="About Our Hotel" />
               </div>
               <div>
                 <Label>Deskripsi</Label>
-                <Textarea
-                  value={content['home_promo_banner']?.content?.description || ''}
-                  onChange={(e) => updateField('home_promo_banner', 'description', e.target.value)}
-                  placeholder="Get 20% off for weekend stays..."
-                  data-testid="promo-description-input"
-                />
+                <Textarea value={getContent('home', 'about', 'description')} onChange={(e) => updateField('home_about', 'description', e.target.value)} rows={4} />
               </div>
-              <div>
-                <Label>Gambar Promo</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={content['home_promo_banner']?.content?.image || ''}
-                    onChange={(e) => updateField('home_promo_banner', 'image', e.target.value)}
-                    placeholder="https://..."
-                    className="flex-1"
-                    data-testid="promo-image-input"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => openImageUpload('home_promo_banner', 'image')}
-                    data-testid="promo-upload-btn"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload
-                  </Button>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="promo-active"
-                  checked={content['home_promo_banner']?.content?.is_active || false}
-                  onChange={(e) => updateField('home_promo_banner', 'is_active', e.target.checked)}
-                  className="rounded border-gray-300"
-                  data-testid="promo-active-checkbox"
-                />
-                <Label htmlFor="promo-active">Tampilkan Banner Promo</Label>
-              </div>
-              <Button
-                onClick={() => saveContent('home', 'promo_banner', 'banner', content['home_promo_banner']?.content || {})}
-                disabled={isSaving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                data-testid="save-promo-btn"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Simpan Promo
+              <ImageField
+                label="Gambar"
+                value={getContent('home', 'about', 'image')}
+                onChange={(e) => updateField('home_about', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('home_about', 'image')}
+              />
+              <Button onClick={() => saveContent('home', 'about', 'section', content['home_about']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan About
               </Button>
             </div>
-          </div>
+          </ContentSection>
         </TabsContent>
 
-        {/* Rooms Content */}
+        {/* ==================== ROOMS PAGE ==================== */}
         <TabsContent value="rooms" className="space-y-6">
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <h3 className="font-display text-lg font-semibold text-gray-900 mb-4">
-              Room Images & Videos
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Upload gambar dan video tour untuk setiap tipe kamar
-            </p>
-
-            {rooms.map((room) => (
-              <div key={room.room_type_id} className="border rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{room.name}</h4>
-                    <p className="text-sm text-gray-500">
-                      {room.images?.length || 0} gambar • {room.video_url ? '1 video' : 'No video'}
-                    </p>
-                  </div>
-                  <span className="text-emerald-600 font-medium">
-                    Rp {room.base_price?.toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Current Images */}
-                {room.images && room.images.length > 0 && (
-                  <div className="flex gap-2 flex-wrap mb-4">
-                    {room.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img 
-                          src={img} 
-                          alt={`${room.name} ${idx + 1}`}
-                          className="w-24 h-16 object-cover rounded"
-                        />
-                        <button
-                          onClick={async () => {
-                            try {
-                              await axios.delete(`${API_URL}/media/delete-room-image`, {
-                                params: { room_type_id: room.room_type_id, image_url: img },
-                                headers: { Authorization: `Bearer ${getToken()}` }
-                              });
-                              toast.success('Image deleted');
-                              fetchRooms();
-                            } catch (error) {
-                              toast.error('Failed to delete image');
-                            }
-                          }}
-                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                        >
-                          <Trash2 className="w-5 h-5 text-white" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Video Preview */}
-                {room.video_url && (
-                  <div className="mb-4">
-                    <Label className="text-sm">Video Tour</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <video 
-                        src={room.video_url} 
-                        className="w-48 h-28 object-cover rounded"
-                        controls
-                      />
-                      <button
-                        onClick={async () => {
-                          try {
-                            await axios.delete(`${API_URL}/media/delete-room-video`, {
-                              params: { room_type_id: room.room_type_id },
-                              headers: { Authorization: `Bearer ${getToken()}` }
-                            });
-                            toast.success('Video deleted');
-                            fetchRooms();
-                          } catch (error) {
-                            toast.error('Failed to delete video');
-                          }
-                        }}
-                        className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Upload Buttons */}
-                <div className="flex gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" data-testid={`upload-room-image-${room.room_type_id}`}>
-                        <Image className="w-4 h-4 mr-2" />
-                        Upload Gambar
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle>Upload Gambar - {room.name}</DialogTitle>
-                      </DialogHeader>
-                      <MediaUpload
-                        uploadEndpoint={`/media/upload/room-image?room_type_id=${room.room_type_id}`}
-                        acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
-                        maxFileSize={10 * 1024 * 1024}
-                        title="Upload Room Image"
-                        description="Max 10MB, JPEG/PNG/WebP"
-                        onUploadSuccess={() => {
-                          fetchRooms();
-                        }}
-                      />
-                    </DialogContent>
-                  </Dialog>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" data-testid={`upload-room-video-${room.room_type_id}`}>
-                        <Play className="w-4 h-4 mr-2" />
-                        Upload Video Tour
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle>Upload Video Tour - {room.name}</DialogTitle>
-                      </DialogHeader>
-                      <MediaUpload
-                        uploadEndpoint={`/media/upload/room-video?room_type_id=${room.room_type_id}`}
-                        acceptedTypes={['video/mp4', 'video/quicktime']}
-                        maxFileSize={500 * 1024 * 1024}
-                        title="Upload Room Tour Video"
-                        description="Max 500MB, MP4/MOV"
-                        onUploadSuccess={() => {
-                          fetchRooms();
-                        }}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                </div>
+          <ContentSection title="Rooms Page Hero">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('rooms', 'hero', 'title')} onChange={(e) => updateField('rooms_hero', 'title', e.target.value)} placeholder="Our Rooms" />
               </div>
-            ))}
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('rooms', 'hero', 'subtitle')} onChange={(e) => updateField('rooms_hero', 'subtitle', e.target.value)} placeholder="Accommodations" />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('rooms', 'hero', 'image')}
+                onChange={(e) => updateField('rooms_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('rooms_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('rooms', 'hero', 'hero', content['rooms_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan
+              </Button>
+            </div>
+          </ContentSection>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <p className="text-amber-800 text-sm">
+              <strong>Tips:</strong> Untuk edit detail kamar (nama, harga, foto, video), gunakan menu <strong>Kelola Kamar</strong> di sidebar.
+            </p>
           </div>
         </TabsContent>
 
-        {/* Gallery Content */}
-        <TabsContent value="gallery" className="space-y-6">
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="font-display text-lg font-semibold text-gray-900">Gallery Images</h3>
-                <p className="text-gray-500 text-sm">Kelola gambar di halaman Gallery</p>
-              </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" data-testid="upload-gallery-btn">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload ke Gallery
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Upload Gallery Image</DialogTitle>
-                  </DialogHeader>
-                  <MediaUpload
-                    uploadEndpoint="/media/upload/gallery?category=general"
-                    acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
-                    maxFileSize={10 * 1024 * 1024}
-                    isMultiple={true}
-                    maxFiles={5}
-                    title="Upload Gallery Images"
-                    description="Max 10MB per file, up to 5 files"
-                    onUploadSuccess={(mediaData) => {
-                      toast.success('Gallery images uploaded');
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-            
+        {/* ==================== MEETING PAGE ==================== */}
+        <TabsContent value="meeting" className="space-y-6">
+          <ContentSection title="Meeting Page Hero">
             <div className="space-y-4">
-              {[0, 1, 2, 3, 4, 5].map((index) => {
-                const key = `gallery_gallery_item_${index}`;
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('meeting', 'hero', 'title')} onChange={(e) => updateField('meeting_hero', 'title', e.target.value)} placeholder="Meeting & Events" />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('meeting', 'hero', 'subtitle')} onChange={(e) => updateField('meeting_hero', 'subtitle', e.target.value)} placeholder="Business Facilities" />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('meeting', 'hero', 'image')}
+                onChange={(e) => updateField('meeting_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('meeting_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('meeting', 'hero', 'hero', content['meeting_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+            </div>
+          </ContentSection>
+
+          <ContentSection title="Meeting Room 1">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Ruangan</Label>
+                  <Input value={getContent('meeting', 'room1', 'name')} onChange={(e) => updateField('meeting_room1', 'name', e.target.value)} placeholder="Grand Ballroom" />
+                </div>
+                <div>
+                  <Label>Kapasitas</Label>
+                  <Input value={getContent('meeting', 'room1', 'capacity')} onChange={(e) => updateField('meeting_room1', 'capacity', e.target.value)} placeholder="500 pax" />
+                </div>
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea value={getContent('meeting', 'room1', 'description')} onChange={(e) => updateField('meeting_room1', 'description', e.target.value)} rows={3} />
+              </div>
+              <ImageField
+                label="Gambar"
+                value={getContent('meeting', 'room1', 'image')}
+                onChange={(e) => updateField('meeting_room1', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('meeting_room1', 'image')}
+              />
+              <Button onClick={() => saveContent('meeting', 'room1', 'room', content['meeting_room1']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan
+              </Button>
+            </div>
+          </ContentSection>
+
+          <ContentSection title="Meeting Room 2">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Ruangan</Label>
+                  <Input value={getContent('meeting', 'room2', 'name')} onChange={(e) => updateField('meeting_room2', 'name', e.target.value)} placeholder="Business Center" />
+                </div>
+                <div>
+                  <Label>Kapasitas</Label>
+                  <Input value={getContent('meeting', 'room2', 'capacity')} onChange={(e) => updateField('meeting_room2', 'capacity', e.target.value)} placeholder="50 pax" />
+                </div>
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea value={getContent('meeting', 'room2', 'description')} onChange={(e) => updateField('meeting_room2', 'description', e.target.value)} rows={3} />
+              </div>
+              <ImageField
+                label="Gambar"
+                value={getContent('meeting', 'room2', 'image')}
+                onChange={(e) => updateField('meeting_room2', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('meeting_room2', 'image')}
+              />
+              <Button onClick={() => saveContent('meeting', 'room2', 'room', content['meeting_room2']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan
+              </Button>
+            </div>
+          </ContentSection>
+        </TabsContent>
+
+        {/* ==================== WEDDING PAGE ==================== */}
+        <TabsContent value="wedding" className="space-y-6">
+          <ContentSection title="Wedding Page Hero">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('wedding', 'hero', 'title')} onChange={(e) => updateField('wedding_hero', 'title', e.target.value)} placeholder="Wedding Venue" />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('wedding', 'hero', 'subtitle')} onChange={(e) => updateField('wedding_hero', 'subtitle', e.target.value)} placeholder="Your Perfect Day" />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('wedding', 'hero', 'image')}
+                onChange={(e) => updateField('wedding_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('wedding_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('wedding', 'hero', 'hero', content['wedding_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+            </div>
+          </ContentSection>
+
+          <ContentSection title="Wedding Package 1">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Paket</Label>
+                  <Input value={getContent('wedding', 'package1', 'name')} onChange={(e) => updateField('wedding_package1', 'name', e.target.value)} placeholder="Intimate Garden" />
+                </div>
+                <div>
+                  <Label>Harga</Label>
+                  <Input value={getContent('wedding', 'package1', 'price')} onChange={(e) => updateField('wedding_package1', 'price', e.target.value)} placeholder="Rp 50.000.000" />
+                </div>
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea value={getContent('wedding', 'package1', 'description')} onChange={(e) => updateField('wedding_package1', 'description', e.target.value)} rows={3} />
+              </div>
+              <div>
+                <Label>Fitur (pisahkan dengan baris baru)</Label>
+                <Textarea value={getContent('wedding', 'package1', 'features')} onChange={(e) => updateField('wedding_package1', 'features', e.target.value)} rows={4} placeholder="Up to 100 guests&#10;Garden venue&#10;Catering included" />
+              </div>
+              <ImageField
+                label="Gambar"
+                value={getContent('wedding', 'package1', 'image')}
+                onChange={(e) => updateField('wedding_package1', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('wedding_package1', 'image')}
+              />
+              <Button onClick={() => saveContent('wedding', 'package1', 'package', content['wedding_package1']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan
+              </Button>
+            </div>
+          </ContentSection>
+
+          <ContentSection title="Wedding Package 2">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nama Paket</Label>
+                  <Input value={getContent('wedding', 'package2', 'name')} onChange={(e) => updateField('wedding_package2', 'name', e.target.value)} placeholder="Grand Celebration" />
+                </div>
+                <div>
+                  <Label>Harga</Label>
+                  <Input value={getContent('wedding', 'package2', 'price')} onChange={(e) => updateField('wedding_package2', 'price', e.target.value)} placeholder="Rp 150.000.000" />
+                </div>
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea value={getContent('wedding', 'package2', 'description')} onChange={(e) => updateField('wedding_package2', 'description', e.target.value)} rows={3} />
+              </div>
+              <div>
+                <Label>Fitur (pisahkan dengan baris baru)</Label>
+                <Textarea value={getContent('wedding', 'package2', 'features')} onChange={(e) => updateField('wedding_package2', 'features', e.target.value)} rows={4} />
+              </div>
+              <ImageField
+                label="Gambar"
+                value={getContent('wedding', 'package2', 'image')}
+                onChange={(e) => updateField('wedding_package2', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('wedding_package2', 'image')}
+              />
+              <Button onClick={() => saveContent('wedding', 'package2', 'package', content['wedding_package2']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan
+              </Button>
+            </div>
+          </ContentSection>
+        </TabsContent>
+
+        {/* ==================== FACILITIES PAGE ==================== */}
+        <TabsContent value="facilities" className="space-y-6">
+          <ContentSection title="Facilities Page Hero">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('facilities', 'hero', 'title')} onChange={(e) => updateField('facilities_hero', 'title', e.target.value)} placeholder="Our Facilities" />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('facilities', 'hero', 'subtitle')} onChange={(e) => updateField('facilities_hero', 'subtitle', e.target.value)} placeholder="Premium Amenities" />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('facilities', 'hero', 'image')}
+                onChange={(e) => updateField('facilities_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('facilities_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('facilities', 'hero', 'hero', content['facilities_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+            </div>
+          </ContentSection>
+
+          {['pool', 'spa', 'restaurant', 'gym'].map((facility, idx) => (
+            <ContentSection key={facility} title={`Fasilitas ${idx + 1}: ${facility.charAt(0).toUpperCase() + facility.slice(1)}`}>
+              <div className="space-y-4">
+                <div>
+                  <Label>Nama Fasilitas</Label>
+                  <Input value={getContent('facilities', facility, 'name')} onChange={(e) => updateField(`facilities_${facility}`, 'name', e.target.value)} placeholder={facility.charAt(0).toUpperCase() + facility.slice(1)} />
+                </div>
+                <div>
+                  <Label>Deskripsi</Label>
+                  <Textarea value={getContent('facilities', facility, 'description')} onChange={(e) => updateField(`facilities_${facility}`, 'description', e.target.value)} rows={3} />
+                </div>
+                <div>
+                  <Label>Jam Operasional</Label>
+                  <Input value={getContent('facilities', facility, 'hours')} onChange={(e) => updateField(`facilities_${facility}`, 'hours', e.target.value)} placeholder="06:00 - 22:00" />
+                </div>
+                <ImageField
+                  label="Gambar"
+                  value={getContent('facilities', facility, 'image')}
+                  onChange={(e) => updateField(`facilities_${facility}`, 'image', e.target.value)}
+                  onUpload={() => openMediaUpload(`facilities_${facility}`, 'image')}
+                />
+                <Button onClick={() => saveContent('facilities', facility, 'facility', content[`facilities_${facility}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan
+                </Button>
+              </div>
+            </ContentSection>
+          ))}
+        </TabsContent>
+
+        {/* ==================== GALLERY PAGE ==================== */}
+        <TabsContent value="gallery" className="space-y-6">
+          <ContentSection title="Gallery Page Hero">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('gallery', 'hero', 'title')} onChange={(e) => updateField('gallery_hero', 'title', e.target.value)} placeholder="Gallery" />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('gallery', 'hero', 'subtitle')} onChange={(e) => updateField('gallery_hero', 'subtitle', e.target.value)} placeholder="Explore Our Hotel" />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('gallery', 'hero', 'image')}
+                onChange={(e) => updateField('gallery_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('gallery_hero', 'image')}
+              />
+              <Button onClick={() => saveContent('gallery', 'hero', 'hero', content['gallery_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+            </div>
+          </ContentSection>
+
+          <ContentSection title="Gallery Images">
+            <div className="space-y-4">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((index) => {
+                const key = `gallery_item_${index}`;
                 return (
                   <div key={index} className="flex gap-4 items-center p-3 bg-gray-50 rounded-lg">
-                    {content[key]?.content?.url && (
-                      <img 
-                        src={content[key]?.content?.url} 
-                        alt={`Gallery ${index + 1}`}
-                        className="w-20 h-14 object-cover rounded"
-                      />
+                    {getContent('gallery', key, 'url') && (
+                      <img src={getContent('gallery', key, 'url')} alt={`Gallery ${index + 1}`} className="w-20 h-14 object-cover rounded" />
                     )}
-                    <div className="flex-1">
-                      <Label className="text-xs text-gray-500">Image {index + 1} URL</Label>
-                      <Input
-                        value={content[key]?.content?.url || ''}
-                        onChange={(e) => updateField(key, 'url', e.target.value)}
-                        placeholder="https://images.unsplash.com/..."
-                        data-testid={`gallery-image-${index}-input`}
-                        className="mb-2"
-                      />
-                      <Input
-                        value={content[key]?.content?.caption || ''}
-                        onChange={(e) => updateField(key, 'caption', e.target.value)}
-                        placeholder="Caption"
-                        data-testid={`gallery-caption-${index}-input`}
-                        className="text-sm"
-                      />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          value={getContent('gallery', key, 'url')}
+                          onChange={(e) => updateField(`gallery_${key}`, 'url', e.target.value)}
+                          placeholder="Image URL"
+                          className="flex-1"
+                        />
+                        <Button variant="outline" size="sm" onClick={() => openMediaUpload(`gallery_${key}`, 'url')}>
+                          <Upload className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          value={getContent('gallery', key, 'caption')}
+                          onChange={(e) => updateField(`gallery_${key}`, 'caption', e.target.value)}
+                          placeholder="Caption"
+                          className="flex-1"
+                        />
+                        <select
+                          value={getContent('gallery', key, 'category', 'general')}
+                          onChange={(e) => updateField(`gallery_${key}`, 'category', e.target.value)}
+                          className="border rounded px-2 text-sm"
+                        >
+                          <option value="general">General</option>
+                          <option value="rooms">Rooms</option>
+                          <option value="facilities">Facilities</option>
+                          <option value="restaurant">Restaurant</option>
+                          <option value="events">Events</option>
+                        </select>
+                      </div>
                     </div>
                     <Button
-                      onClick={() => saveContent('gallery', `gallery_item_${index}`, 'image', {
-                        ...content[key]?.content,
-                        order: index
-                      })}
+                      onClick={() => saveContent('gallery', key, 'image', { ...content[`gallery_${key}`]?.content, order: index })}
                       disabled={isSaving}
                       size="sm"
                       className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -477,113 +565,94 @@ const ContentManagement = () => {
                 );
               })}
             </div>
-          </div>
+          </ContentSection>
         </TabsContent>
 
-        {/* Footer Content */}
+        {/* ==================== FOOTER ==================== */}
         <TabsContent value="footer" className="space-y-6">
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <h3 className="font-display text-lg font-semibold text-gray-900 mb-4">Informasi Footer</h3>
+          <ContentSection title="Informasi Kontak">
             <div className="space-y-4">
               <div>
                 <Label>Alamat</Label>
                 <Textarea
-                  value={content['global_footer']?.content?.address || ''}
+                  value={getContent('global', 'footer', 'address')}
                   onChange={(e) => updateField('global_footer', 'address', e.target.value)}
                   placeholder="Jl. Raya Selecta No. 1, Batu, East Java"
-                  data-testid="footer-address-input"
+                  rows={2}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Telepon</Label>
-                  <Input
-                    value={content['global_footer']?.content?.phone || ''}
-                    onChange={(e) => updateField('global_footer', 'phone', e.target.value)}
-                    placeholder="+62 813 3448 0210"
-                    data-testid="footer-phone-input"
-                  />
+                  <Input value={getContent('global', 'footer', 'phone')} onChange={(e) => updateField('global_footer', 'phone', e.target.value)} placeholder="+62 813 3448 0210" />
                 </div>
                 <div>
                   <Label>Email</Label>
-                  <Input
-                    value={content['global_footer']?.content?.email || ''}
-                    onChange={(e) => updateField('global_footer', 'email', e.target.value)}
-                    placeholder="info@spencergreen.com"
-                    data-testid="footer-email-input"
-                  />
+                  <Input value={getContent('global', 'footer', 'email')} onChange={(e) => updateField('global_footer', 'email', e.target.value)} placeholder="info@spencergreen.com" />
                 </div>
               </div>
+            </div>
+          </ContentSection>
 
-              <div className="border-t pt-4 mt-4">
-                <h4 className="font-medium text-gray-900 mb-3">Social Media Links</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>TikTok URL</Label>
-                    <Input
-                      value={content['global_footer']?.content?.tiktok || ''}
-                      onChange={(e) => updateField('global_footer', 'tiktok', e.target.value)}
-                      placeholder="https://tiktok.com/@spencergreenhotel"
-                      data-testid="footer-tiktok-input"
-                    />
-                  </div>
-                  <div>
-                    <Label>Instagram URL</Label>
-                    <Input
-                      value={content['global_footer']?.content?.instagram || ''}
-                      onChange={(e) => updateField('global_footer', 'instagram', e.target.value)}
-                      placeholder="https://instagram.com/spencergreenhotel"
-                      data-testid="footer-instagram-input"
-                    />
-                  </div>
-                  <div>
-                    <Label>Facebook URL</Label>
-                    <Input
-                      value={content['global_footer']?.content?.facebook || ''}
-                      onChange={(e) => updateField('global_footer', 'facebook', e.target.value)}
-                      placeholder="https://facebook.com/spencergreenhotel"
-                      data-testid="footer-facebook-input"
-                    />
-                  </div>
-                  <div>
-                    <Label>WhatsApp Number</Label>
-                    <Input
-                      value={content['global_footer']?.content?.whatsapp || ''}
-                      onChange={(e) => updateField('global_footer', 'whatsapp', e.target.value)}
-                      placeholder="6281334480210"
-                      data-testid="footer-whatsapp-input"
-                    />
-                  </div>
+          <ContentSection title="Social Media Links">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>TikTok URL</Label>
+                  <Input value={getContent('global', 'footer', 'tiktok')} onChange={(e) => updateField('global_footer', 'tiktok', e.target.value)} placeholder="https://tiktok.com/@..." />
+                </div>
+                <div>
+                  <Label>Instagram URL</Label>
+                  <Input value={getContent('global', 'footer', 'instagram')} onChange={(e) => updateField('global_footer', 'instagram', e.target.value)} placeholder="https://instagram.com/..." />
+                </div>
+                <div>
+                  <Label>Facebook URL</Label>
+                  <Input value={getContent('global', 'footer', 'facebook')} onChange={(e) => updateField('global_footer', 'facebook', e.target.value)} placeholder="https://facebook.com/..." />
+                </div>
+                <div>
+                  <Label>WhatsApp Number</Label>
+                  <Input value={getContent('global', 'footer', 'whatsapp')} onChange={(e) => updateField('global_footer', 'whatsapp', e.target.value)} placeholder="6281334480210" />
                 </div>
               </div>
-
-              <Button
-                onClick={() => saveContent('global', 'footer', 'info', content['global_footer']?.content || {})}
-                disabled={isSaving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                data-testid="save-footer-btn"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Simpan Footer
+              <Button onClick={() => saveContent('global', 'footer', 'info', content['global_footer']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Footer
               </Button>
             </div>
-          </div>
+          </ContentSection>
+
+          <ContentSection title="Google Maps">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Latitude</Label>
+                  <Input value={getContent('global', 'map', 'lat')} onChange={(e) => updateField('global_map', 'lat', e.target.value)} placeholder="-7.8332533" />
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <Input value={getContent('global', 'map', 'lng')} onChange={(e) => updateField('global_map', 'lng', e.target.value)} placeholder="112.5288334" />
+                </div>
+              </div>
+              <Button onClick={() => saveContent('global', 'map', 'location', content['global_map']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Lokasi
+              </Button>
+            </div>
+          </ContentSection>
         </TabsContent>
       </Tabs>
 
-      {/* Image Upload Dialog */}
-      <Dialog open={showImageUpload} onOpenChange={setShowImageUpload}>
+      {/* Media Upload Dialog */}
+      <Dialog open={showMediaUpload} onOpenChange={setShowMediaUpload}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Upload Image</DialogTitle>
+            <DialogTitle>Upload Media</DialogTitle>
           </DialogHeader>
           <MediaUpload
-            uploadEndpoint="/media/upload/content-image?section=general"
-            acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
-            maxFileSize={10 * 1024 * 1024}
-            title="Upload Content Image"
-            description="Max 10MB, JPEG/PNG/WebP"
-            onUploadSuccess={handleImageUploadSuccess}
+            uploadEndpoint={`/media/upload/content-image?section=${uploadTarget?.key?.split('_')[0] || 'general'}`}
+            acceptedTypes={uploadTarget?.mediaType === 'video' ? ['video/mp4', 'video/quicktime'] : ['image/jpeg', 'image/png', 'image/webp']}
+            maxFileSize={uploadTarget?.mediaType === 'video' ? 500 * 1024 * 1024 : 10 * 1024 * 1024}
+            title={uploadTarget?.mediaType === 'video' ? 'Upload Video' : 'Upload Image'}
+            description={uploadTarget?.mediaType === 'video' ? 'Max 500MB, MP4/MOV' : 'Max 10MB, JPEG/PNG/WebP'}
+            onUploadSuccess={handleMediaUpload}
           />
         </DialogContent>
       </Dialog>
