@@ -63,7 +63,7 @@ async def translate_content(text: str, target_language: str) -> str:
         user_message = UserMessage(text=f"Translate this to {target}: {text}")
         response = await chat.send_message(user_message)
         return response.strip()
-    except Exception as e:
+    except Exception:
         return text  # Return original if translation fails
 
 async def generate_meta_content(page_name: str, page_content: str) -> dict:
@@ -92,8 +92,8 @@ async def generate_meta_content(page_name: str, page_content: str) -> dict:
             "title": title or f"Spencer Green Hotel Batu - {page_name}",
             "description": description or f"Experience luxury at Spencer Green Hotel in Batu, East Java. {page_name} - Book now for the best rates."
         }
-    except Exception as e:
+    except Exception:
         return {
             "title": f"Spencer Green Hotel Batu - {page_name}",
-            "description": f"Experience luxury at Spencer Green Hotel in Batu, East Java."
+            "description": "Experience luxury at Spencer Green Hotel in Batu, East Java."
         }
