@@ -763,12 +763,23 @@ const Home = () => {
                         </span>
                       ))}
                     </div>
-                    <Button 
-                      onClick={() => handleBookRoom(room)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
-                    >
-                      Book This Room
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={() => handlePlayVideo(room)}
+                        variant="outline"
+                        className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                        data-testid={`home-room-tour-outline-btn-${room.room_type_id}`}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Room Tour
+                      </Button>
+                      <Button 
+                        onClick={() => handleBookRoom(room)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                      >
+                        Book Now
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
