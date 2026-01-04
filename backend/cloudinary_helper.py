@@ -1,43 +1,224 @@
 import cloudinary
 import cloudinary.uploader
+from cloudinary.api import delete_resources_by_prefix
 import os
-from dotenv import load_dotenv
+import logging
+from typing import Optional, List
 
-load_dotenv()
+from config import CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+
+logger = logging.getLogger(__name__)
 
 # Configure Cloudinary
 cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
     secure=True
 )
 
-async def upload_to_cloudinary(file_content: bytes, resource_type: str = "image", folder: str = "hotel"):
-    """Upload file to Cloudinary"""
+# File type validations
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/jpg"}
+ALLOWED_VIDEO_TYPES = {"video/mp4", "video/quicktime", "video/mpeg"}
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
+
+
+async def upload_image(
+    file_content: bytes,
+    folder: str,
+    eager_transforms: Optional[List[dict]] = None
+) -> dict:
+    """
+    Upload an image to Cloudinary with automatic optimization.
+    
+    Args:
+        file_content: The file bytes to upload
+        folder: Cloudinary folder path (e.g., "spencer-green/rooms")
+        eager_transforms: List of eager transformations to apply
+    
+    Returns:
+        Dictionary containing upload response with public_id, secure_url, and metadata
+    """
     try:
-        result = cloudinary.uploader.upload(
-            file_content,
-            resource_type=resource_type,
-            folder=f"spencer-green/{folder}",
-            use_filename=True,
-            unique_filename=True
-        )
+        upload_params = {
+            "folder": f"spencer-green/{folder}",
+            "resource_type": "image",
+            "use_filename": True,
+            "unique_filename": True,
+            "quality": "auto",
+            "fetch_format": "auto"
+        }
+        
+        if eager_transforms:
+            upload_params["eager"] = eager_transforms
+        else:
+            # Default transformations for hotel images
+            upload_params["eager"] = [
+                {"width": 400, "height": 300, "crop": "fill", "gravity": "auto", "quality": "auto"},
+                {"width": 800, "height": 600, "crop": "fill", "gravity": "auto", "quality": "auto"}
+            ]
+        
+        result = cloudinary.uploader.upload(file_content, **upload_params)
+        
         return {
-            "url": result.get("secure_url"),
             "public_id": result.get("public_id"),
+            "secure_url": result.get("secure_url"),
+            "resource_type": result.get("resource_type"),
             "format": result.get("format"),
             "width": result.get("width"),
             "height": result.get("height"),
-            "resource_type": result.get("resource_type")
+            "bytes": result.get("bytes"),
+            "created_at": result.get("created_at"),
+            "eager": result.get("eager", [])
         }
     except Exception as e:
+        logger.error(f"Cloudinary image upload error: {str(e)}")
         raise Exception(f"Cloudinary upload error: {str(e)}")
 
-async def delete_from_cloudinary(public_id: str, resource_type: str = "image"):
-    """Delete file from Cloudinary"""
+
+async def upload_video(
+    file_content: bytes,
+    folder: str
+) -> dict:
+    """
+    Upload a video to Cloudinary with automatic transcoding and thumbnail generation.
+    
+    Args:
+        file_content: The video file bytes to upload
+        folder: Cloudinary folder path
+    
+    Returns:
+        Dictionary containing upload response with public_id, secure_url, duration, and thumbnails
+    """
     try:
-        result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
-        return result
+        upload_params = {
+            "folder": f"spencer-green/{folder}",
+            "resource_type": "video",
+            "use_filename": True,
+            "unique_filename": True,
+            "eager": [
+                {"width": 1280, "height": 720, "crop": "fill", "quality": "auto"},
+                {"fetch_format": "auto", "quality": "auto"}
+            ],
+            "eager_async": True
+        }
+        
+        result = cloudinary.uploader.upload(file_content, **upload_params)
+        
+        # Generate thumbnail URL
+        thumbnail_url = cloudinary.CloudinaryImage(result.get("public_id")).build_url(
+            resource_type="video",
+            format="jpg",
+            transformation=[
+                {"width": 400, "height": 300, "crop": "fill", "gravity": "auto"},
+                {"start_offset": "auto"}
+            ]
+        )
+        
+        return {
+            "public_id": result.get("public_id"),
+            "secure_url": result.get("secure_url"),
+            "resource_type": result.get("resource_type"),
+            "format": result.get("format"),
+            "width": result.get("width"),
+            "height": result.get("height"),
+            "duration": result.get("duration"),
+            "bytes": result.get("bytes"),
+            "created_at": result.get("created_at"),
+            "thumbnail_url": thumbnail_url,
+            "eager": result.get("eager", [])
+        }
     except Exception as e:
+        logger.error(f"Cloudinary video upload error: {str(e)}")
+        raise Exception(f"Cloudinary upload error: {str(e)}")
+
+
+async def delete_media(public_id: str, resource_type: str = "image") -> dict:
+    """
+    Delete a single media asset from Cloudinary.
+    
+    Args:
+        public_id: The public ID of the asset to delete
+        resource_type: Type of resource (image, video, raw)
+    
+    Returns:
+        Dictionary containing deletion result
+    """
+    try:
+        result = cloudinary.uploader.destroy(
+            public_id,
+            resource_type=resource_type,
+            invalidate=True
+        )
+        
+        if result.get("result") == "ok":
+            return {
+                "success": True,
+                "message": f"Media {public_id} deleted successfully",
+                "public_id": public_id
+            }
+        else:
+            return {
+                "success": False,
+                "message": f"Media {public_id} not found",
+                "public_id": public_id
+            }
+    except Exception as e:
+        logger.error(f"Cloudinary delete error: {str(e)}")
         raise Exception(f"Cloudinary delete error: {str(e)}")
+
+
+async def delete_folder(folder_path: str) -> dict:
+    """
+    Delete all media assets in a folder.
+    
+    Args:
+        folder_path: The folder path to delete (e.g., "spencer-green/rooms/room-123")
+    
+    Returns:
+        Dictionary containing deletion result
+    """
+    try:
+        result = delete_resources_by_prefix(folder_path, invalidate=True)
+        
+        return {
+            "success": True,
+            "deleted_count": result.get("deleted", {}),
+            "folder": folder_path
+        }
+    except Exception as e:
+        logger.error(f"Cloudinary folder delete error: {str(e)}")
+        raise Exception(f"Cloudinary folder delete error: {str(e)}")
+
+
+def validate_image_file(content_type: str, file_size: int) -> tuple:
+    """
+    Validate image file type and size.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        return False, "Only JPEG, PNG, and WebP images are allowed"
+    
+    if file_size > MAX_IMAGE_SIZE:
+        return False, f"Image size exceeds {MAX_IMAGE_SIZE // (1024*1024)}MB limit"
+    
+    return True, None
+
+
+def validate_video_file(content_type: str, file_size: int) -> tuple:
+    """
+    Validate video file type and size.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if content_type not in ALLOWED_VIDEO_TYPES:
+        return False, "Only MP4, MOV, and MPEG video formats are allowed"
+    
+    if file_size > MAX_VIDEO_SIZE:
+        return False, f"Video size exceeds {MAX_VIDEO_SIZE // (1024*1024)}MB limit"
+    
+    return True, None
