@@ -1,17 +1,222 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Play, X, Users } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, X, Users, Maximize2, Volume2, VolumeX, Pause } from 'lucide-react';
 import axios from 'axios';
-import { Dialog, DialogContent } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
+const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    const container = document.getElementById('video-modal-container');
+    if (container) {
+      if (!document.fullscreenElement) {
+        container.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
+      setProgress(progress);
+    }
+  };
+
+  const handleSeek = (e) => {
+    if (videoRef.current) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      videoRef.current.currentTime = percent * videoRef.current.duration;
+    }
+  };
+
+  const handleClose = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    setIsPlaying(false);
+    setProgress(0);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  // Check if it's a YouTube URL
+  const isYouTube = videoUrl?.includes('youtube.com') || videoUrl?.includes('youtu.be');
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+        onClick={handleClose}
+      >
+        <motion.div
+          id="video-modal-container"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="relative w-full max-w-5xl mx-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="absolute -top-12 left-0 right-0 flex items-center justify-between">
+            <h3 className="text-white font-display text-xl">
+              Room Tour: {roomName}
+            </h3>
+            <button
+              onClick={handleClose}
+              className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              data-testid="close-video-modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Video Container */}
+          <div className="relative bg-black rounded-xl overflow-hidden aspect-video shadow-2xl">
+            {isYouTube ? (
+              <iframe
+                src={videoUrl?.replace('watch?v=', 'embed/') + '?autoplay=1'}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={`Room Tour: ${roomName}`}
+              />
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="w-full h-full object-contain"
+                  onTimeUpdate={handleTimeUpdate}
+                  onEnded={() => setIsPlaying(false)}
+                  playsInline
+                  data-testid="room-tour-video"
+                />
+
+                {/* Video Controls Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center group">
+                  {/* Center Play/Pause Button */}
+                  <button
+                    onClick={togglePlay}
+                    className="w-20 h-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100"
+                    data-testid="video-play-pause"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-8 h-8" />
+                    ) : (
+                      <Play className="w-8 h-8 ml-1" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Bottom Controls */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Progress Bar */}
+                  <div 
+                    className="w-full h-1 bg-white/30 rounded-full cursor-pointer mb-3"
+                    onClick={handleSeek}
+                  >
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full transition-all"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+
+                  {/* Control Buttons */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={togglePlay}
+                        className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                      >
+                        {isPlaying ? (
+                          <Pause className="w-5 h-5" />
+                        ) : (
+                          <Play className="w-5 h-5 ml-0.5" />
+                        )}
+                      </button>
+                      <button
+                        onClick={toggleMute}
+                        className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                        data-testid="video-mute"
+                      >
+                        {isMuted ? (
+                          <VolumeX className="w-5 h-5" />
+                        ) : (
+                          <Volume2 className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={toggleFullscreen}
+                      className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                      data-testid="video-fullscreen"
+                    >
+                      <Maximize2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
-  const [selectedRoom, setSelectedRoom] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState({ url: '', name: '' });
 
   useEffect(() => {
     fetchRooms();
@@ -26,8 +231,9 @@ const Rooms = () => {
     }
   };
 
-  const handlePlayVideo = (url) => {
-    setVideoUrl(url || 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+  const handlePlayVideo = (room) => {
+    const videoUrl = room.video_url || 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4';
+    setSelectedVideo({ url: videoUrl, name: room.name });
     setShowVideoModal(true);
   };
 
@@ -68,27 +274,38 @@ const Rooms = () => {
                 }`}
                 data-testid={`room-detail-${room.room_type_id}`}
               >
+                {/* Room Image with Video Overlay */}
                 <div className={`${index % 2 === 1 ? 'lg:order-2' : ''}`}>
                   <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group">
                     <img
                       src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
                       alt={room.name}
-                      className="w-full h-full object-cover img-zoom"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {room.video_url && (
+                    
+                    {/* Video Play Overlay - Always visible with video icon */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
                       <button
-                        onClick={() => handlePlayVideo(room.video_url)}
+                        onClick={() => handlePlayVideo(room)}
                         data-testid={`room-video-btn-${room.room_type_id}`}
-                        className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute bottom-4 right-4 flex items-center gap-2 bg-white/90 hover:bg-white text-emerald-700 px-4 py-2 rounded-full transition-all shadow-lg hover:shadow-xl group-hover:scale-105"
                       >
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                          <Play className="w-6 h-6 text-emerald-600 ml-1" />
-                        </div>
+                        <Play className="w-5 h-5" />
+                        <span className="font-medium text-sm">Room Tour</span>
                       </button>
+                    </div>
+
+                    {/* Video Thumbnail indicator */}
+                    {room.video_thumbnail && (
+                      <div className="absolute top-4 left-4 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                        <Play className="w-3 h-3" />
+                        Video
+                      </div>
                     )}
                   </div>
                 </div>
 
+                {/* Room Details */}
                 <div className={`${index % 2 === 1 ? 'lg:order-1' : ''}`}>
                   <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">{room.name}</h2>
                   <p className="text-gray-600 leading-relaxed mb-6">{room.description}</p>
@@ -111,21 +328,34 @@ const Rooms = () => {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <span className="text-gray-400 text-sm">Starting from</span>
                       <p className="text-emerald-600 font-bold text-2xl">
-                        Rp {room.base_price.toLocaleString('id-ID')}
+                        Rp {room.base_price?.toLocaleString('id-ID')}
                         <span className="text-gray-400 text-sm font-normal">/night</span>
                       </p>
                     </div>
-                    <Button
-                      onClick={() => window.location.href = '/?book=' + room.room_type_id}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
-                      data-testid={`book-now-btn-${room.room_type_id}`}
-                    >
-                      Book Now
-                    </Button>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={() => handlePlayVideo(room)}
+                        variant="outline"
+                        className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                        data-testid={`room-tour-btn-${room.room_type_id}`}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Room Tour
+                      </Button>
+                      <Button
+                        onClick={() => window.location.href = '/?book=' + room.room_type_id}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                        data-testid={`book-now-btn-${room.room_type_id}`}
+                      >
+                        Book Now
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -135,24 +365,12 @@ const Rooms = () => {
       </section>
 
       {/* Video Modal */}
-      <Dialog open={showVideoModal} onOpenChange={setShowVideoModal}>
-        <DialogContent className="max-w-4xl p-0">
-          <button
-            onClick={() => setShowVideoModal(false)}
-            className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="aspect-video">
-            <iframe
-              src={videoUrl}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <VideoModal
+        isOpen={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        videoUrl={selectedVideo.url}
+        roomName={selectedVideo.name}
+      />
     </div>
   );
 };
