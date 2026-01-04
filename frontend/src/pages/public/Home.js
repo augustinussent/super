@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react';
+import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { cn } from '../../lib/utils';
+import ImageGalleryOverlay from '../../components/ImageGalleryOverlay';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
