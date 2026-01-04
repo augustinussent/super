@@ -6,6 +6,7 @@ from routes.promo import router as promo_router
 from routes.content import router as content_router
 from routes.admin import router as admin_router
 from routes.init import router as init_router
+from routes.media import router as media_router
 
 __all__ = [
     "auth_router",
@@ -15,5 +16,6 @@ __all__ = [
     "promo_router",
     "content_router",
     "admin_router",
-    "init_router"
+    "init_router",
+    "media_router"
 ]
