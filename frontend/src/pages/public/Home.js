@@ -210,7 +210,7 @@ const Home = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState({ url: '', name: '' });
   const [isSearching, setIsSearching] = useState(false);
   const [showAvailability, setShowAvailability] = useState(false);
   const [bookingForm, setBookingForm] = useState({
