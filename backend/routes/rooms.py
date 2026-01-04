@@ -26,6 +26,8 @@ async def get_room(room_type_id: str):
 async def create_room(room: RoomType, user: dict = Depends(require_admin)):
     room_doc = room.model_dump()
     await db.room_types.insert_one(room_doc)
+    # Exclude _id from response (MongoDB adds it during insert)
+    room_doc.pop("_id", None)
     return room_doc
 
 @router.put("/admin/rooms/{room_type_id}")
