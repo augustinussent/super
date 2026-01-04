@@ -733,12 +733,21 @@ const Home = () => {
               className={`relative ${index % 2 === 0 ? '' : ''}`}
             >
               <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
-                <div className={`relative h-[50vh] min-h-[400px] ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                <div className={`relative h-[50vh] min-h-[400px] ${index % 2 === 1 ? 'lg:col-start-2' : ''} group`}>
                   <img
                     src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
                     alt={room.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                  {/* Room Tour Button */}
+                  <button
+                    onClick={() => handlePlayVideo(room)}
+                    data-testid={`home-room-tour-btn-${room.room_type_id}`}
+                    className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 hover:bg-white text-emerald-700 px-5 py-3 rounded-full transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <Play className="w-5 h-5" />
+                    <span className="font-medium">Room Tour</span>
+                  </button>
                 </div>
                 <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
                   <div className="p-8 sm:p-10 lg:p-16 max-w-xl mx-auto">
