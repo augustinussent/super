@@ -971,6 +971,15 @@ const Home = () => {
         videoUrl={selectedVideo.url}
         roomName={selectedVideo.name}
       />
+
+      {/* Image Gallery Overlay */}
+      <ImageGalleryOverlay
+        images={galleryImages}
+        initialIndex={galleryIndex}
+        isOpen={showGallery}
+        onClose={() => setShowGallery(false)}
+        roomName={galleryRoomName}
+      />
     </div>
   );
 };
