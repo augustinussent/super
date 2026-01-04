@@ -18,8 +18,8 @@ async def generate_alt_text(image_url: str) -> str:
         user_message = UserMessage(text=f"Generate SEO alt text for this hotel image: {image_url}")
         response = await chat.send_message(user_message)
         return response.strip()
-    except Exception as e:
-        return f"Spencer Green Hotel Batu - Luxury accommodation in East Java"
+    except Exception:
+        return "Spencer Green Hotel Batu - Luxury accommodation in East Java"
 
 async def generate_copy(prompt: str, content_type: str = "general") -> str:
     """Generate marketing copy using AI"""
