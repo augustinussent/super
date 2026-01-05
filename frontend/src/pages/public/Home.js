@@ -450,7 +450,7 @@ const Home = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="hidden md:block absolute bottom-8 left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 lg:w-full lg:max-w-4xl xl:max-w-5xl"
+          className="hidden md:block absolute bottom-8 left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 lg:w-[90%] lg:max-w-4xl xl:max-w-5xl"
 >
           <div className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto" data-testid="booking-engine">
             <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">

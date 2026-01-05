@@ -29,3 +29,14 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+/* Menghilangkan scroll samping secara paksa di semua perangkat */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  overflow-x: hidden;
+}
