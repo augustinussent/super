@@ -59,7 +59,7 @@ const PublicLayout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-emerald-50/30">
+    <div className="min-h-screen flex flex-col bg-emerald-50/30 overflow-x-hidden relative">
       {/* Header - Always dark emerald */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-emerald-950 shadow-lg">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
