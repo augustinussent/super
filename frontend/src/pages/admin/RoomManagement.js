@@ -122,6 +122,28 @@ const RoomManagement = () => {
     setShowRoomModal(true);
   };
 
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-');
+};
+
+const moveImage = (index, direction) => {
+  const newImages = [...roomForm.images];
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+  if (targetIndex < 0 || targetIndex >= newImages.length) return;
+
+  [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
+
+  setRoomForm({ ...roomForm, images: newImages });
+  toast.info(`Urutan diperbarui: Foto ke-${targetIndex + 1} sekarang jadi foto ${targetIndex === 0 ? 'Utama' : ''}`);
+};
+
   const saveRoom = async () => {
     if (!roomForm.name || !roomForm.base_price) {
       toast.error('Nama dan harga wajib diisi');
@@ -631,20 +653,56 @@ const RoomManagement = () => {
               </Label>
               
               {roomForm.images.length > 0 && (
-                <div className="flex gap-2 flex-wrap mb-3">
-                  {roomForm.images.map((img, idx) => (
-                    <div key={idx} className="relative group">
-                      <img src={img} alt={`Room ${idx + 1}`} className="w-20 h-14 object-cover rounded" />
-                      <button
-                        onClick={() => removeImage(idx)}
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+  <div className="grid grid-cols-4 gap-3 mb-4">
+    {roomForm.images.map((img, idx) => (
+      <div key={idx} className="relative group border-2 border-transparent hover:border-emerald-500 rounded-lg overflow-hidden transition-all">
+        <img src={img} alt={`Room ${idx + 1}`} className="w-full h-20 object-cover" />
+        
+        {/* Label Foto Utama */}
+    {idx === 0 && (
+      <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
+        FOTO UTAMA
+      </div>
+      )}
+    
+    <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
+      {idx + 1}
+    </div>
+    
+        {/* Badge Urutan */}
+        <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
+          {idx === 0 ? 'UTAMA' : idx + 1}
+        </div>
+
+        {/* Tombol Kontrol (Muncul saat Hover) */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+          <button
+            onClick={() => moveImage(idx, 'up')}
+            disabled={idx === 0}
+            className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+          >
+            <ChevronLeft className="w-3 h-3" />
+          </button>
+          
+          <button
+            onClick={() => moveImage(idx, 'down')}
+            disabled={idx === roomForm.images.length - 1}
+            className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+          >
+            <ChevronRight className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={() => removeImage(idx)}
+            className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
               <Button
                 type="button"
@@ -796,13 +854,17 @@ const RoomManagement = () => {
             <DialogTitle>Upload Foto Kamar</DialogTitle>
           </DialogHeader>
           <MediaUpload
-            uploadEndpoint={editingRoom ? `/media/upload/room-image?room_type_id=${editingRoom.room_type_id}` : "/media/upload/gallery?category=rooms"}
-            acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
-            maxFileSize={10 * 1024 * 1024}
-            title="Upload Room Image"
-            description="Max 10MB, JPEG/PNG/WebP"
-            onUploadSuccess={handleImageUpload}
-          />
+            uploadEndpoint={
+    editingRoom 
+      ? `/media/upload/room-image?room_type_id=${editingRoom.room_type_id}&filename=${slugify(roomForm.name)}` 
+      : `/media/upload/gallery?category=rooms&filename=${slugify(roomForm.name || 'kamar-baru')}`
+  }
+  acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+  maxFileSize={10 * 1024 * 1024}
+  title="Upload Foto Kamar"
+  description="Max 10MB. Nama file akan otomatis disesuaikan dengan nama kamar."
+  onUploadSuccess={handleImageUpload}
+/>
         </DialogContent>
       </Dialog>
 

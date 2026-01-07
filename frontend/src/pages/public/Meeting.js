@@ -140,7 +140,7 @@ const Meeting = () => {
             Our dedicated events team is ready to help you create a memorable experience
           </p>
           <a 
-            href="https://wa.me/6281334480210?text=Hi,%20I%20want%20to%20inquire%20about%20meeting%20packages"
+            href="https://wa.me/6281130700206?text=Hi,%20I%20want%20to%20inquire%20about%20meeting%20packages"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center bg-white text-emerald-800 px-8 py-4 rounded-full font-semibold hover:bg-emerald-50 transition-colors"
