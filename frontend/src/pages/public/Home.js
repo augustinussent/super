@@ -886,9 +886,49 @@ const Home = () => {
                 />
                 <div>
                   <h4 className="font-semibold text-gray-900">{selectedRoom.name}</h4>
-                  <p className="text-sm text-gray-500">
-                    {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
-                  </p>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+  <div className="space-y-1">
+    <Label className="text-[10px] uppercase font-bold text-emerald-700">Check-in</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start text-left font-normal h-9 text-xs border-emerald-200 bg-white">
+          <Calendar className="mr-2 h-3 w-3 text-emerald-600" />
+          {format(checkIn, 'dd MMM yyyy')}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <CalendarComponent
+          mode="single"
+          selected={checkIn}
+          onSelect={handleCheckInSelect}
+          disabled={(date) => isBefore(date, startOfToday())}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
+
+  <div className="space-y-1">
+    <Label className="text-[10px] uppercase font-bold text-emerald-700">Check-out</Label>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-full justify-start text-left font-normal h-9 text-xs border-emerald-200 bg-white">
+          <Calendar className="mr-2 h-3 w-3 text-emerald-600" />
+          {format(checkOut, 'dd MMM yyyy')}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <CalendarComponent
+          mode="single"
+          selected={checkOut}
+          onSelect={setCheckOut}
+          disabled={(date) => isBefore(date, addDays(checkIn, 1))}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  </div>
+</div>
                   <p className="text-emerald-600 font-bold">
                     Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
                   </p>
