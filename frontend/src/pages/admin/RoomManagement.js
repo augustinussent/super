@@ -63,8 +63,8 @@ const openCloudinaryWidget = (type = 'image') => {
 
     window.cloudinary.openMediaLibrary(
       {
-        cloud_name: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME, // Menggunakan .env
-        api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,      // Menggunakan .env
+        cloud_name: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
 
         insert_caption: 'Pilih Media Kamar',
         multiple: type === 'image', 
@@ -581,7 +581,6 @@ const moveImage = (index, direction) => {
                   ))}
                 </tbody>
               </table>
-            </div>
           </div>
         </TabsContent>
       </Tabs>
