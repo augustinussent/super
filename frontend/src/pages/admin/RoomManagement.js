@@ -581,6 +581,7 @@ const moveImage = (index, direction) => {
                   ))}
                 </tbody>
               </table>
+              </div>
           </div>
         </TabsContent>
       </Tabs>
@@ -714,6 +715,7 @@ const moveImage = (index, direction) => {
                     <Button type="button" variant="outline" className="w-full" onClick={() => openCloudinaryWidget('video')}><Search className="w-4 h-4 mr-2" /> Browse Video</Button>
                   </div>
                 </div>
+                )}
             </div>
 
             <div className="flex gap-3 pt-4">
