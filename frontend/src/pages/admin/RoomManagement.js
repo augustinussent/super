@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Calendar, ChevronLeft, ChevronRight, Image, Play, Users, DollarSign, Search, Link as LinkIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Save, X, Calendar, ChevronLeft, ChevronRight, Image, Play, Users, DollarSign } from 'lucide-react';
 import { format, addDays, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -24,15 +24,12 @@ const RoomManagement = () => {
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
   const [roomToDelete, setRoomToDelete] = useState(null);
-  
-    // Inventory state
+
+  // Inventory state
   const [viewMode, setViewMode] = useState('week');
   const [startDate, setStartDate] = useState(startOfToday());
   const [editingCell, setEditingCell] = useState(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
-  
-  const [tempImageUrl, setTempImageUrl] = useState('');
-  const [tempVideoUrl, setTempVideoUrl] = useState('');
 
   const [roomForm, setRoomForm] = useState({
     name: '',
@@ -55,46 +52,6 @@ const RoomManagement = () => {
 
   const getToken = () => localStorage.getItem('token');
 
-const openCloudinaryWidget = (type = 'image') => {
-    if (!window.cloudinary) {
-      toast.error("Library Cloudinary gagal dimuat. Cek index.html Anda.");
-      return;
-    }
-
-    window.cloudinary.openMediaLibrary(
-      {
-        cloud_name: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
-
-        insert_caption: 'Pilih Media Kamar',
-        multiple: type === 'image', 
-      },
-      {
-        insertHandler: (data) => {
-          if (type === 'image') {
-            const newUrls = data.assets.map(asset => asset.secure_url);
-            setRoomForm(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
-            toast.success(`${newUrls.length} Foto ditambahkan`);
-          } else {
-            setRoomForm(prev => ({ ...prev, video_url: data.assets[0].secure_url }));
-            toast.success('Video berhasil dipilih');
-          }
-        }
-      }
-    );
-  };
-
-  const handleAddLinkImage = () => {
-    if (!tempImageUrl) return;
-    if (!tempImageUrl.startsWith('http')) {
-      toast.error('Masukkan link URL yang valid');
-      return;
-    }
-    setRoomForm(prev => ({ ...prev, images: [...prev.images, tempImageUrl] }));
-    setTempImageUrl('');
-    toast.success('Link gambar berhasil ditambahkan');
-  };
-
   const fetchRooms = async () => {
     try {
       const response = await axios.get(`${API_URL}/rooms`);
@@ -112,7 +69,7 @@ const openCloudinaryWidget = (type = 'image') => {
   const fetchInventory = async () => {
     const days = viewMode === 'week' ? 7 : 30;
     const endDate = addDays(startDate, days);
-    
+
     try {
       const response = await axios.get(`${API_URL}/inventory`, {
         params: {
@@ -165,27 +122,27 @@ const openCloudinaryWidget = (type = 'image') => {
     setShowRoomModal(true);
   };
 
-const slugify = (text) => {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-');
-};
+  const slugify = (text) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]+/g, '')
+      .replace(/--+/g, '-');
+  };
 
-const moveImage = (index, direction) => {
-  const newImages = [...roomForm.images];
-  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  const moveImage = (index, direction) => {
+    const newImages = [...roomForm.images];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
 
-  if (targetIndex < 0 || targetIndex >= newImages.length) return;
+    if (targetIndex < 0 || targetIndex >= newImages.length) return;
 
-  [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
+    [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
 
-  setRoomForm({ ...roomForm, images: newImages });
-  toast.info(`Urutan diperbarui: Foto ke-${targetIndex + 1} sekarang jadi foto ${targetIndex === 0 ? 'Utama' : ''}`);
-};
+    setRoomForm({ ...roomForm, images: newImages });
+    toast.info(`Urutan diperbarui: Foto ke-${targetIndex + 1} sekarang jadi foto ${targetIndex === 0 ? 'Utama' : ''}`);
+  };
 
   const saveRoom = async () => {
     if (!roomForm.name || !roomForm.base_price) {
@@ -276,7 +233,7 @@ const moveImage = (index, direction) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const existing = getInventoryForDate(roomId, date);
     const room = rooms.find(r => r.room_type_id === roomId);
-    
+
     const updateData = {
       room_type_id: roomId,
       date: dateStr,
@@ -398,7 +355,7 @@ const moveImage = (index, direction) => {
                   <div className="lg:col-span-2 p-6">
                     <h3 className="font-display text-xl font-semibold text-gray-900 mb-2">{room.name}</h3>
                     <p className="text-gray-500 text-sm mb-4 line-clamp-2">{room.description}</p>
-                    
+
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
@@ -493,7 +450,7 @@ const moveImage = (index, direction) => {
             <button onClick={() => navigateDates('prev')} className="p-2 hover:bg-gray-100 rounded-lg" data-testid="prev-dates-btn">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            
+
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-emerald-600" />
               <span className="font-medium">
@@ -524,20 +481,36 @@ const moveImage = (index, direction) => {
                 </thead>
                 <tbody>
                   {rooms.map((room) => (
-                    <React.Fragment key={room.room_type_id}>
+                    <>
                       {/* Allotment Row */}
-                      <tr className="border-t">
+                      <tr key={`${room.room_type_id}-allotment`} className="border-t">
                         <td className="sticky left-0 bg-white px-4 py-2 font-medium text-gray-900" rowSpan={3}>{room.name}</td>
                         <td className="px-2 py-2 text-sm text-gray-500">Allot</td>
                         {getDays().map((day) => {
                           const inv = getInventoryForDate(room.room_type_id, day);
                           const cellKey = `${room.room_type_id}-${format(day, 'yyyy-MM-dd')}-allotment`;
+
                           return (
                             <td key={cellKey} className="px-1 py-1 text-center">
                               {editingCell === cellKey ? (
-                                <Input type="number" defaultValue={inv?.allotment ?? 5} className="w-16 h-8 text-center text-sm" autoFocus onBlur={(e) => handleCellUpdate(room.room_type_id, day, 'allotment', e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleCellUpdate(room.room_type_id, day, 'allotment', e.target.value); else if (e.key === 'Escape') setEditingCell(null); }} />
+                                <Input
+                                  type="number"
+                                  defaultValue={inv?.allotment ?? 5}
+                                  className="w-16 h-8 text-center text-sm"
+                                  autoFocus
+                                  onBlur={(e) => handleCellUpdate(room.room_type_id, day, 'allotment', e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleCellUpdate(room.room_type_id, day, 'allotment', e.target.value);
+                                    else if (e.key === 'Escape') setEditingCell(null);
+                                  }}
+                                />
                               ) : (
-                                <button onClick={() => setEditingCell(cellKey)} className={`w-full py-1 text-sm rounded transition-colors ${inv?.is_closed ? 'bg-red-100 text-red-600' : 'hover:bg-emerald-50'}`}>{inv?.allotment ?? 5}</button>
+                                <button
+                                  onClick={() => setEditingCell(cellKey)}
+                                  className={`w-full py-1 text-sm rounded transition-colors ${inv?.is_closed ? 'bg-red-100 text-red-600' : 'hover:bg-emerald-50'}`}
+                                >
+                                  {inv?.allotment ?? 5}
+                                </button>
                               )}
                             </td>
                           );
@@ -551,12 +524,28 @@ const moveImage = (index, direction) => {
                           const inv = getInventoryForDate(room.room_type_id, day);
                           const cellKey = `${room.room_type_id}-${format(day, 'yyyy-MM-dd')}-rate`;
                           const rate = inv?.rate ?? room.base_price;
+
                           return (
                             <td key={cellKey} className="px-1 py-1 text-center">
                               {editingCell === cellKey ? (
-                                <Input type="number" defaultValue={rate} className="w-20 h-8 text-center text-xs" autoFocus onBlur={(e) => handleCellUpdate(room.room_type_id, day, 'rate', e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleCellUpdate(room.room_type_id, day, 'rate', e.target.value); else if (e.key === 'Escape') setEditingCell(null); }} />
+                                <Input
+                                  type="number"
+                                  defaultValue={rate}
+                                  className="w-20 h-8 text-center text-xs"
+                                  autoFocus
+                                  onBlur={(e) => handleCellUpdate(room.room_type_id, day, 'rate', e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleCellUpdate(room.room_type_id, day, 'rate', e.target.value);
+                                    else if (e.key === 'Escape') setEditingCell(null);
+                                  }}
+                                />
                               ) : (
-                                <button onClick={() => setEditingCell(cellKey)} className={`w-full py-1 text-xs rounded transition-colors ${inv?.is_closed ? 'bg-red-100 text-red-600' : 'hover:bg-emerald-50'}`}>{(rate / 1000).toFixed(0)}K</button>
+                                <button
+                                  onClick={() => setEditingCell(cellKey)}
+                                  className={`w-full py-1 text-xs rounded transition-colors ${inv?.is_closed ? 'bg-red-100 text-red-600' : 'hover:bg-emerald-50'}`}
+                                >
+                                  {(rate / 1000).toFixed(0)}K
+                                </button>
                               )}
                             </td>
                           );
@@ -568,20 +557,24 @@ const moveImage = (index, direction) => {
                         <td className="px-2 py-2 text-sm text-gray-500">Close</td>
                         {getDays().map((day) => {
                           const inv = getInventoryForDate(room.room_type_id, day);
+
                           return (
                             <td key={`${room.room_type_id}-${format(day, 'yyyy-MM-dd')}-close`} className="px-1 py-1 text-center">
-                              <button onClick={() => handleCellUpdate(room.room_type_id, day, 'is_closed', inv?.is_closed ? 'false' : 'true')} className={`w-full py-1 text-xs rounded transition-colors ${inv?.is_closed ? 'bg-red-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}>
+                              <button
+                                onClick={() => handleCellUpdate(room.room_type_id, day, 'is_closed', inv?.is_closed ? 'false' : 'true')}
+                                className={`w-full py-1 text-xs rounded transition-colors ${inv?.is_closed ? 'bg-red-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}
+                              >
                                 {inv?.is_closed ? <X className="w-4 h-4 mx-auto" /> : '-'}
                               </button>
                             </td>
                           );
                         })}
                       </tr>
-                    </React.Fragment>
+                    </>
                   ))}
                 </tbody>
               </table>
-              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
@@ -652,39 +645,75 @@ const moveImage = (index, direction) => {
               </div>
             </div>
 
-
             {/* Images Section */}
-            <div className="space-y-4">
+            <div>
               <Label className="flex items-center gap-2 mb-3">
                 <Image className="w-4 h-4" />
                 Foto Kamar
               </Label>
-              
+
               {roomForm.images.length > 0 && (
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   {roomForm.images.map((img, idx) => (
                     <div key={idx} className="relative group border-2 border-transparent hover:border-emerald-500 rounded-lg overflow-hidden transition-all">
                       <img src={img} alt={`Room ${idx + 1}`} className="w-full h-20 object-cover" />
-                      {idx === 0 && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">FOTO UTAMA</div>}
-                      <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">{idx + 1}</div>
+
+                      {/* Label Foto Utama */}
+                      {idx === 0 && (
+                        <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
+                          FOTO UTAMA
+                        </div>
+                      )}
+
+                      <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
+                        {idx + 1}
+                      </div>
+
+                      {/* Badge Urutan */}
+                      <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
+                        {idx === 0 ? 'UTAMA' : idx + 1}
+                      </div>
+
+                      {/* Tombol Kontrol (Muncul saat Hover) */}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
-                        <button onClick={() => moveImage(idx, 'up')} disabled={idx === 0} className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"><ChevronLeft className="w-3 h-3" /></button>
-                        <button onClick={() => moveImage(idx, 'down')} disabled={idx === roomForm.images.length - 1} className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"><ChevronRight className="w-3 h-3" /></button>
-                        <button onClick={() => removeImage(idx)} className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"><X className="w-3 h-3" /></button>
+                        <button
+                          onClick={() => moveImage(idx, 'up')}
+                          disabled={idx === 0}
+                          className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+
+                        <button
+                          onClick={() => moveImage(idx, 'down')}
+                          disabled={idx === roomForm.images.length - 1}
+                          className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+
+                        <button
+                          onClick={() => removeImage(idx)}
+                          className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-              {/* Fitur Baru: Link & Browse Cloudinary */}
-              <div className="flex gap-2 mb-3">
-                <Input placeholder="Paste URL Cloudinary Gambar..." value={tempImageUrl} onChange={(e) => setTempImageUrl(e.target.value)} />
-                <Button type="button" variant="secondary" onClick={handleAddLinkImage}><LinkIcon className="w-4 h-4 mr-2" /> Link</Button>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Button type="button" variant="outline" onClick={() => setShowImageUpload(true)} className="w-full" data-testid="upload-room-image-btn"><Plus className="w-4 h-4 mr-2" /> Tambah Foto</Button>
-                <Button type="button" variant="outline" className="w-full border-emerald-200 hover:bg-emerald-50 text-emerald-700" onClick={() => openCloudinaryWidget('image')}><Search className="w-4 h-4 mr-2" /> Browse Cloudinary</Button>
-              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowImageUpload(true)}
+                className="w-full"
+                data-testid="upload-room-image-btn"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Foto
+              </Button>
             </div>
 
             {/* Video Section */}
@@ -693,7 +722,7 @@ const moveImage = (index, direction) => {
                 <Play className="w-4 h-4" />
                 Video Room Tour
               </Label>
-              
+
               {roomForm.video_url ? (
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                   <video src={roomForm.video_url} className="w-32 h-20 object-cover rounded" />
@@ -705,17 +734,17 @@ const moveImage = (index, direction) => {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input placeholder="Paste URL Video..." value={tempVideoUrl} onChange={(e) => setTempVideoUrl(e.target.value)} />
-                    <Button type="button" variant="secondary" onClick={() => { setRoomForm({...roomForm, video_url: tempVideoUrl}); setTempVideoUrl(''); }}>Set Link</Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button type="button" variant="outline" onClick={() => setShowVideoUpload(true)} className="w-full" data-testid="upload-room-video-btn"><Plus className="w-4 h-4 mr-2" /> Tambah Video</Button>
-                    <Button type="button" variant="outline" className="w-full" onClick={() => openCloudinaryWidget('video')}><Search className="w-4 h-4 mr-2" /> Browse Video</Button>
-                  </div>
-                </div>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowVideoUpload(true)}
+                  className="w-full"
+                  data-testid="upload-room-video-btn"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Tambah Video
+                </Button>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">
@@ -738,7 +767,7 @@ const moveImage = (index, direction) => {
             <DialogTitle>Hapus Kamar?</DialogTitle>
           </DialogHeader>
           <p className="text-gray-500">
-            Apakah Anda yakin ingin menghapus <strong>{roomToDelete?.name}</strong>? 
+            Apakah Anda yakin ingin menghapus <strong>{roomToDelete?.name}</strong>?
             Kamar ini akan dinonaktifkan dan tidak tampil di booking engine.
           </p>
           <div className="flex gap-3 pt-4">
@@ -826,16 +855,16 @@ const moveImage = (index, direction) => {
           </DialogHeader>
           <MediaUpload
             uploadEndpoint={
-    editingRoom 
-      ? `/media/upload/room-image?room_type_id=${editingRoom.room_type_id}&filename=${slugify(roomForm.name)}` 
-      : `/media/upload/gallery?category=rooms&filename=${slugify(roomForm.name || 'kamar-baru')}`
-  }
-  acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
-  maxFileSize={10 * 1024 * 1024}
-  title="Upload Foto Kamar"
-  description="Max 10MB. Nama file akan otomatis disesuaikan dengan nama kamar."
-  onUploadSuccess={handleImageUpload}
-/>
+              editingRoom
+                ? `/media/upload/room-image?room_type_id=${editingRoom.room_type_id}&filename=${slugify(roomForm.name)}`
+                : `/media/upload/gallery?category=rooms&filename=${slugify(roomForm.name || 'kamar-baru')}`
+            }
+            acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+            maxFileSize={10 * 1024 * 1024}
+            title="Upload Foto Kamar"
+            description="Max 10MB. Nama file akan otomatis disesuaikan dengan nama kamar."
+            onUploadSuccess={handleImageUpload}
+          />
         </DialogContent>
       </Dialog>
 

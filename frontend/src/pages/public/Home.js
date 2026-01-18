@@ -160,11 +160,11 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
 
                 {/* Bottom Controls */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div 
+                  <div
                     className="w-full h-1 bg-white/30 rounded-full cursor-pointer mb-3"
                     onClick={handleSeek}
                   >
-                    <div 
+                    <div
                       className="h-full bg-emerald-500 rounded-full transition-all"
                       style={{ width: `${progress}%` }}
                     />
@@ -227,7 +227,7 @@ const Home = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const offersRef = useRef(null);
-  
+
   // Gallery state
   const [showGallery, setShowGallery] = useState(false);
   const [galleryImages, setGalleryImages] = useState([]);
@@ -383,11 +383,11 @@ const Home = () => {
         check_out: format(checkOut, 'yyyy-MM-dd'),
         guests
       });
-      
+
       toast.success('Booking successful! Check your email for confirmation.');
       setShowBookingModal(false);
       setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '' });
-      
+
       const waNumber = '6281130700206';
       const message = `Hi, I just made a booking with code ${response.data.booking_code}. I would like to complete the payment.`;
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
@@ -420,10 +420,10 @@ const Home = () => {
     <div className="bg-emerald-50/30">
       {/* Hero Section */}
       <section className="relative h-[100svh] min-h-[600px]">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ 
-            backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'})` 
+          style={{
+            backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'})`
           }}
         >
           <div className="absolute inset-0 hero-overlay" />
@@ -447,17 +447,17 @@ const Home = () => {
 
         {/* Booking Engine - Desktop Only, positioned inside viewport */}
         <motion.div
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.5, duration: 0.6 }}
-  // PERBAIKAN TOTAL: Gunakan inset-x-0 dan mx-auto agar elemen otomatis di tengah tanpa perlu translate-x
-  className="hidden md:block absolute bottom-8 inset-x-0 z-30 px-4"
->
-  <div 
-    className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-full max-w-4xl xl:max-w-5xl border border-emerald-100/50" 
-    data-testid="booking-engine"
-  >
-    <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          // PERBAIKAN TOTAL: Gunakan inset-x-0 dan mx-auto agar elemen otomatis di tengah tanpa perlu translate-x
+          className="hidden md:block absolute bottom-8 inset-x-0 z-30 px-4"
+        >
+          <div
+            className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-full max-w-4xl xl:max-w-5xl border border-emerald-100/50"
+            data-testid="booking-engine"
+          >
+            <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">
               {/* Check-in */}
               <div>
                 <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
@@ -582,7 +582,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div 
+          <div
             ref={offersRef}
             className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -806,7 +806,7 @@ const Home = () => {
                         <Play className="w-4 h-4 mr-2" />
                         Room Tour
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => handleBookRoom(room)}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                       >
@@ -886,56 +886,14 @@ const Home = () => {
                 />
                 <div>
                   <h4 className="font-semibold text-gray-900">{selectedRoom.name}</h4>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-  <div className="space-y-1">
-    <Label className="text-[10px] uppercase font-bold text-emerald-700">Check-in</Label>
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full justify-start text-left font-normal h-9 text-xs border-emerald-200 bg-white">
-          <Calendar className="mr-2 h-3 w-3 text-emerald-600" />
-          {format(checkIn, 'dd MMM yyyy')}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <CalendarComponent
-          mode="single"
-          selected={checkIn}
-          onSelect={handleCheckInSelect}
-          disabled={(date) => isBefore(date, startOfToday())}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  </div>
-
-  <div className="space-y-1">
-    <Label className="text-[10px] uppercase font-bold text-emerald-700">Check-out</Label>
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full justify-start text-left font-normal h-9 text-xs border-emerald-200 bg-white">
-          <Calendar className="mr-2 h-3 w-3 text-emerald-600" />
-          {format(checkOut, 'dd MMM yyyy')}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <CalendarComponent
-          mode="single"
-          selected={checkOut}
-          onSelect={setCheckOut}
-          disabled={(date) => isBefore(date, addDays(checkIn, 1))}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  </div>
-</div>
+                  <p className="text-sm text-gray-500">
+                    {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
+                  </p>
                   <p className="text-emerald-600 font-bold">
                     Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
                   </p>
                 </div>
               </div>
-
-
 
               <div className="space-y-4">
                 <div>
