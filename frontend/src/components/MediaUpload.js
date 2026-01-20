@@ -125,7 +125,7 @@ export const MediaUpload = ({
     toast.success('Media dari URL berhasil ditambahkan');
   };
 
-  // Open Cloudinary Media Library (allows browsing existing assets)
+  // Open Cloudinary Upload Widget (works without login)
   const openCloudinaryWidget = () => {
     if (!window.cloudinary) {
       toast.error("Library Cloudinary gagal dimuat. Refresh halaman dan coba lagi.");
@@ -133,18 +133,18 @@ export const MediaUpload = ({
     }
 
     const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.REACT_APP_CLOUDINARY_API_KEY;
+    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
     // Debug logging
-    console.log('Cloudinary Config:', { cloudName, apiKey: apiKey ? '***' : undefined });
+    console.log('Cloudinary Config:', { cloudName, uploadPreset });
 
     if (!cloudName) {
       toast.error("REACT_APP_CLOUDINARY_CLOUD_NAME belum dikonfigurasi.");
       return;
     }
 
-    if (!apiKey) {
-      toast.error("REACT_APP_CLOUDINARY_API_KEY belum dikonfigurasi di Vercel.");
+    if (!uploadPreset) {
+      toast.error("REACT_APP_CLOUDINARY_UPLOAD_PRESET belum dikonfigurasi di Vercel.");
       return;
     }
 
@@ -153,36 +153,69 @@ export const MediaUpload = ({
       onCloseDialog();
     }
 
-    // Wait for dialog to close, then open Cloudinary Media Library
+    // Wait for dialog to close, then open Cloudinary Upload Widget
     setTimeout(() => {
-      window.cloudinary.openMediaLibrary(
+      const widget = window.cloudinary.createUploadWidget(
         {
-          cloud_name: cloudName,
-          api_key: apiKey,
+          cloudName: cloudName,
+          uploadPreset: uploadPreset,
+          sources: ['local', 'url', 'camera'],
           multiple: isMultiple,
-          max_files: isMultiple ? maxFiles : 1,
-          insert_caption: 'Pilih Media',
-          remove_header: false,
-        },
-        {
-          insertHandler: (data) => {
-            console.log('Media Library insertHandler called, data:', data);
-            if (data.assets && data.assets.length > 0) {
-              data.assets.forEach(asset => {
-                const mediaData = {
-                  secure_url: asset.secure_url,
-                  public_id: asset.public_id,
-                  resource_type: asset.resource_type
-                };
-                console.log('Media selected from Cloudinary:', mediaData);
-                onUploadSuccess(mediaData);
-              });
-              toast.success(`${data.assets.length} media berhasil dipilih dari Cloudinary`);
+          maxFiles: isMultiple ? maxFiles : 1,
+          resourceType: cloudinaryResourceType === 'video' ? 'video' : 'image',
+          clientAllowedFormats: cloudinaryResourceType === 'video'
+            ? ['mp4', 'webm', 'mov']
+            : ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+          showAdvancedOptions: false,
+          showCompletedButton: true,
+          singleUploadAutoClose: !isMultiple,
+          styles: {
+            palette: {
+              window: "#FFFFFF",
+              windowBorder: "#90A0B3",
+              tabIcon: "#059669",
+              menuIcons: "#5A616A",
+              textDark: "#000000",
+              textLight: "#FFFFFF",
+              link: "#059669",
+              action: "#059669",
+              inactiveTabIcon: "#6B7280",
+              error: "#F44235",
+              inProgress: "#059669",
+              complete: "#10B981",
+              sourceBg: "#F9FAFB"
             }
+          }
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary error:', error);
+            toast.error("Upload gagal: " + (error.message || error.statusText || 'Unknown error'));
+            return;
+          }
+
+          if (result.event === 'success') {
+            const mediaData = {
+              secure_url: result.info.secure_url,
+              public_id: result.info.public_id,
+              resource_type: result.info.resource_type
+            };
+            console.log('Cloudinary upload success, mediaData:', mediaData);
+            onUploadSuccess(mediaData);
+            toast.success('Media berhasil diupload via Cloudinary');
           }
         }
       );
-    }, 300); // 300ms delay to ensure dialog is closed
+
+      widget.open();
+    }, 300);
+  };
+
+  // Open Cloudinary Dashboard in new tab (for browsing existing assets)
+  const openCloudinaryDashboard = () => {
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    window.open(`https://console.cloudinary.com/console/c-${cloudName}/media_library/folders/home`, '_blank');
+    toast.info('Cloudinary Dashboard dibuka di tab baru. Copy URL gambar dan paste di kolom URL.');
   };
 
   const uploadFiles = async () => {
@@ -298,18 +331,30 @@ export const MediaUpload = ({
           </div>
         )}
 
-        {/* Cloudinary Browse Button */}
+        {/* Cloudinary Buttons */}
         {showCloudinaryBrowser && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={openCloudinaryWidget}
-            className="w-full border-emerald-200 hover:bg-emerald-50 text-emerald-700"
-            data-testid="cloudinary-browse-btn"
-          >
-            <Search className="w-4 h-4 mr-2" />
-            Browse Cloudinary
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={openCloudinaryWidget}
+              className="flex-1 border-emerald-200 hover:bg-emerald-50 text-emerald-700"
+              data-testid="cloudinary-upload-btn"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload via Cloudinary
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={openCloudinaryDashboard}
+              className="text-gray-500 hover:text-emerald-700"
+              data-testid="cloudinary-dashboard-btn"
+              title="Buka Cloudinary Dashboard untuk copy URL"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+          </div>
         )}
 
         {/* Divider */}
