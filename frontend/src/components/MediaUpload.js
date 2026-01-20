@@ -19,7 +19,8 @@ export const MediaUpload = ({
   description = 'Drag and drop files or click to select',
   showCloudinaryBrowser = true,
   showUrlInput = true,
-  cloudinaryResourceType = 'image'
+  cloudinaryResourceType = 'image',
+  onCloseDialog = null // Close parent dialog before opening Cloudinary
 }) => {
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -147,7 +148,12 @@ export const MediaUpload = ({
       return;
     }
 
-    // Use setTimeout to ensure the Media Library opens after the Dialog overlay loses focus
+    // Close parent dialog first to avoid z-index conflicts
+    if (onCloseDialog) {
+      onCloseDialog();
+    }
+
+    // Wait for dialog to close, then open Cloudinary Media Library
     setTimeout(() => {
       window.cloudinary.openMediaLibrary(
         {
@@ -157,7 +163,6 @@ export const MediaUpload = ({
           max_files: isMultiple ? maxFiles : 1,
           insert_caption: 'Pilih Media',
           remove_header: false,
-          inline_container: null, // Open as modal, not inline
         },
         {
           insertHandler: (data) => {
@@ -177,7 +182,7 @@ export const MediaUpload = ({
           }
         }
       );
-    }, 100);
+    }, 300); // 300ms delay to ensure dialog is closed
   };
 
   const uploadFiles = async () => {

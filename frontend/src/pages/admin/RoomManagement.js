@@ -864,6 +864,7 @@ const RoomManagement = () => {
             title="Upload Foto Kamar"
             description="Max 10MB. Nama file akan otomatis disesuaikan dengan nama kamar."
             onUploadSuccess={handleImageUpload}
+            onCloseDialog={() => setShowImageUpload(false)}
           />
         </DialogContent>
       </Dialog>
@@ -881,6 +882,8 @@ const RoomManagement = () => {
             title="Upload Room Tour Video"
             description="Max 500MB, MP4/MOV"
             onUploadSuccess={handleVideoUpload}
+            onCloseDialog={() => setShowVideoUpload(false)}
+            cloudinaryResourceType="video"
           />
         </DialogContent>
       </Dialog>
