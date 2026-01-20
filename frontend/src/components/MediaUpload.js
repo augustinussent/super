@@ -195,6 +195,7 @@ export const MediaUpload = ({
             public_id: result.info.public_id,
             resource_type: result.info.resource_type
           };
+          console.log('Cloudinary upload success, mediaData:', mediaData);
           onUploadSuccess(mediaData);
           toast.success('Media berhasil diupload via Cloudinary');
         }
