@@ -132,16 +132,23 @@ export const MediaUpload = ({
     }
 
     const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName) {
-      toast.error("Konfigurasi Cloudinary belum lengkap. Hubungi administrator.");
+      toast.error("REACT_APP_CLOUDINARY_CLOUD_NAME belum dikonfigurasi.");
       return;
     }
 
+    if (!uploadPreset) {
+      toast.error("REACT_APP_CLOUDINARY_UPLOAD_PRESET belum dikonfigurasi. Buat unsigned preset di Cloudinary Dashboard.");
+      return;
+    }
+
+    // Create widget with proper configuration
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: cloudName,
-        uploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || 'ml_default',
+        uploadPreset: uploadPreset,
         sources: ['local', 'url', 'camera'],
         multiple: isMultiple,
         maxFiles: isMultiple ? maxFiles : 1,
@@ -152,6 +159,8 @@ export const MediaUpload = ({
         showAdvancedOptions: false,
         showCompletedButton: true,
         singleUploadAutoClose: !isMultiple,
+        showPoweredBy: false,
+        // Use higher z-index to appear above Radix Dialog
         styles: {
           palette: {
             window: "#FFFFFF",
@@ -167,33 +176,13 @@ export const MediaUpload = ({
             inProgress: "#059669",
             complete: "#10B981",
             sourceBg: "#F9FAFB"
-          },
-          fonts: {
-            default: null,
-            "'Inter', sans-serif": {
-              url: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap",
-              active: true
-            }
-          }
-        },
-        text: {
-          "en": {
-            "or": "Atau",
-            "menu": {
-              "files": "Upload File",
-              "url": "URL Web"
-            },
-            "local": {
-              "browse": "Pilih File",
-              "dd_title_single": "Drag and drop file di sini",
-              "dd_title_multi": "Drag and drop files di sini"
-            }
           }
         }
       },
       (error, result) => {
         if (error) {
-          toast.error("Upload gagal: " + error.message);
+          console.error('Cloudinary error:', error);
+          toast.error("Upload gagal: " + (error.message || error.statusText || 'Unknown error'));
           return;
         }
 
