@@ -124,7 +124,7 @@ export const MediaUpload = ({
     toast.success('Media dari URL berhasil ditambahkan');
   };
 
-  // Open Cloudinary Upload Widget (supports browse without login)
+  // Open Cloudinary Media Library (allows browsing existing assets)
   const openCloudinaryWidget = () => {
     if (!window.cloudinary) {
       toast.error("Library Cloudinary gagal dimuat. Refresh halaman dan coba lagi.");
@@ -132,77 +132,52 @@ export const MediaUpload = ({
     }
 
     const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+    const apiKey = process.env.REACT_APP_CLOUDINARY_API_KEY;
 
     // Debug logging
-    console.log('Cloudinary Config:', { cloudName, uploadPreset });
+    console.log('Cloudinary Config:', { cloudName, apiKey: apiKey ? '***' : undefined });
 
     if (!cloudName) {
       toast.error("REACT_APP_CLOUDINARY_CLOUD_NAME belum dikonfigurasi.");
       return;
     }
 
-    if (!uploadPreset) {
-      toast.error(`Upload preset tidak ditemukan. Cloud: ${cloudName}. Pastikan REACT_APP_CLOUDINARY_UPLOAD_PRESET sudah di-set di Vercel dan redeploy.`);
+    if (!apiKey) {
+      toast.error("REACT_APP_CLOUDINARY_API_KEY belum dikonfigurasi di Vercel.");
       return;
     }
 
-    // Create widget with proper configuration
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: cloudName,
-        uploadPreset: uploadPreset,
-        sources: ['local', 'url', 'camera'],
-        multiple: isMultiple,
-        maxFiles: isMultiple ? maxFiles : 1,
-        resourceType: cloudinaryResourceType === 'video' ? 'video' : 'image',
-        clientAllowedFormats: cloudinaryResourceType === 'video'
-          ? ['mp4', 'webm', 'mov']
-          : ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-        showAdvancedOptions: false,
-        showCompletedButton: true,
-        singleUploadAutoClose: !isMultiple,
-        showPoweredBy: false,
-        // Use higher z-index to appear above Radix Dialog
-        styles: {
-          palette: {
-            window: "#FFFFFF",
-            windowBorder: "#90A0B3",
-            tabIcon: "#059669",
-            menuIcons: "#5A616A",
-            textDark: "#000000",
-            textLight: "#FFFFFF",
-            link: "#059669",
-            action: "#059669",
-            inactiveTabIcon: "#6B7280",
-            error: "#F44235",
-            inProgress: "#059669",
-            complete: "#10B981",
-            sourceBg: "#F9FAFB"
+    // Use setTimeout to ensure the Media Library opens after the Dialog overlay loses focus
+    setTimeout(() => {
+      window.cloudinary.openMediaLibrary(
+        {
+          cloud_name: cloudName,
+          api_key: apiKey,
+          multiple: isMultiple,
+          max_files: isMultiple ? maxFiles : 1,
+          insert_caption: 'Pilih Media',
+          remove_header: false,
+          inline_container: null, // Open as modal, not inline
+        },
+        {
+          insertHandler: (data) => {
+            console.log('Media Library insertHandler called, data:', data);
+            if (data.assets && data.assets.length > 0) {
+              data.assets.forEach(asset => {
+                const mediaData = {
+                  secure_url: asset.secure_url,
+                  public_id: asset.public_id,
+                  resource_type: asset.resource_type
+                };
+                console.log('Media selected from Cloudinary:', mediaData);
+                onUploadSuccess(mediaData);
+              });
+              toast.success(`${data.assets.length} media berhasil dipilih dari Cloudinary`);
+            }
           }
         }
-      },
-      (error, result) => {
-        if (error) {
-          console.error('Cloudinary error:', error);
-          toast.error("Upload gagal: " + (error.message || error.statusText || 'Unknown error'));
-          return;
-        }
-
-        if (result.event === 'success') {
-          const mediaData = {
-            secure_url: result.info.secure_url,
-            public_id: result.info.public_id,
-            resource_type: result.info.resource_type
-          };
-          console.log('Cloudinary upload success, mediaData:', mediaData);
-          onUploadSuccess(mediaData);
-          toast.success('Media berhasil diupload via Cloudinary');
-        }
-      }
-    );
-
-    widget.open();
+      );
+    }, 100);
   };
 
   const uploadFiles = async () => {
