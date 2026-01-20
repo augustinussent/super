@@ -208,7 +208,7 @@ export const MediaUpload = ({
       );
 
       widget.open();
-    }, 300);
+    }, 500); // 500ms delay to ensure dialog animation completes
   };
 
   // Open Cloudinary Dashboard in new tab (for browsing existing assets)
