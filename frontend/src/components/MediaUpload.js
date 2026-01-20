@@ -141,6 +141,7 @@ export const MediaUpload = ({
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: cloudName,
+        uploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || 'ml_default',
         sources: ['local', 'url', 'camera'],
         multiple: isMultiple,
         maxFiles: isMultiple ? maxFiles : 1,
