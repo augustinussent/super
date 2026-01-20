@@ -134,13 +134,16 @@ export const MediaUpload = ({
     const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
+    // Debug logging
+    console.log('Cloudinary Config:', { cloudName, uploadPreset });
+
     if (!cloudName) {
       toast.error("REACT_APP_CLOUDINARY_CLOUD_NAME belum dikonfigurasi.");
       return;
     }
 
     if (!uploadPreset) {
-      toast.error("REACT_APP_CLOUDINARY_UPLOAD_PRESET belum dikonfigurasi. Buat unsigned preset di Cloudinary Dashboard.");
+      toast.error(`Upload preset tidak ditemukan. Cloud: ${cloudName}. Pastikan REACT_APP_CLOUDINARY_UPLOAD_PRESET sudah di-set di Vercel dan redeploy.`);
       return;
     }
 
