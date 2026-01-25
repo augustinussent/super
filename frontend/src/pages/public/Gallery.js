@@ -117,6 +117,9 @@ const Gallery = () => {
 
   return (
     <div className="h-screen bg-black overflow-hidden" data-testid="gallery-container">
+      {/* SEO H1 - Screen Reader Accessible */}
+      <h1 className="sr-only">Galeri Foto Spencer Green Hotel Batu | Kamar, Kolam & Rooftop</h1>
+
       {/* Current Image */}
       <div className="relative h-full">
         {galleryItems.map((item, index) => (
@@ -180,8 +183,8 @@ const Gallery = () => {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
-                  ? 'bg-emerald-500 h-8'
-                  : 'bg-white/40 hover:bg-white/60'
+                ? 'bg-emerald-500 h-8'
+                : 'bg-white/40 hover:bg-white/60'
                 }`}
               data-testid={`gallery-dot-${index}`}
             />
@@ -251,8 +254,8 @@ const Gallery = () => {
                           to={item.path}
                           data-testid={`gallery-nav-${item.name.toLowerCase().replace(' ', '-')}`}
                           className={`block px-4 py-3 rounded-lg text-lg font-medium transition-colors ${location.pathname === item.path
-                              ? 'bg-emerald-600 text-white'
-                              : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
+                            ? 'bg-emerald-600 text-white'
+                            : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
                             }`}
                         >
                           {item.name}

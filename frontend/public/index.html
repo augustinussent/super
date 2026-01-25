@@ -2,34 +2,78 @@
 <html lang="id">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-    <meta name="theme-color" content="#000000" />
-    <title>Spencer Green Hotel Batu | Hotel Eco-Friendly & Villa Premium</title>
-    <meta name="description"
-        content="Situs resmi Spencer Green Hotel Batu. Akomodasi premium eco-friendly di Jl. Raya Punten No.86, Kota Batu. View pegunungan Arjuno, kolam renang, dan rooftop cafe." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#064e3b">
+    
+    <!-- Global SEO Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    
+    <link rel="icon" href="/favicon.ico">
+    <link rel="canonical" href="https://spencergreenhotel.com/">
+    
+    <!-- Default Title & Description (akan di-override per halaman) -->
+    <title>Spencer Green Hotel Batu | Hotel Eco Friendly di Batu Malang</title>
+    <meta name="description" content="Spencer Green Hotel Batu adalah hotel eco-friendly di Batu Malang dengan kolam renang outdoor, rooftop cafe, dan pemandangan pegunungan. Cocok untuk liburan keluarga dan bisnis.">
+    <meta name="keywords" content="hotel batu, hotel batu malang, spencer green hotel, hotel eco friendly batu, hotel dengan kolam renang di batu">
+    
+    <!-- Open Graph Global -->
+    <meta property="og:site_name" content="Spencer Green Hotel Batu">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:title" content="Spencer Green Hotel Batu | Hotel Eco Friendly di Batu Malang">
+    <meta property="og:description" content="Hotel eco-friendly di Batu Malang dengan kolam renang, rooftop cafe, dan view pegunungan.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://spencergreenhotel.com/">
+    <meta property="og:image" content="https://spencergreenhotel.com/images/home-cover.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Spencer Green Hotel Batu">
+    <meta name="twitter:description" content="Hotel Eco Friendly di Batu Malang dengan kolam renang dan rooftop cafe.">
 
     <!-- Cloudinary Upload Widget -->
     <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 
+    <!-- Hotel Structured Data (Schema.org) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Hotel",
       "name": "Spencer Green Hotel Batu",
+      "url": "https://spencergreenhotel.com",
+      "telephone": "+6281130700206",
+      "image": "https://spencergreenhotel.com/images/home-cover.jpg",
+      "priceRange": "Rp 500.000 - Rp 2.000.000",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Jl. Raya Punten No.86, Punten",
+        "streetAddress": "Jl. Raya Punten No.86",
         "addressLocality": "Batu",
         "addressRegion": "Jawa Timur",
         "postalCode": "65338",
         "addressCountry": "ID"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "-7.8332533",
+        "longitude": "112.5288334"
+      },
+      "amenityFeature": [
+        {"@type": "LocationFeatureSpecification", "name": "Kolam Renang Outdoor"},
+        {"@type": "LocationFeatureSpecification", "name": "Rooftop Cafe"},
+        {"@type": "LocationFeatureSpecification", "name": "WiFi Gratis"},
+        {"@type": "LocationFeatureSpecification", "name": "Restoran"},
+        {"@type": "LocationFeatureSpecification", "name": "Spa"}
+      ],
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "4"
       }
     }
     </script>
 
     <style>
-        /* CSS INI WAJIB: Agar konten SEO tidak muncul sedetik pun saat loading */
+        /* CSS untuk SEO hidden content */
         .seo-hidden-content {
             display: block !important;
             position: absolute !important;
@@ -102,22 +146,17 @@
 </head>
 
 <body>
+    <!-- SEO Static Content for Search Engines -->
     <div id="seo-static-content" class="seo-hidden-content">
-        <h1>Spencer Green Hotel Batu</h1>
-        <p>Hotel di Batu Malang dengan konsep eco-friendly. Berlokasi di Jl. Raya Punten No.86.</p>
-        <h2>Rekomendasi Hotel & Villa di Kota Batu</h2>
-        <p>Nikmati fasilitas kolam renang, rooftop cafe, dan view pegunungan Arjuno yang indah.</p>
+        <h1>Spencer Green Hotel Batu – Hotel Eco Friendly dengan View Pegunungan</h1>
+        <p>Spencer Green Hotel Batu adalah hotel eco-friendly di Batu Malang dengan kolam renang outdoor, rooftop cafe, dan pemandangan pegunungan Arjuno. Berlokasi di Jl. Raya Punten No.86, Kota Batu, Jawa Timur.</p>
+        <h2>Rekomendasi Hotel & Villa Premium di Kota Batu</h2>
+        <p>Nikmati fasilitas kolam renang, rooftop cafe, spa, dan view pegunungan Arjuno yang indah. Cocok untuk liburan keluarga, honeymoon, dan perjalanan bisnis.</p>
     </div>
     <div id="root"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <script>
         !(function (t, e) {

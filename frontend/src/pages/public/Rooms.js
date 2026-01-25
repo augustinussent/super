@@ -281,8 +281,8 @@ const Rooms = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent?.subtitle || 'Accommodations'}</p>
-            <h1 className="font-display text-5xl font-bold text-white">{heroContent?.title || 'Our Rooms'}</h1>
+            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
+            <h1 className="font-display text-5xl font-bold text-white">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
           </motion.div>
         </div>
       </section>

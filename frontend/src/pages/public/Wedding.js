@@ -63,7 +63,7 @@ const Wedding = () => {
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Heart className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-            <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-4">{heroContent?.title || 'Your Dream Wedding'}</h1>
+            <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-4">Paket Wedding & Venue Pernikahan Spencer Green Hotel Batu</h1>
             <p className="text-white/90 max-w-2xl mx-auto text-lg">
               {heroContent?.subtitle || 'Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service'}
             </p>
