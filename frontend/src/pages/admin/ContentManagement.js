@@ -459,33 +459,77 @@ const ContentManagement = () => {
             </div>
           </ContentSection>
 
-          {['pool', 'spa', 'restaurant', 'gym'].map((facility, idx) => (
-            <ContentSection key={facility} title={`Fasilitas ${idx + 1}: ${facility.charAt(0).toUpperCase() + facility.slice(1)}`}>
+          {[
+            { key: 'pool', label: 'Infinity Pool' },
+            { key: 'spa', label: 'Spa & Wellness' },
+            { key: 'fitness', label: 'Fitness Center' },
+            { key: 'restaurant', label: 'Restaurant & Bar' },
+            { key: 'garden', label: 'Garden & Terrace' },
+            { key: 'parking', label: 'Parking & Transport' }
+          ].map((item) => (
+            <ContentSection key={item.key} title={`Fasilitas: ${item.label}`}>
               <div className="space-y-4">
                 <div>
                   <Label>Nama Fasilitas</Label>
-                  <Input value={getContent('facilities', facility, 'name')} onChange={(e) => updateField(`facilities_${facility}`, 'name', e.target.value)} placeholder={facility.charAt(0).toUpperCase() + facility.slice(1)} />
+                  <Input
+                    value={getContent('facilities', item.key, 'name')}
+                    onChange={(e) => updateField(`facilities_${item.key}`, 'name', e.target.value)}
+                    placeholder={item.label}
+                  />
                 </div>
                 <div>
                   <Label>Deskripsi</Label>
-                  <Textarea value={getContent('facilities', facility, 'description')} onChange={(e) => updateField(`facilities_${facility}`, 'description', e.target.value)} rows={3} />
+                  <Textarea
+                    value={getContent('facilities', item.key, 'description')}
+                    onChange={(e) => updateField(`facilities_${item.key}`, 'description', e.target.value)}
+                    rows={3}
+                  />
                 </div>
                 <div>
-                  <Label>Jam Operasional</Label>
-                  <Input value={getContent('facilities', facility, 'hours')} onChange={(e) => updateField(`facilities_${facility}`, 'hours', e.target.value)} placeholder="06:00 - 22:00" />
+                  <Label>Jam Operasional / Info Tambahan</Label>
+                  <Input
+                    value={getContent('facilities', item.key, 'hours')}
+                    onChange={(e) => updateField(`facilities_${item.key}`, 'hours', e.target.value)}
+                    placeholder="e.g. 06:00 - 22:00"
+                  />
                 </div>
                 <ImageField
                   label="Gambar"
-                  value={getContent('facilities', facility, 'image')}
-                  onChange={(e) => updateField(`facilities_${facility}`, 'image', e.target.value)}
-                  onUpload={() => openMediaUpload(`facilities_${facility}`, 'image')}
+                  value={getContent('facilities', item.key, 'image')}
+                  onChange={(e) => updateField(`facilities_${item.key}`, 'image', e.target.value)}
+                  onUpload={() => openMediaUpload(`facilities_${item.key}`, 'image')}
                 />
-                <Button onClick={() => saveContent('facilities', facility, 'facility', content[`facilities_${facility}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button onClick={() => saveContent('facilities', item.key, 'facility', content[`facilities_${item.key}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   <Save className="w-4 h-4 mr-2" />Simpan
                 </Button>
               </div>
             </ContentSection>
           ))}
+
+          <ContentSection title="Experience Complete Comfort (Info Bawah)">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input
+                  value={getContent('facilities', 'info', 'title')}
+                  onChange={(e) => updateField('facilities_info', 'title', e.target.value)}
+                  placeholder="Experience Complete Comfort"
+                />
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea
+                  value={getContent('facilities', 'info', 'description')}
+                  onChange={(e) => updateField('facilities_info', 'description', e.target.value)}
+                  rows={3}
+                  placeholder="All facilities are available exclusively..."
+                />
+              </div>
+              <Button onClick={() => saveContent('facilities', 'info', 'section', content['facilities_info']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Info
+              </Button>
+            </div>
+          </ContentSection>
         </TabsContent>
 
         {/* ==================== GALLERY PAGE ==================== */}
