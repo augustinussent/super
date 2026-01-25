@@ -227,6 +227,7 @@ const Home = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const offersRef = useRef(null);
+  const roomsRef = useRef(null)
 
   // Gallery state
   const [showGallery, setShowGallery] = useState(false);
@@ -343,6 +344,20 @@ const Home = () => {
       });
       setAvailableRooms(response.data);
       setShowAvailability(true);
+
+      // Scroll to rooms section with offset for header
+      setTimeout(() => {
+        if (roomsRef.current) {
+          const headerOffset = 100;
+          const elementPosition = roomsRef.current.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
+        }
+      }, 100);
     } catch (error) {
       toast.error('Error searching availability');
     } finally {
@@ -626,7 +641,7 @@ const Home = () => {
 
       {/* Available Rooms Section */}
       {showAvailability && (
-        <section className="py-16 sm:py-20 bg-emerald-50/50" data-testid="available-rooms-section">
+        <section ref={roomsRef} className="py-16 sm:py-20 bg-emerald-50/50" data-testid="available-rooms-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 sm:mb-12">
               <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Available Rooms</p>
