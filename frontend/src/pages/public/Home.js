@@ -882,8 +882,8 @@ const Home = () => {
         <section className="py-12 sm:py-16 lg:py-20 bg-white" data-testid="reviews-section">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Testimonials</p>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6">What Our Guests Say</h2>
+              <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Testimoni</p>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6">Pengalaman Menginap Tamu Kami</h2>
               <Button
                 variant="outline"
                 onClick={() => setShowReviewModal(true)}
