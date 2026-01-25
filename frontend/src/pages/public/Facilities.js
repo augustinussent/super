@@ -11,7 +11,7 @@ const Facilities = () => {
   useEffect(() => {
     const fetchHeroContent = async () => {
       try {
-        const response = await axios.get(`${API_URL}/content?page=facilities`);
+        const response = await axios.get(`${API_URL}/content/facilities`);
         const hero = response.data.find(c => c.section === 'hero');
         if (hero) setHeroContent(hero.content);
       } catch (error) {

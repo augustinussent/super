@@ -12,7 +12,7 @@ const Wedding = () => {
   useEffect(() => {
     const fetchHeroContent = async () => {
       try {
-        const response = await axios.get(`${API_URL}/content?page=wedding`);
+        const response = await axios.get(`${API_URL}/content/wedding`);
         const hero = response.data.find(c => c.section === 'hero');
         if (hero) setHeroContent(hero.content);
       } catch (error) {
