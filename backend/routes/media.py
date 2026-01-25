@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -8,6 +8,7 @@ from cloudinary_helper import (
     upload_image, upload_video, delete_media, delete_folder,
     validate_image_file, validate_video_file
 )
+from ai_helper import generate_image_caption
 
 router = APIRouter(prefix="/media", tags=["media"])
 
@@ -16,11 +17,13 @@ router = APIRouter(prefix="/media", tags=["media"])
 async def upload_gallery_image(
     file: UploadFile = File(...),
     category: str = "general",
+    auto_caption: bool = Query(True, description="Generate AI caption for image"),
     user: dict = Depends(require_admin)
 ):
     """
     Upload gallery image for the hotel.
     Categories: general, rooms, facilities, restaurant, pool, spa, lobby
+    If auto_caption is True, AI will generate caption and alt_text.
     """
     file_content = await file.read()
     file_size = len(file_content)
@@ -34,9 +37,15 @@ async def upload_gallery_image(
         folder=f"gallery/{category}"
     )
     
+    # Generate AI caption if requested
+    ai_result = {"caption": "", "alt_text": "", "success": False}
+    if auto_caption:
+        ai_result = await generate_image_caption(file_content, context="gallery")
+    
     return {
         "success": True,
-        "data": result
+        "data": result,
+        "ai_caption": ai_result
     }
 
 
@@ -44,10 +53,12 @@ async def upload_gallery_image(
 async def upload_room_image(
     file: UploadFile = File(...),
     room_type_id: str = None,
+    auto_caption: bool = Query(True, description="Generate AI caption for image"),
     user: dict = Depends(require_admin)
 ):
     """
     Upload image for a specific room type.
+    If auto_caption is True, AI will generate caption and alt_text.
     """
     if not room_type_id:
         raise HTTPException(status_code=400, detail="room_type_id is required")
@@ -77,9 +88,15 @@ async def upload_room_image(
         {"$set": {"images": current_images, "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
+    # Generate AI caption if requested
+    ai_result = {"caption": "", "alt_text": "", "success": False}
+    if auto_caption:
+        ai_result = await generate_image_caption(file_content, context="room")
+    
     return {
         "success": True,
-        "data": result
+        "data": result,
+        "ai_caption": ai_result
     }
 
 
@@ -132,11 +149,13 @@ async def upload_room_video(
 async def upload_content_image(
     file: UploadFile = File(...),
     section: str = "general",
+    auto_caption: bool = Query(True, description="Generate AI caption for image"),
     user: dict = Depends(require_admin)
 ):
     """
     Upload image for CMS content sections.
     Sections: hero, about, facilities, promo, banner
+    If auto_caption is True, AI will generate caption and alt_text.
     """
     file_content = await file.read()
     file_size = len(file_content)
@@ -150,9 +169,15 @@ async def upload_content_image(
         folder=f"content/{section}"
     )
     
+    # Generate AI caption if requested
+    ai_result = {"caption": "", "alt_text": "", "success": False}
+    if auto_caption:
+        ai_result = await generate_image_caption(file_content, context="hotel")
+    
     return {
         "success": True,
-        "data": result
+        "data": result,
+        "ai_caption": ai_result
     }
 
 

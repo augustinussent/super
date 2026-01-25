@@ -253,7 +253,16 @@ export const MediaUpload = ({
               setFiles(prev => prev.map((f, idx) =>
                 idx === i ? { ...f, status: 'complete', progress: 100 } : f
               ));
-              uploadedMedia.push(response.data);
+
+              // Include AI caption in response if available
+              const mediaData = response.data;
+              if (response.ai_caption && response.ai_caption.success) {
+                mediaData.ai_caption = response.ai_caption.caption;
+                mediaData.ai_alt_text = response.ai_caption.alt_text;
+                toast.success(`✨ AI Caption: "${response.ai_caption.caption}"`);
+              }
+
+              uploadedMedia.push(mediaData);
               resolve(response);
             } else {
               const error = xhr.responseText ? JSON.parse(xhr.responseText).detail : 'Upload failed';
