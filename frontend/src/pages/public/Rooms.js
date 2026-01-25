@@ -274,6 +274,7 @@ const Rooms = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920'})` }}
         >
+          <div className="absolute inset-0 bg-black/10" />
         </div>
         <div className="relative text-center">
           <motion.div

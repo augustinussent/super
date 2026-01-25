@@ -57,6 +57,7 @@ const Meeting = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1920'})` }}
         >
+          <div className="absolute inset-0 bg-black/10" />
         </div>
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
