@@ -426,7 +426,7 @@ const Home = () => {
             backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'})`
           }}
         >
-          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 bg-black/25" />
         </div>
 
         <div className="relative h-full flex flex-col justify-center items-center text-center px-4 pb-32 sm:pb-40">
