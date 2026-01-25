@@ -149,14 +149,6 @@ const Wedding = () => {
 
       {/* CTA */}
       <section className="py-20 bg-emerald-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <pattern id="hearts" patternUnits="userSpaceOnUse" width="20" height="20">
-              <path d="M10 6 C7 3, 3 6, 6 10 L10 14 L14 10 C17 6, 13 3, 10 6" fill="white" />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#hearts)" />
-          </svg>
-        </div>
         <div className="max-w-4xl mx-auto px-4 text-center relative">
           <h2 className="font-display text-4xl font-bold text-white mb-4">Begin Your Forever</h2>
           <p className="text-emerald-200 mb-8 text-lg">
