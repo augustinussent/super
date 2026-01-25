@@ -8,7 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         'display': ['Playfair Display', 'serif'],
-        'body': ['Manrope', 'sans-serif'],
+        'body': ['Inter', 'sans-serif'],
       },
       colors: {
         emerald: {
