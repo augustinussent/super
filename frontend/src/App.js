@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Public Pages
 import PublicLayout from "./layouts/PublicLayout";
@@ -32,13 +33,14 @@ function App() {
   useEffect(() => {
     const staticSEO = document.getElementById("seo-static-content");
     if (staticSEO) {
-      staticSEO.remove(); 
+      staticSEO.remove();
     }
   }, []);
-  
+
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Toaster position="top-right" richColors />
         <Routes>
           {/* Public Routes */}
@@ -51,12 +53,12 @@ function App() {
             <Route path="gallery" element={<Gallery />} />
             <Route path="check-reservation" element={<CheckReservation />} />
           </Route>
-          
+
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
