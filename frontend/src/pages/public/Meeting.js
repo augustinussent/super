@@ -62,7 +62,10 @@ const Meeting = () => {
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Corporate Events</p>
-            <h1 className="font-display text-5xl font-bold text-white mb-4">Meeting Room & Event Space Spencer Green Hotel Batu</h1>
+            {/* SEO H1 - Hidden but indexable */}
+            <h1 className="sr-only">Meeting Room & Event Space Spencer Green Hotel Batu</h1>
+            {/* Visual Title */}
+            <p className="font-display text-5xl font-bold text-white mb-4" role="heading" aria-level="2">Meeting & Events</p>
             <p className="text-emerald-100 max-w-2xl mx-auto">
               Host your next corporate event in our state-of-the-art meeting facilities with stunning mountain views
             </p>

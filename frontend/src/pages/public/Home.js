@@ -436,9 +436,12 @@ const Home = () => {
             transition={{ duration: 0.8 }}
           >
             <p className="text-emerald-300 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4">Welcome to</p>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6">
-              Spencer Green Hotel Batu – Hotel Eco Friendly dengan View Pegunungan
-            </h1>
+            {/* SEO H1 - Hidden but indexable */}
+            <h1 className="sr-only">Spencer Green Hotel Batu – Hotel Eco Friendly dengan View Pegunungan</h1>
+            {/* Visual Title */}
+            <p className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6" role="heading" aria-level="2">
+              {heroContent?.title || 'Spencer Green Hotel'}
+            </p>
             <p className="text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {heroContent?.subtitle || 'Experience Luxury in the Heart of Batu'}
             </p>

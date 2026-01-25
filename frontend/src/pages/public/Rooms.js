@@ -282,7 +282,10 @@ const Rooms = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
-            <h1 className="font-display text-5xl font-bold text-white">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
+            {/* SEO H1 - Hidden but indexable */}
+            <h1 className="sr-only">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
+            {/* Visual Title */}
+            <p className="font-display text-5xl font-bold text-white" role="heading" aria-level="2">Our Rooms</p>
           </motion.div>
         </div>
       </section>
