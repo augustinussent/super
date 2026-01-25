@@ -14,29 +14,29 @@ import MediaUpload from '../../components/MediaUpload';
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 // Section Component for reusability
-  const ContentSection = ({ title, children }) => (
-    <div className="bg-white rounded-xl p-6 shadow-soft">
-      <h3 className="font-display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <Image className="w-5 h-5 text-emerald-600" />
-        {title}
-      </h3>
-      {children}
-    </div>
-  );
+const ContentSection = ({ title, children }) => (
+  <div className="bg-white rounded-xl p-6 shadow-soft">
+    <h3 className="font-display text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <Image className="w-5 h-5 text-emerald-600" />
+      {title}
+    </h3>
+    {children}
+  </div>
+);
 
-  const ImageField = ({ label, value, onChange, onUpload }) => (
-    <div>
-      <Label>{label}</Label>
-      <div className="flex gap-2">
-        <Input value={value} onChange={onChange} placeholder="https://..." className="flex-1" />
-        <Button type="button" variant="outline" onClick={onUpload}>
-          <Upload className="w-4 h-4 mr-2" />
-          Upload
-        </Button>
-      </div>
-      {value && <img src={value} alt="Preview" className="mt-2 rounded-lg h-24 object-cover" />}
+const ImageField = ({ label, value, onChange, onUpload }) => (
+  <div>
+    <Label>{label}</Label>
+    <div className="flex gap-2">
+      <Input value={value} onChange={onChange} placeholder="https://..." className="flex-1" />
+      <Button type="button" variant="outline" onClick={onUpload}>
+        <Upload className="w-4 h-4 mr-2" />
+        Upload
+      </Button>
     </div>
-  );
+    {value && <img src={value} alt="Preview" className="mt-2 rounded-lg h-24 object-cover" />}
+  </div>
+);
 
 const ContentManagement = () => {
   const [content, setContent] = useState({});
@@ -127,7 +127,7 @@ const ContentManagement = () => {
     );
   }
 
-    return (
+  return (
     <div data-testid="content-management">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-gray-900">Kelola Konten</h1>
@@ -572,6 +572,15 @@ const ContentManagement = () => {
         <TabsContent value="footer" className="space-y-6">
           <ContentSection title="Informasi Kontak">
             <div className="space-y-4">
+              <div>
+                <Label>Deskripsi Hotel</Label>
+                <Textarea
+                  value={getContent('global', 'footer', 'description')}
+                  onChange={(e) => updateField('global_footer', 'description', e.target.value)}
+                  placeholder="Experience luxury and comfort in the heart of Batu city. Your perfect getaway destination."
+                  rows={2}
+                />
+              </div>
               <div>
                 <Label>Alamat</Label>
                 <Textarea
