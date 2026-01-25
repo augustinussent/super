@@ -797,8 +797,8 @@ const Home = () => {
               viewport={{ once: true }}
               className={`relative ${index % 2 === 0 ? '' : ''}`}
             >
-              <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
-                <div className={`relative h-[50vh] min-h-[400px] ${index % 2 === 1 ? 'lg:col-start-2' : ''} group`}>
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                <div className="relative h-[50vh] min-h-[400px] group">
                   <img
                     src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
                     alt={room.name}
@@ -817,7 +817,7 @@ const Home = () => {
                     <span className="font-medium">Room Tour</span>
                   </button>
                 </div>
-                <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                <div className="flex items-center bg-white">
                   <div className="p-8 sm:p-10 lg:p-16 max-w-xl mx-auto">
                     <p className="text-emerald-600 uppercase tracking-widest text-xs mb-3">
                       From Rp {room.base_price.toLocaleString('id-ID')} / night
