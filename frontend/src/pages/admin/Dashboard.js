@@ -17,10 +17,24 @@ const Dashboard = () => {
     recent_reservations: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState([]);
 
   useEffect(() => {
     fetchDashboard();
+    fetchAnalytics();
   }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/admin/analytics?days=7`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAnalyticsData(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics');
+    }
+  };
 
   const fetchDashboard = async () => {
     try {
@@ -41,31 +55,31 @@ const Dashboard = () => {
   ];
 
   const statCards = [
-    { 
-      title: 'Kamar Terisi', 
-      value: stats.occupied_rooms, 
-      icon: BedDouble, 
+    {
+      title: 'Kamar Terisi',
+      value: stats.occupied_rooms,
+      icon: BedDouble,
       color: 'bg-emerald-500',
       description: 'Hari ini'
     },
-    { 
-      title: 'Kamar Tersedia', 
-      value: stats.available_rooms, 
-      icon: CalendarCheck, 
+    {
+      title: 'Kamar Tersedia',
+      value: stats.available_rooms,
+      icon: CalendarCheck,
       color: 'bg-blue-500',
       description: 'Hari ini'
     },
-    { 
-      title: 'Pendapatan Bulan Ini', 
-      value: `Rp ${(stats.monthly_revenue / 1000000).toFixed(1)}M`, 
-      icon: DollarSign, 
+    {
+      title: 'Pendapatan Bulan Ini',
+      value: `Rp ${(stats.monthly_revenue / 1000000).toFixed(1)}M`,
+      icon: DollarSign,
       color: 'bg-amber-500',
       description: 'Simulasi'
     },
-    { 
-      title: 'Review Pending', 
-      value: stats.pending_reviews, 
-      icon: Star, 
+    {
+      title: 'Review Pending',
+      value: stats.pending_reviews,
+      icon: Star,
       color: 'bg-purple-500',
       description: 'Menunggu approval'
     },
@@ -124,7 +138,7 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Revenue Chart */}
         <div className="bg-white rounded-xl p-6 shadow-soft">
           <h2 className="font-display text-xl font-semibold text-gray-900 mb-6">Pendapatan Bulanan</h2>
@@ -134,19 +148,84 @@ const Dashboard = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="name" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" tickFormatter={(value) => `${value / 1000000}M`} />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, 'Pendapatan']}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#059669" 
-                  fill="#d1fae5" 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#059669"
+                  fill="#d1fae5"
                   strokeWidth={2}
                 />
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Visitor Analytics Chart */}
+        <div className="bg-white rounded-xl p-6 shadow-soft">
+          <h2 className="font-display text-xl font-semibold text-gray-900 mb-6">Traffic Pengunjung (7 Hari)</h2>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={analyticsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#9ca3af"
+                  tickFormatter={(date) => format(new Date(date), 'dd MMM')}
+                />
+                <YAxis stroke="#9ca3af" />
+                <Tooltip
+                  labelFormatter={(date) => format(new Date(date), 'dd MMMM yyyy')}
+                  formatter={(value) => [value, 'Kunjungan']}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="total_visits"
+                  stroke="#3b82f6"
+                  fill="#dbeafe"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Popular Pages */}
+        <div className="bg-white rounded-xl p-6 shadow-soft">
+          <h2 className="font-display text-xl font-semibold text-gray-900 mb-6">Halaman Populer</h2>
+          <div className="space-y-4">
+            {analyticsData.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Belum ada data traffic</p>
+            ) : (
+              Object.entries(
+                analyticsData.reduce((acc, day) => {
+                  Object.entries(day.page_views || {}).forEach(([page, count]) => {
+                    const cleanPage = page.replace('_', '.');
+                    acc[cleanPage] = (acc[cleanPage] || 0) + count;
+                  });
+                  return acc;
+                }, {})
+              )
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([page, count], idx) => (
+                  <div key={page} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold">
+                        {idx + 1}
+                      </span>
+                      <span className="font-medium text-gray-700">{page}</span>
+                    </div>
+                    <span className="text-gray-900 font-bold">{count} views</span>
+                  </div>
+                ))
+            )}
           </div>
         </div>
 
@@ -158,7 +237,7 @@ const Dashboard = () => {
               <p className="text-gray-500 text-center py-8">Belum ada reservasi</p>
             ) : (
               stats.recent_reservations.map((reservation) => (
-                <div 
+                <div
                   key={reservation.reservation_id}
                   className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                   data-testid={`recent-reservation-${reservation.reservation_id}`}

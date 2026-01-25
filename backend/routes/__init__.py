@@ -7,6 +7,7 @@ from routes.content import router as content_router
 from routes.admin import router as admin_router
 from routes.init import router as init_router
 from routes.media import router as media_router
+from routes.analytics import router as analytics_router
 
 __all__ = [
     "auth_router",
@@ -17,5 +18,7 @@ __all__ = [
     "content_router",
     "admin_router",
     "init_router",
-    "media_router"
+    "init_router",
+    "media_router",
+    "analytics_router"
 ]

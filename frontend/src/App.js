@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 
 // Public Pages
 import PublicLayout from "./layouts/PublicLayout";
@@ -41,6 +42,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <AnalyticsTracker />
         <Toaster position="top-right" richColors />
         <Routes>
           {/* Public Routes */}
