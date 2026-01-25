@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronUp, ChevronDown, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
@@ -8,6 +9,18 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 const Gallery = () => {
   const [galleryItems, setGalleryItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const menuItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Kamar', path: '/rooms' },
+    { name: 'Meeting', path: '/meeting' },
+    { name: 'Wedding', path: '/wedding' },
+    { name: 'Fasilitas', path: '/facilities' },
+    { name: 'Gallery', path: '/gallery' },
+    { name: 'Cek Reservasi', path: '/check-reservation' },
+  ];
 
   useEffect(() => {
     fetchGallery();
@@ -19,7 +32,7 @@ const Gallery = () => {
       const items = response.data
         .filter(c => c.content_type === 'image')
         .sort((a, b) => (a.content.order || 0) - (b.content.order || 0));
-      
+
       if (items.length === 0) {
         // Default gallery images
         setGalleryItems([
@@ -57,6 +70,7 @@ const Gallery = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (isMenuOpen) return; // Don't navigate when menu is open
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         goToNext();
       } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
@@ -65,6 +79,7 @@ const Gallery = () => {
     };
 
     const handleWheel = (e) => {
+      if (isMenuOpen) return; // Don't navigate when menu is open
       if (e.deltaY > 0) {
         goToNext();
       } else if (e.deltaY < 0) {
@@ -73,7 +88,7 @@ const Gallery = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    
+
     // Debounce wheel event
     let wheelTimeout;
     const debouncedWheel = (e) => {
@@ -83,14 +98,14 @@ const Gallery = () => {
         wheelTimeout = null;
       }, 500);
     };
-    
+
     window.addEventListener('wheel', debouncedWheel, { passive: true });
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('wheel', debouncedWheel);
     };
-  }, [galleryItems.length]);
+  }, [galleryItems.length, isMenuOpen]);
 
   if (galleryItems.length === 0) {
     return (
@@ -164,11 +179,10 @@ const Gallery = () => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex 
-                  ? 'bg-emerald-500 h-8' 
+              className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
+                  ? 'bg-emerald-500 h-8'
                   : 'bg-white/40 hover:bg-white/60'
-              }`}
+                }`}
               data-testid={`gallery-dot-${index}`}
             />
           ))}
@@ -181,17 +195,80 @@ const Gallery = () => {
           </p>
         </div>
 
-        {/* Back to Home */}
-        <a
-          href="/"
-          className="absolute top-8 left-8 z-20 text-white/80 hover:text-white flex items-center space-x-2"
-          data-testid="gallery-back-btn"
-        >
-          <span className="font-display text-xl font-bold">Spencer Green</span>
-        </a>
+        {/* Header with Logo and Hamburger Menu */}
+        <div className="absolute top-0 left-0 right-0 z-30 p-4 sm:p-6 flex items-center justify-between">
+          <Link
+            to="/"
+            className="text-white/80 hover:text-white flex items-center space-x-2"
+            data-testid="gallery-back-btn"
+          >
+            <span className="font-display text-xl font-bold">Spencer Green</span>
+          </Link>
+
+          {/* Hamburger Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 rounded-lg text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+            data-testid="gallery-menu-toggle"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Slide-out Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40"
+            >
+              <div className="absolute inset-0 bg-black/50" onClick={() => setIsMenuOpen(false)} />
+              <motion.nav
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25 }}
+                className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-emerald-950 shadow-luxury overflow-y-auto"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-8">
+                    <span className="font-display text-xl font-bold text-white">Menu</span>
+                    <button onClick={() => setIsMenuOpen(false)} className="p-2 text-emerald-200 hover:text-white">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {menuItems.map((item, index) => (
+                      <motion.div
+                        key={item.path}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Link
+                          to={item.path}
+                          data-testid={`gallery-nav-${item.name.toLowerCase().replace(' ', '-')}`}
+                          className={`block px-4 py-3 rounded-lg text-lg font-medium transition-colors ${location.pathname === item.path
+                              ? 'bg-emerald-600 text-white'
+                              : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
+                            }`}
+                        >
+                          {item.name}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 };
 
 export default Gallery;
+
