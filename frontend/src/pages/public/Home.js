@@ -406,6 +406,33 @@ const Home = () => {
     setShowVideoModal(true);
   };
 
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    guest_name: '',
+    guest_email: '',
+    rating: 5,
+    comment: ''
+  });
+
+  const submitReview = async () => {
+    if (!reviewForm.guest_name || !reviewForm.guest_email || !reviewForm.comment) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      await axios.post(`${API_URL}/reviews`, {
+        ...reviewForm,
+        reservation_id: '' // Optional
+      });
+      toast.success('Review submitted successfully! Pending approval.');
+      setShowReviewModal(false);
+      setReviewForm({ guest_name: '', guest_email: '', rating: 5, comment: '' });
+    } catch (error) {
+      toast.error('Failed to submit review');
+    }
+  };
+
   const submitBooking = async () => {
     if (!bookingForm.guest_name || !bookingForm.guest_email || !bookingForm.guest_phone) {
       toast.error('Please fill in all required fields');
@@ -856,7 +883,14 @@ const Home = () => {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 sm:mb-12">
               <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Testimonials</p>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">What Our Guests Say</h2>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6">What Our Guests Say</h2>
+              <Button
+                variant="outline"
+                onClick={() => setShowReviewModal(true)}
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              >
+                Write a Review
+              </Button>
             </div>
 
             <div className="relative">
@@ -1013,6 +1047,69 @@ const Home = () => {
         onClose={() => setShowGallery(false)}
         roomName={galleryRoomName}
       />
+
+      {/* Review Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Write a Review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Rating</Label>
+              <div className="flex gap-2 mt-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`w-8 h-8 ${star <= reviewForm.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="rv_name">Name *</Label>
+              <Input
+                id="rv_name"
+                value={reviewForm.guest_name}
+                onChange={(e) => setReviewForm({ ...reviewForm, guest_name: e.target.value })}
+                placeholder="Your name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="rv_email">Email *</Label>
+              <Input
+                id="rv_email"
+                type="email"
+                value={reviewForm.guest_email}
+                onChange={(e) => setReviewForm({ ...reviewForm, guest_email: e.target.value })}
+                placeholder="your@email.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="rv_comment">Share your experience *</Label>
+              <textarea
+                id="rv_comment"
+                value={reviewForm.comment}
+                onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 min-h-[100px]"
+                placeholder="Tell us about your stay..."
+              />
+            </div>
+            <Button
+              onClick={submitReview}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Submit Review
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
