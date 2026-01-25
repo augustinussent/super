@@ -14,7 +14,8 @@ const Dashboard = () => {
     monthly_revenue: 0,
     total_room_types: 0,
     pending_reviews: 0,
-    recent_reservations: []
+    recent_reservations: [],
+    revenue_chart: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState([]);
@@ -47,12 +48,7 @@ const Dashboard = () => {
     }
   };
 
-  const mockChartData = [
-    { name: 'Week 1', revenue: 15000000 },
-    { name: 'Week 2', revenue: 22000000 },
-    { name: 'Week 3', revenue: 18000000 },
-    { name: 'Week 4', revenue: 28000000 },
-  ];
+
 
   const statCards = [
     {
@@ -144,10 +140,10 @@ const Dashboard = () => {
           <h2 className="font-display text-xl font-semibold text-gray-900 mb-6">Pendapatan Bulanan</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={mockChartData}>
+              <AreaChart data={stats.revenue_chart && stats.revenue_chart.length > 0 ? stats.revenue_chart : []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="name" stroke="#9ca3af" />
-                <YAxis stroke="#9ca3af" tickFormatter={(value) => `${value / 1000000}M`} />
+                <YAxis stroke="#9ca3af" tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
                 <Tooltip
                   formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, 'Pendapatan']}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}

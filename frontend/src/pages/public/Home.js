@@ -320,7 +320,28 @@ const Home = () => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(`${API_URL}/reviews`);
-      setReviews(response.data);
+      if (response.data && response.data.length > 0) {
+        setReviews(response.data);
+      } else {
+        // Fallback dummy reviews
+        setReviews([
+          {
+            guest_name: "Budi Santoso",
+            rating: 5,
+            comment: "Pelayanan sangat memuaskan, kamar bersih dan pemandangan indah. Sangat recommended untuk liburan keluarga."
+          },
+          {
+            guest_name: "Siti Aminah",
+            rating: 5,
+            comment: "Makanan enak, lokasi strategis dekat tempat wisata. Staff ramah dan sangat membantu."
+          },
+          {
+            guest_name: "John Doe",
+            rating: 4,
+            comment: "Great view and friendly staff. Will definitely come back again when visiting Batu."
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching reviews:', error);
     }

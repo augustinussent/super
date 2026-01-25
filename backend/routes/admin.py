@@ -33,13 +33,49 @@ async def get_dashboard_stats(user: dict = Depends(require_admin)):
     
     recent_reservations = await db.reservations.find({}, {"_id": 0}).sort("created_at", -1).to_list(5)
     
+    # Calculate Revenue Chart (Last 6 Months)
+    pipeline = [
+        {
+            "$match": {
+                "status": {"$in": ["confirmed", "checked_in", "checked_out"]}
+            }
+        },
+        {
+            "$group": {
+                "_id": {"$substr": ["$check_in", 0, 7]}, # YYYY-MM
+                "revenue": {"$sum": "$total_amount"}
+            }
+        },
+        {"$sort": {"_id": 1}},
+        {"$limit": 6}
+    ]
+    
+    revenue_data = await db.reservations.aggregate(pipeline).to_list(10)
+    
+    # Format for chart
+    revenue_chart = []
+    for item in revenue_data:
+        # Convert YYYY-MM to Month Name
+        date_obj = datetime.strptime(item["_id"], "%Y-%m")
+        month_name = date_obj.strftime("%b")
+        revenue_chart.append({
+            "name": month_name,
+            "revenue": item["revenue"],
+            "fullDate": item["_id"]
+        })
+        
+    # If empty, provide at least minimal structure or empty list
+    if not revenue_chart:
+        revenue_chart = []
+
     return {
         "occupied_rooms": today_occupied,
         "available_rooms": available_today,
         "monthly_revenue": month_revenue,
         "total_room_types": len(rooms),
         "pending_reviews": pending_reviews,
-        "recent_reservations": recent_reservations
+        "recent_reservations": recent_reservations,
+        "revenue_chart": revenue_chart
     }
 
 # User Management
