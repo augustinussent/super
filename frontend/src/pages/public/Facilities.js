@@ -76,7 +76,7 @@ const Facilities = () => {
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Fasilitas Lengkap di Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display text-5xl font-bold text-white" role="heading" aria-level="2">Hotel Facilities</p>
+            <p className="font-display text-5xl text-white" role="heading" aria-level="2">Hotel Facilities</p>
           </motion.div>
         </div>
       </section>

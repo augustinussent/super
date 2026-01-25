@@ -65,7 +65,7 @@ const Meeting = () => {
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Meeting Room & Event Space Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display text-5xl font-bold text-white mb-4" role="heading" aria-level="2">Meeting & Events</p>
+            <p className="font-display text-5xl text-white mb-4" role="heading" aria-level="2">Meeting & Events</p>
             <p className="text-emerald-100 max-w-2xl mx-auto">
               Host your next corporate event in our state-of-the-art meeting facilities with stunning mountain views
             </p>
