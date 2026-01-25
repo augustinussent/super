@@ -31,7 +31,7 @@
         --chart-4: 156 40% 70%;
         --chart-5: 220 13% 40%;
         --radius: 0.5rem;
-        
+
         --emerald-50: #ecfdf5;
         --emerald-100: #d1fae5;
         --emerald-200: #a7f3d0;
@@ -47,36 +47,50 @@
 }
 
 @layer base {
-    html, body {
+
+    html,
+    body {
         width: 100%;
-        overflow-x: hidden; /* Mengunci geser kanan-kiri yang merusak layout mobile */
+        overflow-x: hidden;
+        /* Mengunci geser kanan-kiri yang merusak layout mobile */
         margin: 0;
         padding: 0;
-        -webkit-text-size-adjust: 100%; /* Mencegah teks berubah ukuran sendiri di iPhone */
+        -webkit-text-size-adjust: 100%;
+        /* Mencegah teks berubah ukuran sendiri di iPhone */
     }
-    
+
     * {
         @apply border-border;
         box-sizing: border-box;
     }
 
-        img, video {
+    img,
+    video {
         max-width: 100%;
         height: auto;
     }
+
     html {
         font-size: 16px;
     }
+
     @media (max-width: 640px) {
         html {
             font-size: 14px;
         }
     }
+
     body {
         @apply bg-emerald-50/30 text-foreground;
         font-family: 'Inter', sans-serif;
     }
-    h1, h2, h3, h4, h5, h6 {
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-family: 'Playfair Display', serif;
     }
 }
@@ -104,6 +118,7 @@
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -150,16 +165,22 @@ html {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideUp {
-    from { 
+    from {
         opacity: 0;
         transform: translateY(20px);
     }
-    to { 
+
+    to {
         opacity: 1;
         transform: translateY(0);
     }
@@ -170,6 +191,7 @@ html {
         opacity: 0;
         transform: scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -218,12 +240,12 @@ html {
 
 /* Overlay gradient */
 .overlay-gradient {
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 /* Hero overlay */
 .hero-overlay {
-    background: linear-gradient(135deg, rgba(2,44,34,0.7) 0%, rgba(5,150,105,0.3) 100%);
+    background: linear-gradient(135deg, rgba(2, 44, 34, 0.7) 0%, rgba(5, 150, 105, 0.3) 100%);
 }
 
 /* Responsive text */
@@ -249,5 +271,9 @@ html {
 .hero-title {
     font-weight: 500;
     line-height: 1.05;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.hero-subtitle {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.6);
 }

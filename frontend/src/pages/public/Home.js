@@ -441,7 +441,7 @@ const Home = () => {
             <p className="font-display hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white mb-4 sm:mb-6" role="heading" aria-level="2">
               {heroContent?.title || 'Spencer Green Hotel'}
             </p>
-            <p className="text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
+            <p className="hero-subtitle text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {heroContent?.subtitle || 'Experience Luxury in the Heart of Batu'}
             </p>
           </motion.div>

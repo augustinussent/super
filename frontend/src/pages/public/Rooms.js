@@ -280,7 +280,7 @@ const Rooms = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
+            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
             {/* Visual Title */}

@@ -66,7 +66,7 @@ const Wedding = () => {
             <h1 className="sr-only">Paket Wedding & Venue Pernikahan Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
             <p className="font-display hero-title text-5xl md:text-6xl text-white mb-4" role="heading" aria-level="2">Your Dream Wedding</p>
-            <p className="text-white/90 max-w-2xl mx-auto text-lg">
+            <p className="hero-subtitle text-white/90 max-w-2xl mx-auto text-lg">
               {heroContent?.subtitle || 'Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service'}
             </p>
           </motion.div>

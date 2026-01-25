@@ -71,7 +71,7 @@ const Facilities = () => {
         </div>
         <div className="relative text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Amenities</p>
+            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Amenities</p>
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Fasilitas Lengkap di Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
