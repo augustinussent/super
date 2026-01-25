@@ -6,12 +6,13 @@ from openai import AsyncOpenAI
 
 load_dotenv()
 
-# Use OpenAI API key from environment
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+# Use Emergent LLM API key from environment
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 
 client = AsyncOpenAI(
-    api_key=OPENAI_API_KEY
-) if OPENAI_API_KEY else None
+    api_key=EMERGENT_LLM_KEY,
+    base_url="https://api.emergentagent.com/v1"
+) if EMERGENT_LLM_KEY else None
 
 
 async def generate_image_caption(image_content: bytes, context: str = "hotel") -> dict:
