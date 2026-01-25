@@ -245,3 +245,9 @@ html {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+.hero-title {
+    font-weight: 500;
+    line-height: 1.05;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.35);
+}

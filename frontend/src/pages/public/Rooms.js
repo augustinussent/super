@@ -285,7 +285,7 @@ const Rooms = () => {
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display text-5xl text-white" role="heading" aria-level="2">Our Rooms</p>
+            <p className="font-display hero-title text-5xl text-white" role="heading" aria-level="2">Our Rooms</p>
           </motion.div>
         </div>
       </section>
