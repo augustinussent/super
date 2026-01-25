@@ -4,6 +4,8 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import AnalyticsTracker from "./components/AnalyticsTracker";
+import ScrollTracker from "./components/Tracking/ScrollTracker";
+import { initAnalytics } from "./utils/analytics";
 
 // Public Pages
 import PublicLayout from "./layouts/PublicLayout";
@@ -32,6 +34,7 @@ import "./App.css";
 
 function App() {
   useEffect(() => {
+    initAnalytics();
     const staticSEO = document.getElementById("seo-static-content");
     if (staticSEO) {
       staticSEO.remove();
@@ -43,6 +46,7 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <AnalyticsTracker />
+        <ScrollTracker />
         <Toaster position="top-right" richColors />
         <Routes>
           {/* Public Routes */}

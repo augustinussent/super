@@ -4,6 +4,7 @@ import { Play, X, Users, Maximize2, Volume2, VolumeX, Pause, Images } from 'luci
 import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import ImageGalleryOverlay from '../../components/ImageGalleryOverlay';
+import { trackEvent, trackBookNow } from '../../utils/analytics';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -409,7 +410,10 @@ const Rooms = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                       <Button
-                        onClick={() => window.location.href = '/?book=' + room.room_type_id}
+                        onClick={() => {
+                          trackBookNow(room.name);
+                          window.location.href = '/?book=' + room.room_type_id;
+                        }}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                         data-testid={`book-now-btn-${room.room_type_id}`}
                       >

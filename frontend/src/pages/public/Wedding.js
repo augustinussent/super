@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Heart, Users, Camera, Utensils, Music, Flower2, Phone } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import axios from 'axios';
+import { trackWhatsAppClick } from '../../utils/analytics';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -159,6 +160,7 @@ const Wedding = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center bg-white text-emerald-800 px-8 py-4 rounded-full font-semibold hover:bg-emerald-50 transition-colors"
+            onClick={() => trackWhatsAppClick('Wedding Page CTA')}
             data-testid="wedding-contact-btn"
           >
             <Phone className="w-5 h-5 mr-2" />

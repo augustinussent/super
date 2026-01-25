@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images } from 'lucide-react';
+import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
+import { trackEvent, trackBookNow, trackViewRoom } from '../../utils/analytics';
 import { toast } from 'sonner';
 import { Calendar as CalendarComponent } from '../../components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
@@ -783,7 +785,10 @@ const Home = () => {
                   />
                   {/* Room Tour Button */}
                   <button
-                    onClick={() => handlePlayVideo(room)}
+                    onClick={() => {
+                      trackEvent('Content', 'play_video', room.name);
+                      handlePlayVideo(room);
+                    }}
                     data-testid={`home-room-tour-btn-${room.room_type_id}`}
                     className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 hover:bg-white text-emerald-700 px-5 py-3 rounded-full transition-all shadow-lg hover:shadow-xl"
                   >
@@ -807,7 +812,10 @@ const Home = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <Button
-                        onClick={() => handleBookRoom(room)}
+                        onClick={() => {
+                          trackBookNow(room.name);
+                          handleBookRoom(room);
+                        }}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                       >
                         Book Now
