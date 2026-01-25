@@ -51,7 +51,7 @@ const Wedding = () => {
   ];
 
   return (
-    <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
+    <div className="bg-emerald-50/30">
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center">
         <div

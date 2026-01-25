@@ -50,7 +50,7 @@ const Meeting = () => {
   ];
 
   return (
-    <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
+    <div className="bg-emerald-50/30">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[350px] flex items-center justify-center">
         <div
