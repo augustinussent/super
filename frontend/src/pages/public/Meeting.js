@@ -1,8 +1,27 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Wifi, Projector, Coffee, Clock, Phone } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Meeting = () => {
+  const [heroContent, setHeroContent] = useState(null);
+
+  useEffect(() => {
+    const fetchHeroContent = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/content?page=meeting`);
+        const hero = response.data.find(c => c.section === 'hero');
+        if (hero) setHeroContent(hero.content);
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+      }
+    };
+    fetchHeroContent();
+  }, []);
+
   const meetingRooms = [
     {
       name: 'Boardroom',
@@ -34,16 +53,16 @@ const Meeting = () => {
     <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[350px] flex items-center justify-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1920)' }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-emerald-950/70" />
         </div>
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Corporate Events</p>
-            <h1 className="font-display text-5xl font-bold text-white mb-4">Meeting & Events</h1>
+            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent?.subtitle || 'Corporate Events'}</p>
+            <h1 className="font-display text-5xl font-bold text-white mb-4">{heroContent?.title || 'Meeting & Events'}</h1>
             <p className="text-emerald-100 max-w-2xl mx-auto">
               Host your next corporate event in our state-of-the-art meeting facilities with stunning mountain views
             </p>
@@ -139,7 +158,7 @@ const Meeting = () => {
           <p className="text-emerald-200 mb-8">
             Our dedicated events team is ready to help you create a memorable experience
           </p>
-          <a 
+          <a
             href="https://wa.me/6281130700206?text=Hi,%20I%20want%20to%20inquire%20about%20meeting%20packages"
             target="_blank"
             rel="noopener noreferrer"

@@ -1,8 +1,27 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Users, Camera, Utensils, Music, Flower2, Phone } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Wedding = () => {
+  const [heroContent, setHeroContent] = useState(null);
+
+  useEffect(() => {
+    const fetchHeroContent = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/content?page=wedding`);
+        const hero = response.data.find(c => c.section === 'hero');
+        if (hero) setHeroContent(hero.content);
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+      }
+    };
+    fetchHeroContent();
+  }, []);
+
   const venues = [
     {
       name: 'Grand Ballroom',
@@ -35,18 +54,18 @@ const Wedding = () => {
     <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1920)' }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         </div>
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Heart className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-            <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-4">Your Dream Wedding</h1>
+            <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-4">{heroContent?.title || 'Your Dream Wedding'}</h1>
             <p className="text-white/90 max-w-2xl mx-auto text-lg">
-              Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service
+              {heroContent?.subtitle || 'Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service'}
             </p>
           </motion.div>
         </div>
@@ -130,9 +149,9 @@ const Wedding = () => {
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <pattern id="hearts" patternUnits="userSpaceOnUse" width="20" height="20">
-              <path d="M10 6 C7 3, 3 6, 6 10 L10 14 L14 10 C17 6, 13 3, 10 6" fill="white"/>
+              <path d="M10 6 C7 3, 3 6, 6 10 L10 14 L14 10 C17 6, 13 3, 10 6" fill="white" />
             </pattern>
-            <rect width="100%" height="100%" fill="url(#hearts)"/>
+            <rect width="100%" height="100%" fill="url(#hearts)" />
           </svg>
         </div>
         <div className="max-w-4xl mx-auto px-4 text-center relative">
@@ -140,7 +159,7 @@ const Wedding = () => {
           <p className="text-emerald-200 mb-8 text-lg">
             Let us help you plan the wedding of your dreams
           </p>
-          <a 
+          <a
             href="https://wa.me/6281130700206?text=Hi,%20I%20want%20to%20inquire%20about%20wedding%20packages"
             target="_blank"
             rel="noopener noreferrer"

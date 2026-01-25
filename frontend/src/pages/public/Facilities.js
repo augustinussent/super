@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Waves, Dumbbell, Utensils, Sparkles, TreePine, Car } from 'lucide-react';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Facilities = () => {
+  const [heroContent, setHeroContent] = useState(null);
+
+  useEffect(() => {
+    const fetchHeroContent = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/content?page=facilities`);
+        const hero = response.data.find(c => c.section === 'hero');
+        if (hero) setHeroContent(hero.content);
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+      }
+    };
+    fetchHeroContent();
+  }, []);
+
   const facilities = [
     {
       icon: Waves,
@@ -45,16 +64,16 @@ const Facilities = () => {
     <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1558239041-c5fc98b811a7?w=1920)' }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1558239041-c5fc98b811a7?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-emerald-950/60" />
         </div>
         <div className="relative text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Amenities</p>
-            <h1 className="font-display text-5xl font-bold text-white">Hotel Facilities</h1>
+            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent?.subtitle || 'Amenities'}</p>
+            <h1 className="font-display text-5xl font-bold text-white">{heroContent?.title || 'Hotel Facilities'}</h1>
           </motion.div>
         </div>
       </section>
@@ -76,8 +95,8 @@ const Facilities = () => {
                   data-testid={`facility-${index}`}
                 >
                   <div className="aspect-[16/10] overflow-hidden relative">
-                    <img 
-                      src={facility.image} 
+                    <img
+                      src={facility.image}
                       alt={facility.name}
                       className="w-full h-full object-cover img-zoom"
                     />
@@ -106,7 +125,7 @@ const Facilities = () => {
             Experience Complete Comfort
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            All facilities are available exclusively for our hotel guests. 
+            All facilities are available exclusively for our hotel guests.
             For special arrangements or inquiries, please contact our concierge team.
           </p>
         </div>

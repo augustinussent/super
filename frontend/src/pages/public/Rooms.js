@@ -163,11 +163,11 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
                 {/* Bottom Controls */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   {/* Progress Bar */}
-                  <div 
+                  <div
                     className="w-full h-1 bg-white/30 rounded-full cursor-pointer mb-3"
                     onClick={handleSeek}
                   >
-                    <div 
+                    <div
                       className="h-full bg-emerald-500 rounded-full transition-all"
                       style={{ width: `${progress}%` }}
                     />
@@ -225,6 +225,7 @@ const Rooms = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [galleryRoomName, setGalleryRoomName] = useState('');
+  const [heroContent, setHeroContent] = useState(null);
 
   const fetchRooms = async () => {
     try {
@@ -235,8 +236,19 @@ const Rooms = () => {
     }
   };
 
+  const fetchHeroContent = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/content?page=rooms`);
+      const hero = response.data.find(c => c.section === 'hero');
+      if (hero) setHeroContent(hero.content);
+    } catch (error) {
+      console.error('Error fetching hero content:', error);
+    }
+  };
+
   useEffect(() => {
     fetchRooms();
+    fetchHeroContent();
   }, []);
 
   const handlePlayVideo = (room) => {
@@ -258,9 +270,9 @@ const Rooms = () => {
     <div className="bg-emerald-50/30 pt-16 sm:pt-18 lg:pt-20">
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920)' }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-emerald-950/60" />
         </div>
@@ -269,8 +281,8 @@ const Rooms = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
-            <h1 className="font-display text-5xl font-bold text-white">Our Rooms</h1>
+            <p className="text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent?.subtitle || 'Accommodations'}</p>
+            <h1 className="font-display text-5xl font-bold text-white">{heroContent?.title || 'Our Rooms'}</h1>
           </motion.div>
         </div>
       </section>
@@ -286,9 +298,8 @@ const Rooms = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${
-                  index % 2 === 1 ? 'lg:flex-row-reverse' : ''
-                }`}
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''
+                  }`}
                 data-testid={`room-detail-${room.room_type_id}`}
               >
                 {/* Room Image with Video Overlay */}
@@ -300,7 +311,7 @@ const Rooms = () => {
                       alt={room.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    
+
                     {/* Overlay with actions */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
                       {/* Photo count badge */}
@@ -310,7 +321,7 @@ const Rooms = () => {
                           {room.images.length} Foto
                         </div>
                       )}
-                      
+
                       {/* Video badge */}
                       {room.video_url && (
                         <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-sm">
@@ -318,7 +329,7 @@ const Rooms = () => {
                           Video
                         </div>
                       )}
-                      
+
                       {/* Room Tour Button */}
                       <button
                         onClick={(e) => {
@@ -341,9 +352,8 @@ const Rooms = () => {
                         <button
                           key={imgIdx}
                           onClick={() => openGallery(room, imgIdx)}
-                          className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all hover:ring-2 hover:ring-emerald-500 ${
-                            imgIdx === 0 ? 'ring-2 ring-emerald-500' : ''
-                          }`}
+                          className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all hover:ring-2 hover:ring-emerald-500 ${imgIdx === 0 ? 'ring-2 ring-emerald-500' : ''
+                            }`}
                           data-testid={`room-thumb-${room.room_type_id}-${imgIdx}`}
                         >
                           <img src={img} alt={`${room.name} ${imgIdx + 1}`} className="w-full h-full object-cover" />
@@ -365,7 +375,7 @@ const Rooms = () => {
                 <div className={`${index % 2 === 1 ? 'lg:order-1' : ''}`}>
                   <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">{room.name}</h2>
                   <p className="text-gray-600 leading-relaxed mb-6">{room.description}</p>
-                  
+
                   <div className="flex items-center space-x-4 mb-6">
                     <div className="flex items-center text-gray-500">
                       <Users className="w-5 h-5 mr-2" />
@@ -375,7 +385,7 @@ const Rooms = () => {
 
                   <div className="flex flex-wrap gap-2 mb-8">
                     {room.amenities?.map((amenity, i) => (
-                      <span 
+                      <span
                         key={i}
                         className="px-3 py-1 bg-emerald-50 text-emerald-700 text-sm rounded-full"
                       >
@@ -392,7 +402,7 @@ const Rooms = () => {
                         <span className="text-gray-400 text-sm font-normal">/night</span>
                       </p>
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                       <Button
