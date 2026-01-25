@@ -11,7 +11,7 @@ router = APIRouter(tags=["rooms"])
 # Public routes
 @router.get("/rooms")
 async def get_rooms():
-    rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).to_list(100)
+    rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).sort("display_order", 1).to_list(100)
     return rooms
 
 @router.get("/rooms/{room_type_id}")
@@ -47,6 +47,21 @@ async def delete_room(room_type_id: str, user: dict = Depends(require_admin)):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Room not found")
     return {"message": "Room deleted"}
+
+@router.post("/admin/rooms/reorder")
+async def reorder_rooms(order_data: dict, user: dict = Depends(require_admin)):
+    # order_data expectation: {"room_ids": ["id1", "id2", ...]}
+    room_ids = order_data.get("room_ids", [])
+    if not room_ids:
+        raise HTTPException(status_code=400, detail="room_ids list is required")
+        
+    for index, room_id in enumerate(room_ids):
+        await db.room_types.update_one(
+            {"room_type_id": room_id},
+            {"$set": {"display_order": index}}
+        )
+            
+    return {"message": "Rooms reordered successfully"}
 
 # Inventory routes
 @router.get("/inventory")
@@ -130,7 +145,7 @@ async def bulk_update_inventory(request: BulkUpdateRequest, user: dict = Depends
 # Availability
 @router.get("/availability")
 async def check_availability(check_in: str, check_out: str):
-    rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).to_list(100)
+    rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).sort("display_order", 1).to_list(100)
     available_rooms = []
     
     for room in rooms:

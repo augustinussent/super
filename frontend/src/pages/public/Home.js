@@ -765,7 +765,7 @@ const Home = () => {
         </div>
 
         <div className="space-y-0">
-          {rooms.slice(0, 3).map((room, index) => (
+          {rooms.map((room, index) => (
             <motion.div
               key={room.room_type_id}
               initial={{ opacity: 0, y: 20 }}

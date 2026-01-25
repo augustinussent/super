@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Calendar, ChevronLeft, ChevronRight, Image, Play, Users, DollarSign } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Calendar, ChevronLeft, ChevronRight, Image, Play, Users, DollarSign, ArrowUp, ArrowDown } from 'lucide-react';
 import { format, addDays, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -142,6 +142,28 @@ const RoomManagement = () => {
 
     setRoomForm({ ...roomForm, images: newImages });
     toast.info(`Urutan diperbarui: Foto ke-${targetIndex + 1} sekarang jadi foto ${targetIndex === 0 ? 'Utama' : ''}`);
+  };
+
+  const moveRoom = async (index, direction) => {
+    const newRooms = [...rooms];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newRooms.length) return;
+
+    // Optimistic update
+    [newRooms[index], newRooms[targetIndex]] = [newRooms[targetIndex], newRooms[index]];
+    setRooms(newRooms);
+
+    try {
+      const roomIds = newRooms.map(r => r.room_type_id);
+      await axios.post(`${API_URL}/admin/rooms/reorder`, { room_ids: roomIds }, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      // toast.success('Urutan diperbarui');
+    } catch (error) {
+      toast.error('Gagal memperbarui urutan');
+      fetchRooms(); // Revert
+    }
   };
 
   const saveRoom = async () => {
@@ -383,6 +405,27 @@ const RoomManagement = () => {
 
                   {/* Actions */}
                   <div className="p-6 flex flex-col justify-center gap-2 border-l border-gray-100">
+                    <div className="flex gap-2 mb-2">
+                      <Button
+                        onClick={() => moveRoom(rooms.indexOf(room), 'up')}
+                        variant="outline"
+                        className="flex-1"
+                        disabled={rooms.indexOf(room) === 0}
+                        title="Geser ke Atas"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        onClick={() => moveRoom(rooms.indexOf(room), 'down')}
+                        variant="outline"
+                        className="flex-1"
+                        disabled={rooms.indexOf(room) === rooms.length - 1}
+                        title="Geser ke Bawah"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </Button>
+                    </div>
+
                     <Button
                       onClick={() => openEditRoom(room)}
                       variant="outline"

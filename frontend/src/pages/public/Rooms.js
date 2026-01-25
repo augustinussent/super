@@ -409,15 +409,6 @@ const Rooms = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                       <Button
-                        onClick={() => handlePlayVideo(room)}
-                        variant="outline"
-                        className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-                        data-testid={`room-tour-btn-${room.room_type_id}`}
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        Room Tour
-                      </Button>
-                      <Button
                         onClick={() => window.location.href = '/?book=' + room.room_type_id}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                         data-testid={`book-now-btn-${room.room_type_id}`}
