@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime, timezone, timedelta
 import uuid
 
 from database import db
 from models.room import RoomType, RoomInventory, BulkUpdateRequest
 from services.auth import require_admin
+from services.audit import log_activity, get_changes
 
 router = APIRouter(tags=["rooms"])
 
@@ -23,29 +24,73 @@ async def get_room(room_type_id: str):
 
 # Admin routes
 @router.post("/admin/rooms")
-async def create_room(room: RoomType, user: dict = Depends(require_admin)):
+async def create_room(room: RoomType, request: Request, user: dict = Depends(require_admin)):
     room_doc = room.model_dump()
     await db.room_types.insert_one(room_doc)
     # Exclude _id from response (MongoDB adds it during insert)
     room_doc.pop("_id", None)
+    
+    # Log the activity
+    await log_activity(
+        user=user,
+        action="create",
+        resource="rooms",
+        resource_id=room_doc.get("room_type_id"),
+        details={"room_name": room_doc.get("name"), "base_price": room_doc.get("base_price")},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return room_doc
 
 @router.put("/admin/rooms/{room_type_id}")
-async def update_room(room_type_id: str, room: dict, user: dict = Depends(require_admin)):
+async def update_room(room_type_id: str, room: dict, request: Request, user: dict = Depends(require_admin)):
+    # Get old room data for comparison
+    old_room = await db.room_types.find_one({"room_type_id": room_type_id}, {"_id": 0})
+    if not old_room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
     room["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = await db.room_types.update_one({"room_type_id": room_type_id}, {"$set": room})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Room not found")
+    
+    # Log the activity
+    changes = get_changes(old_room, room, ["name", "description", "base_price", "max_guests", "amenities"])
+    await log_activity(
+        user=user,
+        action="update",
+        resource="rooms",
+        resource_id=room_type_id,
+        details={"room_name": old_room.get("name"), "changes": changes},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "Room updated"}
 
 @router.delete("/admin/rooms/{room_type_id}")
-async def delete_room(room_type_id: str, user: dict = Depends(require_admin)):
+async def delete_room(room_type_id: str, request: Request, user: dict = Depends(require_admin)):
+    # Get room info before delete
+    room_to_delete = await db.room_types.find_one({"room_type_id": room_type_id}, {"_id": 0})
+    if not room_to_delete:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
     result = await db.room_types.update_one(
         {"room_type_id": room_type_id},
         {"$set": {"is_active": False}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Room not found")
+    
+    # Log the activity
+    await log_activity(
+        user=user,
+        action="delete",
+        resource="rooms",
+        resource_id=room_type_id,
+        details={"room_name": room_to_delete.get("name")},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "Room deleted"}
 
 @router.post("/admin/rooms/reorder")

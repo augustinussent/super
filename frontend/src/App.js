@@ -75,6 +75,7 @@ function App() {
             <Route path="promo-codes" element={<PermissionGuard permKey="promo"><PromoCodes /></PermissionGuard>} />
             <Route path="reviews" element={<PermissionGuard permKey="reviews"><Reviews /></PermissionGuard>} />
             <Route path="content" element={<PermissionGuard permKey="content"><ContentManagement /></PermissionGuard>} />
+            <Route path="logs" element={<PermissionGuard permKey="logs"><ActivityLogs /></PermissionGuard>} />
           </Route>
         </Routes>
       </BrowserRouter>

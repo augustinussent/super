@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime, timezone
 
 from database import db
 from services.auth import hash_password, require_admin
+from services.audit import log_activity, get_changes
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -85,7 +86,12 @@ async def get_users(user: dict = Depends(require_admin)):
     return users
 
 @router.put("/users/{user_id}")
-async def update_user(user_id: str, user_data: dict, current_user: dict = Depends(require_admin)):
+async def update_user(user_id: str, user_data: dict, request: Request, current_user: dict = Depends(require_admin)):
+    # Get old user data for comparison
+    old_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password": 0})
+    if not old_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     if "password" in user_data:
         user_data["password"] = hash_password(user_data["password"])
     user_data["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -93,14 +99,75 @@ async def update_user(user_id: str, user_data: dict, current_user: dict = Depend
     result = await db.users.update_one({"user_id": user_id}, {"$set": user_data})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Log the activity
+    changes = get_changes(old_user, user_data, ["name", "email", "role", "permissions"])
+    await log_activity(
+        user=current_user,
+        action="update",
+        resource="users",
+        resource_id=user_id,
+        details={"target_user": old_user.get("name"), "changes": changes},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "User updated"}
 
 @router.delete("/users/{user_id}")
-async def delete_user(user_id: str, current_user: dict = Depends(require_admin)):
+async def delete_user(user_id: str, request: Request, current_user: dict = Depends(require_admin)):
     if user_id == current_user["user_id"]:
         raise HTTPException(status_code=400, detail="Cannot delete yourself")
+    
+    # Get user info before delete
+    user_to_delete = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password": 0})
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found")
     
     result = await db.users.delete_one({"user_id": user_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Log the activity
+    await log_activity(
+        user=current_user,
+        action="delete",
+        resource="users",
+        resource_id=user_id,
+        details={"deleted_user": user_to_delete.get("name"), "email": user_to_delete.get("email")},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "User deleted"}
+
+# Activity Logs
+@router.get("/logs")
+async def get_activity_logs(
+    page: int = 1,
+    limit: int = 50,
+    resource: str = None,
+    action: str = None,
+    user_id: str = None,
+    current_user: dict = Depends(require_admin)
+):
+    """Get activity logs with optional filters"""
+    query = {}
+    
+    if resource:
+        query["resource"] = resource
+    if action:
+        query["action"] = action
+    if user_id:
+        query["user_id"] = user_id
+    
+    skip = (page - 1) * limit
+    
+    logs = await db.audit_logs.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.audit_logs.count_documents(query)
+    
+    return {
+        "logs": logs,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+

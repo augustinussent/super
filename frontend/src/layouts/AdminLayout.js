@@ -11,7 +11,10 @@ import {
   Menu,
   X,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Settings,
+  Shield,
+  Image
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -40,6 +43,8 @@ const AdminLayout = () => {
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
+    { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },
+    { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];
 
   // Filter menu items based on user permissions
