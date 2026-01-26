@@ -624,31 +624,21 @@ const RoomManagement = () => {
 
       {/* Create/Edit Room Modal */}
       <Dialog open={showRoomModal} onOpenChange={setShowRoomModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingRoom ? 'Edit Kamar' : 'Tambah Kamar Baru'}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+          <div className="space-y-4 py-4">
+            {/* Basic Info - 3 column grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
                 <Label>Nama Kamar *</Label>
                 <Input
                   value={roomForm.name}
                   onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })}
                   placeholder="e.g., Superior Room"
                   data-testid="room-name-input"
-                />
-              </div>
-
-              <div>
-                <Label>Harga Dasar (Rp) *</Label>
-                <Input
-                  type="number"
-                  value={roomForm.base_price}
-                  onChange={(e) => setRoomForm({ ...roomForm, base_price: e.target.value })}
-                  placeholder="e.g., 850000"
-                  data-testid="room-price-input"
                 />
               </div>
 
@@ -666,18 +656,18 @@ const RoomManagement = () => {
                 </Select>
               </div>
 
-              <div className="col-span-2">
-                <Label>Deskripsi</Label>
-                <Textarea
-                  value={roomForm.description}
-                  onChange={(e) => setRoomForm({ ...roomForm, description: e.target.value })}
-                  placeholder="Deskripsi kamar..."
-                  rows={3}
-                  data-testid="room-description-input"
+              <div>
+                <Label>Harga Dasar (Rp) *</Label>
+                <Input
+                  type="number"
+                  value={roomForm.base_price}
+                  onChange={(e) => setRoomForm({ ...roomForm, base_price: e.target.value })}
+                  placeholder="e.g., 850000"
+                  data-testid="room-price-input"
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="md:col-span-2">
                 <Label>Fasilitas (pisahkan dengan koma)</Label>
                 <Input
                   value={roomForm.amenities}
@@ -686,111 +676,117 @@ const RoomManagement = () => {
                   data-testid="room-amenities-input"
                 />
               </div>
+
+              <div className="md:col-span-3">
+                <Label>Deskripsi</Label>
+                <Textarea
+                  value={roomForm.description}
+                  onChange={(e) => setRoomForm({ ...roomForm, description: e.target.value })}
+                  placeholder="Deskripsi kamar..."
+                  rows={2}
+                  data-testid="room-description-input"
+                />
+              </div>
             </div>
 
-            {/* Images Section */}
-            <div>
-              <Label className="flex items-center gap-2 mb-3">
-                <Image className="w-4 h-4" />
-                Foto Kamar
-              </Label>
+            {/* Images & Video Section - Side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Images Section */}
+              <div className="border rounded-lg p-4">
+                <Label className="flex items-center gap-2 mb-3">
+                  <Image className="w-4 h-4" />
+                  Foto Kamar
+                </Label>
 
-              {roomForm.images.length > 0 && (
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {roomForm.images.map((img, idx) => (
-                    <div key={idx} className="relative group border-2 border-transparent hover:border-emerald-500 rounded-lg overflow-hidden transition-all">
-                      <img src={img} alt={`Room ${idx + 1}`} className="w-full h-20 object-cover" />
-
-                      {/* Label Foto Utama */}
-                      {idx === 0 && (
-                        <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
-                          FOTO UTAMA
+                {roomForm.images.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2 mb-3">
+                    {roomForm.images.map((img, idx) => (
+                      <div key={idx} className="relative group border-2 border-transparent hover:border-emerald-500 rounded-lg overflow-hidden transition-all">
+                        <img src={img} alt={`Room ${idx + 1}`} className="w-full h-16 object-cover" />
+                        {idx === 0 && (
+                          <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-bl">
+                            UTAMA
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                          <button
+                            onClick={() => moveImage(idx, 'up')}
+                            disabled={idx === 0}
+                            className="p-0.5 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => moveImage(idx, 'down')}
+                            disabled={idx === roomForm.images.length - 1}
+                            className="p-0.5 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => removeImage(idx)}
+                            className="p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
                         </div>
-                      )}
-
-                      <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
-                        {idx + 1}
                       </div>
-
-                      {/* Badge Urutan */}
-                      <div className="absolute top-0 left-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5">
-                        {idx === 0 ? 'UTAMA' : idx + 1}
-                      </div>
-
-                      {/* Tombol Kontrol (Muncul saat Hover) */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
-                        <button
-                          onClick={() => moveImage(idx, 'up')}
-                          disabled={idx === 0}
-                          className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
-                        >
-                          <ChevronLeft className="w-3 h-3" />
-                        </button>
-
-                        <button
-                          onClick={() => moveImage(idx, 'down')}
-                          disabled={idx === roomForm.images.length - 1}
-                          className="p-1 bg-white text-emerald-700 rounded-full disabled:opacity-30"
-                        >
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-
-                        <button
-                          onClick={() => removeImage(idx)}
-                          className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowImageUpload(true)}
-                className="w-full"
-                data-testid="upload-room-image-btn"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Tambah Foto
-              </Button>
-            </div>
-
-            {/* Video Section */}
-            <div>
-              <Label className="flex items-center gap-2 mb-3">
-                <Play className="w-4 h-4" />
-                Video Room Tour
-              </Label>
-
-              {roomForm.video_url ? (
-                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                  <video src={roomForm.video_url} className="w-32 h-20 object-cover rounded" />
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 truncate">{roomForm.video_url}</p>
+                    ))}
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setRoomForm({ ...roomForm, video_url: '' })}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ) : (
+                )}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowImageUpload(true)}
+                  className="w-full"
+                  size="sm"
+                  data-testid="upload-room-image-btn"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Tambah Foto
+                </Button>
+              </div>
+
+              {/* Video Section */}
+              <div className="border rounded-lg p-4">
+                <Label className="flex items-center gap-2 mb-3">
+                  <Play className="w-4 h-4" />
+                  Video Room Tour
+                </Label>
+
+                {roomForm.video_url ? (
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-3">
+                    <video src={roomForm.video_url} className="w-24 h-16 object-cover rounded" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-600 truncate">{roomForm.video_url}</p>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setRoomForm({ ...roomForm, video_url: '' })}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="h-16 mb-3 flex items-center justify-center text-gray-400 text-sm border border-dashed rounded">
+                    Belum ada video
+                  </div>
+                )}
+
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowVideoUpload(true)}
                   className="w-full"
+                  size="sm"
                   data-testid="upload-room-video-btn"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Tambah Video
+                  {roomForm.video_url ? 'Ganti Video' : 'Tambah Video'}
                 </Button>
-              )}
+              </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowRoomModal(false)}>
                 Batal
               </Button>
