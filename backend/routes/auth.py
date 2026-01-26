@@ -22,6 +22,7 @@ async def register(user: UserCreate, current_user: dict = Depends(require_admin)
         "password": hash_password(user.password),
         "name": user.name,
         "role": user.role,
+        "permissions": user.permissions.model_dump() if user.permissions else {},
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user_doc)
