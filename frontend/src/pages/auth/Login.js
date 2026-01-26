@@ -27,8 +27,12 @@ const Login = () => {
     try {
       const user = await login(email, password);
       toast.success(`Welcome back, ${user.name}!`);
-      
-      if (user.role === 'admin' || user.role === 'superadmin') {
+
+      // Check if user has any admin access (role or permissions)
+      const hasAdminAccess = ['admin', 'superadmin'].includes(user.role) ||
+        Object.values(user.permissions || {}).some(v => v === true);
+
+      if (hasAdminAccess) {
         navigate('/admin');
       } else {
         navigate('/');
@@ -120,8 +124,8 @@ const Login = () => {
             </div>
 
             <div className="flex items-center justify-end">
-              <Link 
-                to="/forgot-password" 
+              <Link
+                to="/forgot-password"
                 className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
                 data-testid="forgot-password-link"
               >

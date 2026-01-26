@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  BedDouble, 
-  CalendarCheck, 
-  Users, 
-  Tag, 
-  Star, 
+import {
+  LayoutDashboard,
+  BedDouble,
+  CalendarCheck,
+  Users,
+  Tag,
+  Star,
   FileText,
   Menu,
   X,
@@ -20,27 +20,30 @@ const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, loading, isAdmin } = useAuth();
+  const { user, logout, loading, hasAnyAdminAccess, hasPermission } = useAuth();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin())) {
+    if (!loading && (!user || !hasAnyAdminAccess())) {
       navigate('/login');
     }
-  }, [user, loading, isAdmin, navigate]);
+  }, [user, loading, hasAnyAdminAccess, navigate]);
 
   useEffect(() => {
     setIsMobileSidebarOpen(false);
   }, [location]);
 
-  const menuItems = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { name: 'Kelola Kamar', path: '/admin/rooms', icon: BedDouble },
-    { name: 'Reservasi', path: '/admin/reservations', icon: CalendarCheck },
-    { name: 'Pengguna', path: '/admin/users', icon: Users },
-    { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag },
-    { name: 'Review', path: '/admin/reviews', icon: Star },
-    { name: 'Konten', path: '/admin/content', icon: FileText },
+  const allMenuItems = [
+    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, permKey: 'dashboard' },
+    { name: 'Kelola Kamar', path: '/admin/rooms', icon: BedDouble, permKey: 'rooms' },
+    { name: 'Reservasi', path: '/admin/reservations', icon: CalendarCheck, permKey: 'reservations' },
+    { name: 'Pengguna', path: '/admin/users', icon: Users, permKey: 'users' },
+    { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
+    { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
+    { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
   ];
+
+  // Filter menu items based on user permissions
+  const menuItems = allMenuItems.filter(item => hasPermission(item.permKey));
 
   const handleLogout = () => {
     logout();
@@ -55,7 +58,7 @@ const AdminLayout = () => {
     );
   }
 
-  if (!user || !isAdmin()) {
+  if (!user || !hasAnyAdminAccess()) {
     return null;
   }
 
@@ -63,17 +66,16 @@ const AdminLayout = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside 
-        className={`fixed top-0 left-0 h-full bg-emerald-950 text-white z-50 transition-all duration-300 ${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+      <aside
+        className={`fixed top-0 left-0 h-full bg-emerald-950 text-white z-50 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'
+          } ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-emerald-800">
@@ -100,17 +102,16 @@ const AdminLayout = () => {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 data-testid={`admin-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-emerald-600 text-white' 
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                    ? 'bg-emerald-600 text-white'
                     : 'text-emerald-200 hover:bg-emerald-800'
-                }`}
+                  }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {isSidebarOpen && <span className="font-medium">{item.name}</span>}
@@ -149,8 +150,8 @@ const AdminLayout = () => {
             <span className="font-semibold text-gray-800">{user?.name}</span>
           </div>
 
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="text-emerald-600 hover:text-emerald-700 font-medium"
             data-testid="view-site-link"
           >

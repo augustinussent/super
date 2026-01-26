@@ -29,6 +29,7 @@ import Users from "./pages/admin/Users";
 import PromoCodes from "./pages/admin/PromoCodes";
 import Reviews from "./pages/admin/Reviews";
 import ContentManagement from "./pages/admin/ContentManagement";
+import PermissionGuard from "./components/PermissionGuard";
 
 import "./App.css";
 
@@ -65,15 +66,15 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Admin Routes */}
+          {/* Admin Routes - Protected by PermissionGuard */}
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="rooms" element={<RoomManagement />} />
-            <Route path="reservations" element={<Reservations />} />
-            <Route path="users" element={<Users />} />
-            <Route path="promo-codes" element={<PromoCodes />} />
-            <Route path="reviews" element={<Reviews />} />
-            <Route path="content" element={<ContentManagement />} />
+            <Route index element={<PermissionGuard permKey="dashboard"><Dashboard /></PermissionGuard>} />
+            <Route path="rooms" element={<PermissionGuard permKey="rooms"><RoomManagement /></PermissionGuard>} />
+            <Route path="reservations" element={<PermissionGuard permKey="reservations"><Reservations /></PermissionGuard>} />
+            <Route path="users" element={<PermissionGuard permKey="users"><Users /></PermissionGuard>} />
+            <Route path="promo-codes" element={<PermissionGuard permKey="promo"><PromoCodes /></PermissionGuard>} />
+            <Route path="reviews" element={<PermissionGuard permKey="reviews"><Reviews /></PermissionGuard>} />
+            <Route path="content" element={<PermissionGuard permKey="content"><ContentManagement /></PermissionGuard>} />
           </Route>
         </Routes>
       </BrowserRouter>
