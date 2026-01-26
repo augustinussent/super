@@ -33,7 +33,53 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-async def require_admin(user: dict = Depends(get_current_user)):
-    if user.get("role") not in ["admin", "superadmin"]:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return user
+async def get_current_user_with_permissions(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current user and fetch full user data including permissions from database"""
+    from database import db
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        # Fetch full user from database to get permissions
+        user_doc = await db.users.find_one({"user_id": payload["user_id"]}, {"_id": 0, "password": 0})
+        if not user_doc:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user_doc
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def require_admin(user: dict = Depends(get_current_user_with_permissions)):
+    """Allow access if user is admin/superadmin OR staff with any permission"""
+    role = user.get("role")
+    
+    # Admin and superadmin always have access
+    if role in ["admin", "superadmin"]:
+        return user
+    
+    # Staff can access if they have at least one permission
+    permissions = user.get("permissions", {})
+    if any(permissions.values()):
+        return user
+    
+    raise HTTPException(status_code=403, detail="Admin access required")
+
+def require_permission(perm_key: str):
+    """Factory function to create permission-specific dependency"""
+    async def permission_checker(user: dict = Depends(get_current_user_with_permissions)):
+        role = user.get("role")
+        
+        # Admin and superadmin have all permissions
+        if role in ["admin", "superadmin"]:
+            return user
+        
+        # Check specific permission for staff
+        permissions = user.get("permissions", {})
+        if permissions.get(perm_key, False):
+            return user
+        
+        raise HTTPException(status_code=403, detail=f"Permission '{perm_key}' required")
+    
+    return permission_checker
+
