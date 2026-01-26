@@ -41,7 +41,8 @@ async def login(credentials: UserLogin):
             "user_id": user["user_id"],
             "email": user["email"],
             "name": user["name"],
-            "role": user["role"]
+            "role": user["role"],
+            "permissions": user.get("permissions", {})
         }
     }
 
