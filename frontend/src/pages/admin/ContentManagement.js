@@ -119,6 +119,46 @@ const ContentManagement = () => {
     }
   };
 
+  const deleteContent = async (page, section) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+
+    setIsSaving(true);
+    try {
+      await axios.delete(`${API_URL}/admin/content/${page}/${section}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      toast.success('Konten berhasil dihapus');
+
+      // Update local state
+      setContent(prev => {
+        const newContent = { ...prev };
+        delete newContent[`${page}_${section}`];
+        return newContent;
+      });
+    } catch (error) {
+      toast.error('Gagal menghapus konten');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const addGalleryItem = () => {
+    const timestamp = new Date().getTime();
+    const section = `gallery_item_${timestamp}`;
+    const key = `gallery_${section}`;
+    updateField(key, 'url', '');
+    updateField(key, 'caption', '');
+    updateField(key, 'category', 'general');
+    updateField(key, 'order', Object.keys(content).filter(k => k.startsWith('gallery_gallery_item_')).length);
+  };
+
+  // Sort gallery items by order
+  const getGalleryItems = () => {
+    return Object.keys(content)
+      .filter(key => key.startsWith('gallery_gallery_item_'))
+      .sort((a, b) => (content[a]?.content?.order || 0) - (content[b]?.content?.order || 0));
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -593,36 +633,52 @@ const ContentManagement = () => {
 
           <ContentSection title="Gallery Images">
             <div className="space-y-4">
-              {[0, 1, 2, 3, 4, 5, 6, 7].map((index) => {
-                const key = `gallery_item_${index}`;
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm text-gray-500">
+                  Upload unlimited photos. Use Order to sort them.
+                </p>
+                <Button onClick={addGalleryItem} size="sm" variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Image
+                </Button>
+              </div>
+              {getGalleryItems().map((key) => {
+                const sectionName = key.replace('gallery_', '');
                 return (
-                  <div key={index} className="flex gap-4 items-center p-3 bg-gray-50 rounded-lg">
-                    {getContent('gallery', key, 'url') && (
-                      <img src={getContent('gallery', key, 'url')} alt={`Gallery ${index + 1}`} className="w-20 h-14 object-cover rounded" />
+                  <div key={key} className="flex gap-4 items-center p-3 bg-gray-50 rounded-lg">
+                    {getContent('gallery', sectionName, 'url') && (
+                      <img src={getContent('gallery', sectionName, 'url')} alt="Gallery" className="w-20 h-14 object-cover rounded" />
                     )}
                     <div className="flex-1 space-y-2">
                       <div className="flex gap-2">
                         <Input
-                          value={getContent('gallery', key, 'url')}
-                          onChange={(e) => updateField(`gallery_${key}`, 'url', e.target.value)}
+                          value={getContent('gallery', sectionName, 'url')}
+                          onChange={(e) => updateField(key, 'url', e.target.value)}
                           placeholder="Image URL"
                           className="flex-1"
                         />
-                        <Button variant="outline" size="sm" onClick={() => openMediaUpload(`gallery_${key}`, 'url')}>
+                        <Button variant="outline" size="sm" onClick={() => openMediaUpload(key, 'url')}>
                           <Upload className="w-4 h-4" />
                         </Button>
                       </div>
                       <div className="flex gap-2">
                         <Input
-                          value={getContent('gallery', key, 'caption')}
-                          onChange={(e) => updateField(`gallery_${key}`, 'caption', e.target.value)}
+                          value={getContent('gallery', sectionName, 'caption')}
+                          onChange={(e) => updateField(key, 'caption', e.target.value)}
                           placeholder="Caption"
-                          className="flex-1"
+                          className="flex-[2]"
+                        />
+                        <Input
+                          type="number"
+                          value={getContent('gallery', sectionName, 'order', 0)}
+                          onChange={(e) => updateField(key, 'order', parseInt(e.target.value))}
+                          placeholder="Order"
+                          className="w-20"
                         />
                         <select
-                          value={getContent('gallery', key, 'category', 'general')}
-                          onChange={(e) => updateField(`gallery_${key}`, 'category', e.target.value)}
-                          className="border rounded px-2 text-sm"
+                          value={getContent('gallery', sectionName, 'category', 'general')}
+                          onChange={(e) => updateField(key, 'category', e.target.value)}
+                          className="border rounded px-2 text-sm flex-1"
                         >
                           <option value="general">General</option>
                           <option value="rooms">Rooms</option>
@@ -632,17 +688,33 @@ const ContentManagement = () => {
                         </select>
                       </div>
                     </div>
-                    <Button
-                      onClick={() => saveContent('gallery', key, 'image', { ...content[`gallery_${key}`]?.content, order: index })}
-                      disabled={isSaving}
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                    >
-                      <Save className="w-4 h-4" />
-                    </Button>
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        onClick={() => saveContent('gallery', sectionName, 'image', content[key]?.content)}
+                        disabled={isSaving}
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        <Save className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        onClick={() => deleteContent('gallery', sectionName)}
+                        disabled={isSaving}
+                        size="sm"
+                        variant="destructive"
+                        className="bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
+              {getGalleryItems().length === 0 && (
+                <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  No images yet. Click "Add Image" to start.
+                </div>
+              )}
             </div>
           </ContentSection>
         </TabsContent>

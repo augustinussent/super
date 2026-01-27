@@ -46,3 +46,10 @@ async def update_content(content_id: str, content: dict, user: dict = Depends(re
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Content not found")
     return {"message": "Content updated"}
+
+@router.delete("/admin/content/{page}/{section}")
+async def delete_content(page: str, section: str, user: dict = Depends(require_admin)):
+    result = await db.site_content.delete_one({"page": page, "section": section})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return {"message": "Content deleted"}
