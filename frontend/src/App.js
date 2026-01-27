@@ -29,6 +29,7 @@ import Users from "./pages/admin/Users";
 import PromoCodes from "./pages/admin/PromoCodes";
 import Reviews from "./pages/admin/Reviews";
 import ContentManagement from "./pages/admin/ContentManagement";
+import ActivityLogs from "./pages/admin/ActivityLogs";
 import PermissionGuard from "./components/PermissionGuard";
 
 import "./App.css";
