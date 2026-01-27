@@ -282,11 +282,11 @@ const Rooms = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Accommodations</p>
+            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Akomodasi</p>
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display hero-title text-5xl text-white" role="heading" aria-level="2">Our Rooms</p>
+            <p className="font-display hero-title text-5xl text-white" role="heading" aria-level="2">Kamar Kami</p>
           </motion.div>
         </div>
       </section>

@@ -240,11 +240,11 @@ const ContentManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label>Judul</Label>
-                <Input value={getContent('rooms', 'hero', 'title')} onChange={(e) => updateField('rooms_hero', 'title', e.target.value)} placeholder="Our Rooms" />
+                <Input value={getContent('rooms', 'hero', 'title')} onChange={(e) => updateField('rooms_hero', 'title', e.target.value)} placeholder="Kamar Kami" />
               </div>
               <div>
                 <Label>Subtitle</Label>
-                <Input value={getContent('rooms', 'hero', 'subtitle')} onChange={(e) => updateField('rooms_hero', 'subtitle', e.target.value)} placeholder="Accommodations" />
+                <Input value={getContent('rooms', 'hero', 'subtitle')} onChange={(e) => updateField('rooms_hero', 'subtitle', e.target.value)} placeholder="Akomodasi" />
               </div>
               <ImageField
                 label="Background Image"

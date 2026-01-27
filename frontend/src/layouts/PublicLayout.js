@@ -164,7 +164,7 @@ const PublicLayout = () => {
 
                 {/* Contact info in menu */}
                 <div className="mt-8 pt-8 border-t border-emerald-800">
-                  <p className="text-emerald-400 text-sm mb-4">Contact Us</p>
+                  <p className="text-emerald-400 text-sm mb-4">Hubungi Kami</p>
                   <div className="space-y-3 text-emerald-200 text-sm">
                     <p>{footerContent?.phone || '+6281130700206'}</p>
                     <p>{footerContent?.email || 'reservasi@spencergreenhotel.com'}</p>
@@ -185,7 +185,7 @@ const PublicLayout = () => {
       <section className="bg-emerald-900">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12">
           <div className="text-center mb-6">
-            <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Find Us</h3>
+            <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Cari Kami</h3>
             <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia'}</p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-xl">
@@ -241,7 +241,7 @@ const PublicLayout = () => {
 
             {/* Social Media */}
             <div>
-              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Follow Us</h4>
+              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Ikuti Kami</h4>
               <div className="flex flex-wrap gap-3">
                 <a
                   href={footerContent?.tiktok || '#'}

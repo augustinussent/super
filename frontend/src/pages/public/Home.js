@@ -809,8 +809,8 @@ const Home = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-emerald-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-12">
           <div className="text-center">
-            <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Accommodations</p>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Our Rooms</h2>
+            <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Akomodasi</p>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Kamar Kami</h2>
           </div>
         </div>
 
@@ -889,7 +889,7 @@ const Home = () => {
                 onClick={() => setShowReviewModal(true)}
                 className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
               >
-                Write a Review
+                Pengalaman Menginap Anda
               </Button>
             </div>
 
