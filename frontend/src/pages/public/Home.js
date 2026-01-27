@@ -106,7 +106,7 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-5xl mx-4"
+          className="relative w-[90vw] max-w-[90vw] max-h-[90vh] mx-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
