@@ -129,7 +129,7 @@ const Facilities = () => {
                       <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center mr-3">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <h3 className="font-display text-xl font-semibold">{name}</h3>
+                      <h3 className="font-display text-xl font-medium">{name}</h3>
                     </div>
                   </div>
                   <div className="p-6">
@@ -150,7 +150,7 @@ const Facilities = () => {
       {/* Additional Info */}
       <section className="py-16 bg-emerald-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="font-display text-3xl font-medium text-gray-900 mb-4">
             {infoContent.title || 'Experience Complete Comfort'}
           </h2>
           <p className="text-gray-600 leading-relaxed">

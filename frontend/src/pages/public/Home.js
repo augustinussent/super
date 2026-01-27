@@ -630,7 +630,7 @@ const Home = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-1 sm:mb-2">Limited Time</p>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Special Offers</h2>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gray-900">Special Offers</h2>
             </div>
             <div className="flex gap-2">
               <button
@@ -695,7 +695,7 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 sm:mb-12">
               <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Available Rooms</p>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium text-gray-900">
                 {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
               </h2>
             </div>
@@ -791,7 +791,7 @@ const Home = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-transparent flex items-center">
                 <div className="p-6 sm:p-8 md:p-12 max-w-lg">
-                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
+                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-medium text-white mb-3 sm:mb-4">
                     {promoBanner.title}
                   </h3>
                   <p className="text-emerald-100 text-sm sm:text-base mb-4 sm:mb-6">{promoBanner.description}</p>

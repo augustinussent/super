@@ -77,15 +77,15 @@ const PublicLayout = () => {
       {/* Header - Transparent at top, solid when scrolled */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? 'bg-emerald-950 shadow-lg'
-            : 'bg-transparent'
+          ? 'bg-emerald-950 shadow-lg'
+          : 'bg-transparent'
           }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0" data-testid="logo-link">
-              <span className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg">
+              <span className="font-display text-lg sm:text-xl lg:text-2xl font-medium text-white drop-shadow-lg">
                 Spencer Green
               </span>
             </Link>
@@ -122,7 +122,7 @@ const PublicLayout = () => {
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-8">
-                  <span className="font-display text-xl font-bold text-white">Menu</span>
+                  <span className="font-display text-xl font-medium text-white">Menu</span>
                   <button onClick={() => setIsMenuOpen(false)} className="p-2 text-emerald-200 hover:text-white">
                     <X size={24} />
                   </button>
@@ -185,7 +185,7 @@ const PublicLayout = () => {
       <section className="bg-emerald-900">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12">
           <div className="text-center mb-6">
-            <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-2">Find Us</h3>
+            <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Find Us</h3>
             <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia'}</p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-xl">
@@ -210,7 +210,7 @@ const PublicLayout = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Logo & Description */}
             <div>
-              <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-4">Spencer Green Hotel</h3>
+              <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-4">Spencer Green Hotel</h3>
               <p className="text-emerald-200 leading-relaxed text-sm sm:text-base">
                 {footerContent?.description || 'Experience luxury and comfort in the heart of Batu city. Your perfect getaway destination.'}
               </p>
@@ -218,7 +218,7 @@ const PublicLayout = () => {
 
             {/* Contact Info */}
             <div>
-              <h4 className="font-display text-base sm:text-lg font-semibold text-white mb-4">Contact Us</h4>
+              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Contact Us</h4>
               <div className="space-y-3 text-emerald-200 text-sm sm:text-base">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -241,7 +241,7 @@ const PublicLayout = () => {
 
             {/* Social Media */}
             <div>
-              <h4 className="font-display text-base sm:text-lg font-semibold text-white mb-4">Follow Us</h4>
+              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Follow Us</h4>
               <div className="flex flex-wrap gap-3">
                 <a
                   href={footerContent?.tiktok || '#'}

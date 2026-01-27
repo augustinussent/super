@@ -377,7 +377,7 @@ const Rooms = () => {
 
                 {/* Room Details */}
                 <div className={`${index % 2 === 1 ? 'lg:order-1' : ''}`}>
-                  <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">{room.name}</h2>
+                  <h2 className="font-display text-3xl font-medium text-gray-900 mb-4">{room.name}</h2>
                   <p className="text-gray-600 leading-relaxed mb-6">{room.description}</p>
 
                   <div className="flex items-center space-x-4 mb-6">

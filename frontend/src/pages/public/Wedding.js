@@ -80,7 +80,7 @@ const Wedding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Venues</p>
-            <h2 className="font-display text-4xl font-bold text-gray-900">Wedding Venues</h2>
+            <h2 className="font-display text-4xl font-medium text-gray-900">Wedding Venues</h2>
           </div>
 
           <div className="space-y-16">
@@ -99,7 +99,7 @@ const Wedding = () => {
                   </div>
                 </div>
                 <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
-                  <h3 className="font-display text-3xl font-bold text-gray-900 mb-4">{venue.name}</h3>
+                  <h3 className="font-display text-3xl font-medium text-gray-900 mb-4">{venue.name}</h3>
                   <p className="text-gray-600 leading-relaxed mb-4">{venue.description}</p>
                   <div className="flex items-center text-emerald-600 mb-6">
                     <Users className="w-5 h-5 mr-2" />
@@ -120,7 +120,7 @@ const Wedding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">What We Offer</p>
-            <h2 className="font-display text-4xl font-bold text-gray-900">Wedding Services</h2>
+            <h2 className="font-display text-4xl font-medium text-gray-900">Wedding Services</h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -151,7 +151,7 @@ const Wedding = () => {
       {/* CTA */}
       <section className="py-20 bg-emerald-900 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 text-center relative">
-          <h2 className="font-display text-4xl font-bold text-white mb-4">Begin Your Forever</h2>
+          <h2 className="font-display text-4xl font-medium text-white mb-4">Begin Your Forever</h2>
           <p className="text-emerald-200 mb-8 text-lg">
             Let us help you plan the wedding of your dreams
           </p>

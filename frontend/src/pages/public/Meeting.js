@@ -79,7 +79,7 @@ const Meeting = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Venues</p>
-            <h2 className="font-display text-4xl font-bold text-gray-900">Meeting Rooms</h2>
+            <h2 className="font-display text-4xl font-medium text-gray-900">Meeting Rooms</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -121,7 +121,7 @@ const Meeting = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-emerald-600 uppercase tracking-widest text-sm mb-2">Packages</p>
-            <h2 className="font-display text-4xl font-bold text-gray-900">Meeting Packages</h2>
+            <h2 className="font-display text-4xl font-medium text-gray-900">Meeting Packages</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -135,9 +135,9 @@ const Meeting = () => {
                 className="bg-white rounded-xl p-8 shadow-soft text-center"
                 data-testid={`meeting-package-${index}`}
               >
-                <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
+                <h3 className="font-display text-2xl font-medium text-gray-900 mb-2">{pkg.name}</h3>
                 <p className="text-gray-500 mb-4">{pkg.duration}</p>
-                <p className="text-emerald-600 font-bold text-2xl mb-6">{pkg.price}</p>
+                <p className="text-emerald-600 font-medium text-2xl mb-6">{pkg.price}</p>
                 <ul className="space-y-3 mb-8">
                   {pkg.includes.map((item, i) => (
                     <li key={i} className="text-gray-600 flex items-center justify-center">
@@ -158,7 +158,7 @@ const Meeting = () => {
       {/* Contact CTA */}
       <section className="py-20 bg-emerald-900">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-display text-3xl font-bold text-white mb-4">Plan Your Next Event</h2>
+          <h2 className="font-display text-3xl font-medium text-white mb-4">Plan Your Next Event</h2>
           <p className="text-emerald-200 mb-8">
             Our dedicated events team is ready to help you create a memorable experience
           </p>
