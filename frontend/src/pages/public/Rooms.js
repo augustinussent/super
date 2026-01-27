@@ -284,11 +284,11 @@ const Rooms = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Akomodasi</p>
+            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent?.subtitle || 'Spencer Green Hotel menghadirkan kamar dengan fasilitas lengkap dan suasana tenang untuk menunjang kenyamanan selama menginap.'}</p>
             {/* SEO H1 - Hidden but indexable */}
-            <h1 className="sr-only">Pilihan Tipe Kamar Spencer Green Hotel Batu</h1>
+            <h1 className="sr-only">{heroContent?.title || 'Pilihan Tipe Kamar Spencer Green Hotel Batu'}</h1>
             {/* Visual Title */}
-            <p className="font-display hero-title text-5xl text-white" role="heading" aria-level="2">Kamar Kami</p>
+            <p className="font-display hero-title text-5xl text-white" role="heading" aria-level="2">{heroContent?.title || 'Pilihan Kamar Nyaman di Batu'}</p>
           </motion.div>
         </div>
       </section>

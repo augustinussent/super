@@ -99,6 +99,41 @@ const ContentManagement = () => {
     }
   };
 
+  // Save all content for a specific page
+  const saveAllForPage = async (page) => {
+    setIsSaving(true);
+    const sectionsToSave = Object.keys(content)
+      .filter(key => key.startsWith(`${page}_`))
+      .map(key => {
+        const section = key.replace(`${page}_`, '');
+        return { section, content: content[key]?.content };
+      })
+      .filter(item => item.content && Object.keys(item.content).length > 0);
+
+    if (sectionsToSave.length === 0) {
+      toast.info('Tidak ada perubahan untuk disimpan');
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      await Promise.all(sectionsToSave.map(item =>
+        axios.post(`${API_URL}/admin/content`, {
+          page,
+          section: item.section,
+          content_type: 'section',
+          content: item.content
+        }, { headers: { Authorization: `Bearer ${getToken()}` } })
+      ));
+      toast.success(`Semua konten halaman ${page} berhasil disimpan (${sectionsToSave.length} section)`);
+      fetchContent();
+    } catch (error) {
+      toast.error('Gagal menyimpan beberapa konten');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const updateField = (key, field, value) => {
     setContent(prev => ({
       ...prev,
@@ -199,6 +234,12 @@ const ContentManagement = () => {
 
         {/* ==================== HOME PAGE ==================== */}
         <TabsContent value="home" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Home</span>
+            <Button onClick={() => saveAllForPage('home')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           {/* Hero Section */}
           <ContentSection title="Hero Section">
             <div className="space-y-4">
@@ -296,6 +337,12 @@ const ContentManagement = () => {
 
         {/* ==================== ROOMS PAGE ==================== */}
         <TabsContent value="rooms" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Rooms</span>
+            <Button onClick={() => saveAllForPage('rooms')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Rooms Page Hero">
             <div className="space-y-4">
               <div>
@@ -329,6 +376,12 @@ const ContentManagement = () => {
 
         {/* ==================== MEETING PAGE ==================== */}
         <TabsContent value="meeting" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Meeting</span>
+            <Button onClick={() => saveAllForPage('meeting')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Meeting Page Hero">
             <div className="space-y-4">
               <div>
@@ -439,6 +492,12 @@ const ContentManagement = () => {
 
         {/* ==================== WEDDING PAGE ==================== */}
         <TabsContent value="wedding" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Wedding</span>
+            <Button onClick={() => saveAllForPage('wedding')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Wedding Page Hero">
             <div className="space-y-4">
               <div>
@@ -542,6 +601,12 @@ const ContentManagement = () => {
 
         {/* ==================== FACILITIES PAGE ==================== */}
         <TabsContent value="facilities" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Facilities</span>
+            <Button onClick={() => saveAllForPage('facilities')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Facilities Page Hero">
             <div className="space-y-4">
               <div>
@@ -643,6 +708,12 @@ const ContentManagement = () => {
 
         {/* ==================== GALLERY PAGE ==================== */}
         <TabsContent value="gallery" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Gallery</span>
+            <Button onClick={() => saveAllForPage('gallery')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Gallery Page Hero">
             <div className="space-y-4">
               <div>
@@ -765,6 +836,12 @@ const ContentManagement = () => {
 
         {/* ==================== FOOTER ==================== */}
         <TabsContent value="footer" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten Footer (Global)</span>
+            <Button onClick={() => saveAllForPage('global')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
           <ContentSection title="Informasi Kontak">
             <div className="space-y-4">
               <div>

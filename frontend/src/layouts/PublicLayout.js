@@ -188,7 +188,7 @@ const PublicLayout = () => {
       <section className="bg-emerald-900">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12">
           <div className="text-center mb-6">
-            <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Cari Kami</h3>
+            <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Hotel Dekat Tempat Wisata Batu – Spencer Green Hotel</h3>
             <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Spencer Green Hotel Batu berlokasi di Jalan Raya Punten No.86, dekat kawasan wisata dan area pegunungan yang tenang.'}</p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-xl">
@@ -221,7 +221,7 @@ const PublicLayout = () => {
 
             {/* Contact Info */}
             <div>
-              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Contact Us</h4>
+              <h4 className="font-display text-base sm:text-lg font-medium text-white mb-4">Hubungi Kami</h4>
               <div className="space-y-3 text-emerald-200 text-sm sm:text-base">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
