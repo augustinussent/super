@@ -138,7 +138,7 @@ async def create_inventory(inventory: RoomInventory, user: dict = Depends(requir
     return inventory.model_dump()
 
 @router.post("/admin/inventory/bulk-update")
-async def bulk_update_inventory(request: BulkUpdateRequest, user: dict = Depends(require_admin)):
+async def bulk_update_inventory(request: BulkUpdateRequest, req: Request, user: dict = Depends(require_admin)):
     start = datetime.strptime(request.start_date, "%Y-%m-%d")
     end = datetime.strptime(request.end_date, "%Y-%m-%d")
     
@@ -184,6 +184,24 @@ async def bulk_update_inventory(request: BulkUpdateRequest, user: dict = Depends
             updated_count += 1
         
         current += timedelta(days=1)
+    
+    # Log the activity
+    await log_activity(
+        user=user,
+        action="update",
+        resource="inventory",
+        resource_id=request.room_type_id,
+        details={
+            "room_name": room.get("name"),
+            "range": f"{request.start_date} to {request.end_date}",
+            "days_updated": updated_count,
+            "updates": {
+                k: v for k, v in request.model_dump().items() 
+                if k in ["allotment", "rate", "is_closed"] and v is not None
+            }
+        },
+        ip_address=req.client.host if req.client else None
+    )
     
     return {"message": f"Updated {updated_count} days"}
 

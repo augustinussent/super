@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, MapPin, Phone, Mail } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { trackWhatsAppClick, trackPhoneClick, trackEvent } from '../utils/analytics';
+import { trackWhatsAppClick, trackPhoneClick, trackEvent, trackPageView } from '../utils/analytics';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -31,6 +31,7 @@ const PublicLayout = () => {
   }, []);
 
   useEffect(() => {
+    trackPageView(location.pathname);
     setIsMenuOpen(false);
   }, [location]);
 

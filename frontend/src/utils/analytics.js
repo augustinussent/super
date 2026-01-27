@@ -23,20 +23,43 @@ export const initAnalytics = () => {
     }
 };
 
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+
 /**
- * Track Custom Event in GA4
+ * Track Page View to Backend
+ * @param {string} pagePath 
+ */
+export const trackPageView = async (pagePath) => {
+    try {
+        await fetch(`${API_URL}/analytics/track?page=${encodeURIComponent(pagePath)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Failed to track page view:', error);
+    }
+};
+
+/**
+ * Track Custom Event in GA4 & Backend
  * @param {string} category - Event category (e.g., 'Contact', 'Engagement')
  * @param {string} action - Event action (e.g., 'Click WhatsApp', 'Scroll 75%')
  * @param {string} label - Event label (optional, e.g., 'Footer', 'Room Detail')
  */
 export const trackEvent = (category, action, label) => {
-    if (!GA_MEASUREMENT_ID) return;
+    // GA4 Tracking
+    if (GA_MEASUREMENT_ID) {
+        ReactGA.event({
+            category,
+            action,
+            label,
+        });
+    }
 
-    ReactGA.event({
-        category,
-        action,
-        label,
-    });
+    // Backend Tracking (Optional: could extend /analytics/track to accept events)
+    // For now, we mainly track page views for the dashboard chart
 };
 
 /**

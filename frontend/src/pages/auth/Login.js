@@ -93,7 +93,7 @@ const Login = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@spencergreen.com"
+                  placeholder="email"
                   className="pl-10"
                   data-testid="login-email"
                 />

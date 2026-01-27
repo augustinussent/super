@@ -129,7 +129,7 @@ async def get_all_reservations(
     return reservations
 
 @router.put("/admin/reservations/{reservation_id}/status")
-async def update_reservation_status(reservation_id: str, status: str, user: dict = Depends(require_admin)):
+async def update_reservation_status(reservation_id: str, status: str, request: Request, user: dict = Depends(require_admin)):
     valid_statuses = ["pending", "confirmed", "checked_in", "checked_out", "cancelled"]
     if status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status")
@@ -140,4 +140,14 @@ async def update_reservation_status(reservation_id: str, status: str, user: dict
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Reservation not found")
+        
+    await log_activity(
+        user=user,
+        action="update",
+        resource="reservations",
+        resource_id=reservation_id,
+        details={"status": status},
+        ip_address=request.client.host if request.client else None
+    )
+        
     return {"message": "Status updated"}

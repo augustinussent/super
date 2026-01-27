@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime, timezone
 
 from database import db
 from models.content import SiteContent
 from services.auth import require_admin
+from services.audit import log_activity
 
 router = APIRouter(tags=["content"])
 
@@ -18,7 +19,7 @@ async def get_page_content(page: str):
     return content
 
 @router.post("/admin/content")
-async def create_content(content: SiteContent, user: dict = Depends(require_admin)):
+async def create_content(content: SiteContent, request: Request, user: dict = Depends(require_admin)):
     content_doc = content.model_dump()
     
     existing = await db.site_content.find_one({
@@ -26,7 +27,9 @@ async def create_content(content: SiteContent, user: dict = Depends(require_admi
         "page": content_doc["page"]
     }, {"_id": 0})
     
+    action = "create"
     if existing:
+        action = "update"
         await db.site_content.update_one(
             {"content_id": existing["content_id"]},
             {"$set": {"content": content_doc["content"], "updated_at": datetime.now(timezone.utc).isoformat()}}
@@ -35,21 +38,51 @@ async def create_content(content: SiteContent, user: dict = Depends(require_admi
     else:
         await db.site_content.insert_one(content_doc)
     
+    # Log activity
+    await log_activity(
+        user=user,
+        action=action,
+        resource="content",
+        resource_id=content_doc["content_id"],
+        details={"page": content_doc["page"], "section": content_doc["section"]},
+        ip_address=request.client.host if request.client else None
+    )
+    
     # Exclude _id from response (MongoDB adds it during insert)
     content_doc.pop("_id", None)
     return content_doc
 
 @router.put("/admin/content/{content_id}")
-async def update_content(content_id: str, content: dict, user: dict = Depends(require_admin)):
+async def update_content(content_id: str, content: dict, request: Request, user: dict = Depends(require_admin)):
     content["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = await db.site_content.update_one({"content_id": content_id}, {"$set": content})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Content not found")
+        
+    await log_activity(
+        user=user,
+        action="update",
+        resource="content",
+        resource_id=content_id,
+        details={"content": "updated via put"},
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "Content updated"}
 
 @router.delete("/admin/content/{page}/{section}")
-async def delete_content(page: str, section: str, user: dict = Depends(require_admin)):
+async def delete_content(page: str, section: str, request: Request, user: dict = Depends(require_admin)):
     result = await db.site_content.delete_one({"page": page, "section": section})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Content not found")
+        
+    await log_activity(
+        user=user,
+        action="delete",
+        resource="content",
+        resource_id=f"{page}_{section}",
+        details={"page": page, "section": section},
+        ip_address=request.client.host if request.client else None
+    )
+        
     return {"message": "Content deleted"}
