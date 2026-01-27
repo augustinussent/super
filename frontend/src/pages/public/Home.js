@@ -502,9 +502,9 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-emerald-300 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4">Selamat Datang di</p>
+            <p className="text-emerald-300 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4">Hotel dengan View Pegunungan dekat Wisata Selecta</p>
             {/* SEO H1 - Hidden but indexable */}
-            <h1 className="sr-only">SPENCER GREEN HOTEL BATU – Hotel View Pegunungan di Batu Malang untuk Liburan & Corporate EventPegunungan</h1>
+            <h1 className="sr-only">SPENCER GREEN HOTEL BATU – Hotel di Batu Malang dengan Kamar Nyaman, Kolam Renang & Paket Meeting</h1>
             {/* Visual Title */}
             <p className="font-display hero-title text-4xl sm:text-5xl text-white mb-4 sm:mb-6" role="heading" aria-level="2">
               {heroContent?.title || 'Spencer Green Hotel'}

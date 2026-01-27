@@ -89,6 +89,14 @@ const Meeting = () => {
   // CTA content
   const ctaContent = content.cta || {};
 
+  // Handle Request Quote
+  const handleRequestQuote = (pkgName) => {
+    trackWhatsAppClick(`Meeting Package Quote - ${pkgName}`);
+    const message = `Hi, I would like to request a quote for the ${pkgName} meeting package.`;
+    const url = `https://wa.me/6281130700206?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="bg-emerald-50/30">
       {/* Hero */}
@@ -171,7 +179,7 @@ const Meeting = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl p-8 shadow-soft text-center"
+                className="bg-white rounded-xl p-8 shadow-soft text-center flex flex-col h-full"
                 data-testid={`meeting-package-${index}`}
               >
                 <h3 className="font-display text-2xl font-medium text-gray-900 mb-2">{pkg.name}</h3>
@@ -185,7 +193,10 @@ const Meeting = () => {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-auto"
+                  onClick={() => handleRequestQuote(pkg.name)}
+                >
                   Request Quote
                 </Button>
               </motion.div>
@@ -210,7 +221,7 @@ const Meeting = () => {
             data-testid="meeting-contact-btn"
           >
             <Phone className="w-5 h-5 mr-2" />
-            Contact Us
+            Hubungi Tim Event
           </a>
         </div>
       </section>

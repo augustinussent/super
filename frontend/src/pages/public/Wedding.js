@@ -204,7 +204,7 @@ const Wedding = () => {
             data-testid="wedding-contact-btn"
           >
             <Phone className="w-5 h-5 mr-2" />
-            Contact Wedding Specialist
+            Hubungi Tim Wedding
           </a>
         </div>
       </section>

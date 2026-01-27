@@ -267,6 +267,7 @@ const ContentManagement = () => {
           </ContentSection>
 
           {/* About Section */}
+          {/* About Section - Disabled temporarily
           <ContentSection title="About Section">
             <div className="space-y-4">
               <div>
@@ -290,6 +291,7 @@ const ContentManagement = () => {
               </Button>
             </div>
           </ContentSection>
+          */}
         </TabsContent>
 
         {/* ==================== ROOMS PAGE ==================== */}
