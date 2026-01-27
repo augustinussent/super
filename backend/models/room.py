@@ -11,6 +11,7 @@ class RoomType(BaseModel):
     max_guests: int
     amenities: List[str] = []
     images: List[str] = []
+    image_alts: List[str] = []
     video_url: str = ""
     is_active: bool = True
     display_order: int = 0

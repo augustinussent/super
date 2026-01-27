@@ -24,7 +24,7 @@ const ContentSection = ({ title, children }) => (
   </div>
 );
 
-const ImageField = ({ label, value, onChange, onUpload }) => (
+const ImageField = ({ label, value, onChange, onUpload, altValue, onAltChange }) => (
   <div>
     <Label>{label}</Label>
     <div className="flex gap-2">
@@ -34,9 +34,21 @@ const ImageField = ({ label, value, onChange, onUpload }) => (
         Upload
       </Button>
     </div>
-    {value && <img src={value} alt="Preview" className="mt-2 rounded-lg h-24 object-cover" />}
+    {value && (
+      <div className="mt-2">
+        <Label className="text-sm text-gray-600">Alt Text (untuk aksesibilitas)</Label>
+        <Input
+          value={altValue || ''}
+          onChange={onAltChange}
+          placeholder="Deskripsi gambar..."
+          className="mt-1"
+        />
+        <img src={value} alt={altValue || 'Preview'} className="mt-2 rounded-lg h-24 object-cover" />
+      </div>
+    )}
   </div>
 );
+
 
 const ContentManagement = () => {
   const [content, setContent] = useState({});
@@ -213,6 +225,8 @@ const ContentManagement = () => {
                 value={getContent('home', 'hero', 'image')}
                 onChange={(e) => updateField('home_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('home_hero', 'image')}
+                altValue={getContent('home', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('home_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('home', 'hero', 'hero', content['home_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan Hero
@@ -236,6 +250,8 @@ const ContentManagement = () => {
                 value={getContent('home', 'promo_banner', 'image')}
                 onChange={(e) => updateField('home_promo_banner', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('home_promo_banner', 'image')}
+                altValue={getContent('home', 'promo_banner', 'imageAlt')}
+                onAltChange={(e) => updateField('home_promo_banner', 'imageAlt', e.target.value)}
               />
               <div className="flex items-center gap-2">
                 <Switch
@@ -266,6 +282,8 @@ const ContentManagement = () => {
                 value={getContent('home', 'about', 'image')}
                 onChange={(e) => updateField('home_about', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('home_about', 'image')}
+                altValue={getContent('home', 'about', 'imageAlt')}
+                onAltChange={(e) => updateField('home_about', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('home', 'about', 'section', content['home_about']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan About
@@ -291,6 +309,8 @@ const ContentManagement = () => {
                 value={getContent('rooms', 'hero', 'image')}
                 onChange={(e) => updateField('rooms_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('rooms_hero', 'image')}
+                altValue={getContent('rooms', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('rooms_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('rooms', 'hero', 'hero', content['rooms_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan
@@ -326,6 +346,8 @@ const ContentManagement = () => {
                 value={getContent('meeting', 'hero', 'image')}
                 onChange={(e) => updateField('meeting_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('meeting_hero', 'image')}
+                altValue={getContent('meeting', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('meeting_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('meeting', 'hero', 'hero', content['meeting_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan Hero
@@ -356,6 +378,8 @@ const ContentManagement = () => {
                   value={getContent('meeting', `room${num}`, 'image')}
                   onChange={(e) => updateField(`meeting_room${num}`, 'image', e.target.value)}
                   onUpload={() => openMediaUpload(`meeting_room${num}`, 'image')}
+                  altValue={getContent('meeting', `room${num}`, 'imageAlt')}
+                  onAltChange={(e) => updateField(`meeting_room${num}`, 'imageAlt', e.target.value)}
                 />
                 <Button onClick={() => saveContent('meeting', `room${num}`, 'room', content[`meeting_room${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   <Save className="w-4 h-4 mr-2" />Simpan Room {num}
@@ -428,6 +452,8 @@ const ContentManagement = () => {
                 value={getContent('wedding', 'hero', 'image')}
                 onChange={(e) => updateField('wedding_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('wedding_hero', 'image')}
+                altValue={getContent('wedding', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('wedding_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('wedding', 'hero', 'hero', content['wedding_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan Hero
@@ -458,6 +484,8 @@ const ContentManagement = () => {
                   value={getContent('wedding', `venue${num}`, 'image')}
                   onChange={(e) => updateField(`wedding_venue${num}`, 'image', e.target.value)}
                   onUpload={() => openMediaUpload(`wedding_venue${num}`, 'image')}
+                  altValue={getContent('wedding', `venue${num}`, 'imageAlt')}
+                  onAltChange={(e) => updateField(`wedding_venue${num}`, 'imageAlt', e.target.value)}
                 />
                 <Button onClick={() => saveContent('wedding', `venue${num}`, 'venue', content[`wedding_venue${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   <Save className="w-4 h-4 mr-2" />Simpan Venue {num}
@@ -527,6 +555,8 @@ const ContentManagement = () => {
                 value={getContent('facilities', 'hero', 'image')}
                 onChange={(e) => updateField('facilities_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('facilities_hero', 'image')}
+                altValue={getContent('facilities', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('facilities_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('facilities', 'hero', 'hero', content['facilities_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan Hero
@@ -573,6 +603,8 @@ const ContentManagement = () => {
                   value={getContent('facilities', item.key, 'image')}
                   onChange={(e) => updateField(`facilities_${item.key}`, 'image', e.target.value)}
                   onUpload={() => openMediaUpload(`facilities_${item.key}`, 'image')}
+                  altValue={getContent('facilities', item.key, 'imageAlt')}
+                  onAltChange={(e) => updateField(`facilities_${item.key}`, 'imageAlt', e.target.value)}
                 />
                 <Button onClick={() => saveContent('facilities', item.key, 'facility', content[`facilities_${item.key}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                   <Save className="w-4 h-4 mr-2" />Simpan
@@ -624,6 +656,8 @@ const ContentManagement = () => {
                 value={getContent('gallery', 'hero', 'image')}
                 onChange={(e) => updateField('gallery_hero', 'image', e.target.value)}
                 onUpload={() => openMediaUpload('gallery_hero', 'image')}
+                altValue={getContent('gallery', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('gallery_hero', 'imageAlt', e.target.value)}
               />
               <Button onClick={() => saveContent('gallery', 'hero', 'hero', content['gallery_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />Simpan Hero
@@ -663,11 +697,19 @@ const ContentManagement = () => {
                       </div>
                       <div className="flex gap-2">
                         <Input
+                          value={getContent('gallery', sectionName, 'alt')}
+                          onChange={(e) => updateField(key, 'alt', e.target.value)}
+                          placeholder="Alt Text (deskripsi gambar)"
+                          className="flex-[2]"
+                        />
+                        <Input
                           value={getContent('gallery', sectionName, 'caption')}
                           onChange={(e) => updateField(key, 'caption', e.target.value)}
                           placeholder="Caption"
                           className="flex-[2]"
                         />
+                      </div>
+                      <div className="flex gap-2">
                         <Input
                           type="number"
                           value={getContent('gallery', sectionName, 'order', 0)}
@@ -737,7 +779,7 @@ const ContentManagement = () => {
                 <Textarea
                   value={getContent('global', 'footer', 'address')}
                   onChange={(e) => updateField('global_footer', 'address', e.target.value)}
-                  placeholder="Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia"
+                  placeholder="Jl. Raya Punten No.86, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia"
                   rows={2}
                 />
               </div>

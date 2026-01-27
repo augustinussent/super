@@ -128,9 +128,7 @@ const PublicLayout = () => {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-8">
                   <span className="font-display text-xl font-medium text-white">Menu</span>
-                  <button onClick={() => setIsMenuOpen(false)} className="p-2 text-emerald-200 hover:text-white">
-                    <X size={24} />
-                  </button>
+
                 </div>
                 <div className="space-y-1">
                   {menuItems.map((item, index) => (
@@ -191,7 +189,7 @@ const PublicLayout = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12">
           <div className="text-center mb-6">
             <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-2">Cari Kami</h3>
-            <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia'}</p>
+            <p className="text-emerald-200 text-sm sm:text-base">{footerContent?.address || 'Spencer Green Hotel Batu berlokasi di Jalan Raya Punten No.86, dekat kawasan wisata dan area pegunungan yang tenang.'}</p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-xl">
             <iframe
@@ -227,7 +225,7 @@ const PublicLayout = () => {
               <div className="space-y-3 text-emerald-200 text-sm sm:text-base">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p>{footerContent?.address || 'Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia'}</p>
+                  <p>{footerContent?.address || 'Jl. Raya Punten No.86, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia'}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 flex-shrink-0" />

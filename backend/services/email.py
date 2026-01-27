@@ -64,7 +64,7 @@ async def send_reservation_email(reservation: dict, room_type: dict):
         </div>
         <div style="background: #064e3b; padding: 20px; text-align: center;">
             <p style="color: #d1fae5; margin: 0; font-size: 14px;">Spencer Green Hotel Batu</p>
-            <p style="color: #a7f3d0; margin: 5px 0 0 0; font-size: 12px;">Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia</p>
+            <p style="color: #a7f3d0; margin: 5px 0 0 0; font-size: 12px;">Jl. Raya Punten No.86, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia</p>
         </div>
     </div>
     """

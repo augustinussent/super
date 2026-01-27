@@ -108,7 +108,7 @@ async def init_default_data():
             "page": "global",
             "content_type": "info",
             "content": {
-                "address": "Jl. Raya Punten No.86, Punten, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia",
+                "address": "Jl. Raya Punten No.86, Kec. Bumiaji, Kota Batu, Jawa Timur 65338 Indonesia",
                 "phone": "(0341) 597828",
                 "email": "reservasi@spencergreenhotel.com",
                 "tiktok": "https://tiktok.com/@spencergreenhotel",

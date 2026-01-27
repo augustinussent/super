@@ -103,6 +103,7 @@ const RoomManagement = () => {
       max_guests: '2',
       amenities: '',
       images: [],
+      image_alts: [],
       video_url: ''
     });
     setShowRoomModal(true);
@@ -117,6 +118,7 @@ const RoomManagement = () => {
       max_guests: room.max_guests?.toString() || '2',
       amenities: room.amenities?.join(', ') || '',
       images: room.images || [],
+      image_alts: room.image_alts || [],
       video_url: room.video_url || ''
     });
     setShowRoomModal(true);
@@ -134,13 +136,15 @@ const RoomManagement = () => {
 
   const moveImage = (index, direction) => {
     const newImages = [...roomForm.images];
+    const newAlts = [...(roomForm.image_alts || [])];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
 
     if (targetIndex < 0 || targetIndex >= newImages.length) return;
 
     [newImages[index], newImages[targetIndex]] = [newImages[targetIndex], newImages[index]];
+    [newAlts[index], newAlts[targetIndex]] = [newAlts[targetIndex], newAlts[index]];
 
-    setRoomForm({ ...roomForm, images: newImages });
+    setRoomForm({ ...roomForm, images: newImages, image_alts: newAlts });
     toast.info(`Urutan diperbarui: Foto ke-${targetIndex + 1} sekarang jadi foto ${targetIndex === 0 ? 'Utama' : ''}`);
   };
 
@@ -179,6 +183,7 @@ const RoomManagement = () => {
       max_guests: parseInt(roomForm.max_guests),
       amenities: roomForm.amenities.split(',').map(a => a.trim()).filter(a => a),
       images: roomForm.images,
+      image_alts: roomForm.image_alts,
       video_url: roomForm.video_url
     };
 
@@ -218,7 +223,8 @@ const RoomManagement = () => {
   const handleImageUpload = (mediaData) => {
     setRoomForm(prev => ({
       ...prev,
-      images: [...prev.images, mediaData.secure_url]
+      images: [...prev.images, mediaData.secure_url],
+      image_alts: [...(prev.image_alts || []), '']
     }));
     setShowImageUpload(false);
     toast.success('Gambar berhasil diupload');
@@ -236,8 +242,21 @@ const RoomManagement = () => {
   const removeImage = (index) => {
     setRoomForm(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
+      image_alts: (prev.image_alts || []).filter((_, i) => i !== index)
     }));
+  };
+
+  const updateImageAlt = (index, altText) => {
+    setRoomForm(prev => {
+      const newAlts = [...(prev.image_alts || [])];
+      // Ensure array is long enough
+      while (newAlts.length <= index) {
+        newAlts.push('');
+      }
+      newAlts[index] = altText;
+      return { ...prev, image_alts: newAlts };
+    });
   };
 
   // Inventory functions
@@ -699,33 +718,46 @@ const RoomManagement = () => {
                 </Label>
 
                 {roomForm.images.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2 mb-3">
+                  <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
                     {roomForm.images.map((img, idx) => (
-                      <div key={idx} className="relative group border-2 border-transparent hover:border-emerald-500 rounded-lg overflow-hidden transition-all">
-                        <img src={img} alt={`Room ${idx + 1}`} className="w-full h-16 object-cover" />
-                        {idx === 0 && (
-                          <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-bl">
-                            UTAMA
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                      <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <div className="relative flex-shrink-0">
+                          <img src={img} alt={roomForm.image_alts?.[idx] || `Room ${idx + 1}`} className="w-16 h-12 object-cover rounded" />
+                          {idx === 0 && (
+                            <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[7px] font-bold px-1 rounded-bl">
+                              UTAMA
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Input
+                            value={roomForm.image_alts?.[idx] || ''}
+                            onChange={(e) => updateImageAlt(idx, e.target.value)}
+                            placeholder="Alt text (deskripsi gambar)..."
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
                           <button
                             onClick={() => moveImage(idx, 'up')}
                             disabled={idx === 0}
-                            className="p-0.5 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                            className="p-1 bg-gray-200 text-gray-700 rounded disabled:opacity-30 hover:bg-gray-300"
+                            title="Geser ke atas"
                           >
                             <ChevronLeft className="w-3 h-3" />
                           </button>
                           <button
                             onClick={() => moveImage(idx, 'down')}
                             disabled={idx === roomForm.images.length - 1}
-                            className="p-0.5 bg-white text-emerald-700 rounded-full disabled:opacity-30"
+                            className="p-1 bg-gray-200 text-gray-700 rounded disabled:opacity-30 hover:bg-gray-300"
+                            title="Geser ke bawah"
                           >
                             <ChevronRight className="w-3 h-3" />
                           </button>
                           <button
                             onClick={() => removeImage(idx)}
-                            className="p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            className="p-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                            title="Hapus"
                           >
                             <X className="w-3 h-3" />
                           </button>
