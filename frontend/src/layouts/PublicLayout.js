@@ -84,7 +84,12 @@ const PublicLayout = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center flex-shrink-0" data-testid="logo-link">
+            <Link to="/" className="flex items-center flex-shrink-0 gap-3" data-testid="logo-link">
+              <img
+                src="https://res.cloudinary.com/dgfjos8xa/image/upload/v1769512059/logo_spencer_green_hotel_batu_malang_afzyeu.png"
+                alt="Spencer Green Hotel Logo"
+                className="h-10 w-auto brightness-0 invert"
+              />
               <span className="font-display text-lg sm:text-xl lg:text-2xl font-medium text-white drop-shadow-lg">
                 Spencer Green
               </span>
