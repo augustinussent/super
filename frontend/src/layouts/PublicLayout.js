@@ -11,6 +11,7 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 const PublicLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [footerContent, setFooterContent] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
@@ -33,6 +34,16 @@ const PublicLayout = () => {
     setIsMenuOpen(false);
   }, [location]);
 
+  // Scroll detection for header transparency
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial state
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const fetchFooterContent = async () => {
     try {
       const response = await axios.get(`${API_URL}/content/global`);
@@ -54,6 +65,8 @@ const PublicLayout = () => {
 
   // Check if current page is gallery (fullscreen)
   const isGalleryPage = location.pathname === '/gallery';
+  // Check if current page is check-reservation (no hero)
+  const isCheckReservationPage = location.pathname === '/check-reservation';
 
   if (isGalleryPage) {
     return <Outlet />;
@@ -61,13 +74,18 @@ const PublicLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-emerald-50/30 overflow-x-hidden relative">
-      {/* Header - Always dark emerald */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-emerald-950 shadow-lg">
+      {/* Header - Transparent at top, solid when scrolled */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+            ? 'bg-emerald-950 shadow-lg'
+            : 'bg-transparent'
+          }`}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0" data-testid="logo-link">
-              <span className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-white">
+              <span className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg">
                 Spencer Green
               </span>
             </Link>
@@ -75,7 +93,8 @@ const PublicLayout = () => {
             {/* Hamburger Menu Button - Always visible */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-lg text-white hover:bg-emerald-800 transition-colors"
+              className={`p-2 rounded-lg text-white transition-colors ${isScrolled ? 'hover:bg-emerald-800' : 'hover:bg-white/20'
+                }`}
               data-testid="menu-toggle"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -157,8 +176,8 @@ const PublicLayout = () => {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
-      <main className="flex-1 pt-16 sm:pt-18 lg:pt-20">
+      {/* Main Content - No top padding for hero pages */}
+      <main className={`flex-1 ${isCheckReservationPage ? 'pt-16 sm:pt-18 lg:pt-20' : ''}`}>
         <Outlet />
       </main>
 

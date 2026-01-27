@@ -270,7 +270,7 @@ const Rooms = () => {
   return (
     <div className="bg-emerald-50/30">
       {/* Hero */}
-      <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center">
+      <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920'})` }}

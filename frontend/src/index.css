@@ -91,7 +91,7 @@
     h4,
     h5,
     h6 {
-        font-family: 'Jost', sans-serif;
+        font-family: 'Jost', 'jost-f1', 'jost-f2', 'jost-f3', sans-serif;
     }
 }
 

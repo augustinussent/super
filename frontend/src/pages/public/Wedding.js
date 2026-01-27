@@ -54,7 +54,7 @@ const Wedding = () => {
   return (
     <div className="bg-emerald-50/30">
       {/* Hero */}
-      <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center">
+      <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920'})` }}
