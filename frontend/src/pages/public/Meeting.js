@@ -8,22 +8,26 @@ import { trackWhatsAppClick } from '../../utils/analytics';
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Meeting = () => {
-  const [heroContent, setHeroContent] = useState(null);
+  const [content, setContent] = useState({});
 
   useEffect(() => {
-    const fetchHeroContent = async () => {
+    const fetchContent = async () => {
       try {
         const response = await axios.get(`${API_URL}/content/meeting`);
-        const hero = response.data.find(c => c.section === 'hero');
-        if (hero) setHeroContent(hero.content);
+        const contentMap = {};
+        response.data.forEach(item => {
+          contentMap[item.section] = item.content;
+        });
+        setContent(contentMap);
       } catch (error) {
-        console.error('Error fetching hero content:', error);
+        console.error('Error fetching content:', error);
       }
     };
-    fetchHeroContent();
+    fetchContent();
   }, []);
 
-  const meetingRooms = [
+  // Default meeting rooms
+  const defaultRooms = [
     {
       name: 'Boardroom',
       capacity: '10 - 20 pax',
@@ -44,11 +48,46 @@ const Meeting = () => {
     }
   ];
 
-  const packages = [
+  // Default packages
+  const defaultPackages = [
     { name: 'Half Day', duration: '4 Hours', price: 'Rp 500.000/pax', includes: ['1x Coffee Break', 'Meeting Room', 'WiFi'] },
     { name: 'Full Day', duration: '8 Hours', price: 'Rp 850.000/pax', includes: ['2x Coffee Break', '1x Lunch', 'Meeting Room', 'WiFi'] },
     { name: 'Residential', duration: '2D1N', price: 'Rp 1.500.000/pax', includes: ['Accommodation', 'All Meals', 'Meeting Room', 'Team Building'] }
   ];
+
+  // Get rooms from API or defaults
+  const meetingRooms = [1, 2, 3].map((num, index) => {
+    const apiRoom = content[`room${num}`];
+    if (apiRoom && apiRoom.name) {
+      return {
+        name: apiRoom.name,
+        capacity: apiRoom.capacity || defaultRooms[index].capacity,
+        image: apiRoom.image || defaultRooms[index].image,
+        features: apiRoom.features ? apiRoom.features.split(',').map(f => f.trim()) : defaultRooms[index].features
+      };
+    }
+    return defaultRooms[index];
+  });
+
+  // Get packages from API or defaults
+  const packages = [1, 2, 3].map((num, index) => {
+    const apiPkg = content[`package${num}`];
+    if (apiPkg && apiPkg.name) {
+      return {
+        name: apiPkg.name,
+        duration: apiPkg.duration || defaultPackages[index].duration,
+        price: apiPkg.price || defaultPackages[index].price,
+        includes: apiPkg.includes ? apiPkg.includes.split('\n').map(i => i.trim()).filter(i => i) : defaultPackages[index].includes
+      };
+    }
+    return defaultPackages[index];
+  });
+
+  // Hero content
+  const heroContent = content.hero || {};
+
+  // CTA content
+  const ctaContent = content.cta || {};
 
   return (
     <div className="bg-emerald-50/30">
@@ -56,19 +95,19 @@ const Meeting = () => {
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1920'})` }}
+          style={{ backgroundImage: `url(${heroContent.image || 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-black/25" />
         </div>
         <div className="relative text-center px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">Corporate Events</p>
+            <p className="hero-subtitle text-emerald-300 uppercase tracking-widest text-sm mb-2">{heroContent.subtitle || 'Corporate Events'}</p>
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Meeting Room & Event Space Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display hero-title text-5xl text-white mb-4" role="heading" aria-level="2">Meeting & Events</p>
+            <p className="font-display hero-title text-5xl text-white mb-4" role="heading" aria-level="2">{heroContent.title || 'Meeting & Events'}</p>
             <p className="hero-subtitle text-emerald-100 max-w-2xl mx-auto">
-              Host your next corporate event in our state-of-the-art meeting facilities with stunning mountain views
+              {heroContent.description || 'Host your next corporate event in our state-of-the-art meeting facilities with stunning mountain views'}
             </p>
           </motion.div>
         </div>
@@ -158,9 +197,9 @@ const Meeting = () => {
       {/* Contact CTA */}
       <section className="py-20 bg-emerald-900">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-display text-3xl font-medium text-white mb-4">Plan Your Next Event</h2>
+          <h2 className="font-display text-3xl font-medium text-white mb-4">{ctaContent.title || 'Plan Your Next Event'}</h2>
           <p className="text-emerald-200 mb-8">
-            Our dedicated events team is ready to help you create a memorable experience
+            {ctaContent.description || 'Our dedicated events team is ready to help you create a memorable experience'}
           </p>
           <a
             href="https://wa.me/6281130700206?text=Hi,%20I%20want%20to%20inquire%20about%20meeting%20packages"
@@ -180,3 +219,4 @@ const Meeting = () => {
 };
 
 export default Meeting;
+

@@ -8,22 +8,26 @@ import { trackWhatsAppClick } from '../../utils/analytics';
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Wedding = () => {
-  const [heroContent, setHeroContent] = useState(null);
+  const [content, setContent] = useState({});
 
   useEffect(() => {
-    const fetchHeroContent = async () => {
+    const fetchContent = async () => {
       try {
         const response = await axios.get(`${API_URL}/content/wedding`);
-        const hero = response.data.find(c => c.section === 'hero');
-        if (hero) setHeroContent(hero.content);
+        const contentMap = {};
+        response.data.forEach(item => {
+          contentMap[item.section] = item.content;
+        });
+        setContent(contentMap);
       } catch (error) {
-        console.error('Error fetching hero content:', error);
+        console.error('Error fetching content:', error);
       }
     };
-    fetchHeroContent();
+    fetchContent();
   }, []);
 
-  const venues = [
+  // Default venues
+  const defaultVenues = [
     {
       name: 'Grand Ballroom',
       capacity: '300 - 500 guests',
@@ -44,12 +48,48 @@ const Wedding = () => {
     }
   ];
 
-  const services = [
+  // Default services
+  const defaultServices = [
     { icon: Flower2, name: 'Floral Design', desc: 'Custom floral arrangements' },
     { icon: Utensils, name: 'Catering', desc: 'Exquisite culinary experiences' },
     { icon: Camera, name: 'Photography', desc: 'Professional photo & video' },
     { icon: Music, name: 'Entertainment', desc: 'Live music & DJ services' }
   ];
+
+  const serviceIcons = [Flower2, Utensils, Camera, Music];
+
+  // Get venues from API or defaults
+  const venues = [1, 2, 3].map((num, index) => {
+    const apiVenue = content[`venue${num}`];
+    if (apiVenue && apiVenue.name) {
+      return {
+        name: apiVenue.name,
+        capacity: apiVenue.capacity || defaultVenues[index].capacity,
+        image: apiVenue.image || defaultVenues[index].image,
+        description: apiVenue.description || defaultVenues[index].description
+      };
+    }
+    return defaultVenues[index];
+  });
+
+  // Get services from API or defaults
+  const services = [1, 2, 3, 4].map((num, index) => {
+    const apiService = content[`service${num}`];
+    if (apiService && apiService.name) {
+      return {
+        icon: serviceIcons[index],
+        name: apiService.name,
+        desc: apiService.description || defaultServices[index].desc
+      };
+    }
+    return defaultServices[index];
+  });
+
+  // Hero content
+  const heroContent = content.hero || {};
+
+  // CTA content
+  const ctaContent = content.cta || {};
 
   return (
     <div className="bg-emerald-50/30">
@@ -57,7 +97,7 @@ const Wedding = () => {
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920'})` }}
+          style={{ backgroundImage: `url(${heroContent.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920'})` }}
         >
           <div className="absolute inset-0 bg-black/25" />
         </div>
@@ -67,9 +107,9 @@ const Wedding = () => {
             {/* SEO H1 - Hidden but indexable */}
             <h1 className="sr-only">Paket Wedding & Venue Pernikahan Spencer Green Hotel Batu</h1>
             {/* Visual Title */}
-            <p className="font-display hero-title text-5xl text-white mb-4" role="heading" aria-level="2">Your Dream Wedding</p>
+            <p className="font-display hero-title text-5xl text-white mb-4" role="heading" aria-level="2">{heroContent.title || 'Your Dream Wedding'}</p>
             <p className="hero-subtitle text-white/90 max-w-2xl mx-auto text-lg">
-              {heroContent?.subtitle || 'Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service'}
+              {heroContent.subtitle || 'Create unforgettable memories at Spencer Green Hotel with breathtaking views and exceptional service'}
             </p>
           </motion.div>
         </div>
@@ -151,9 +191,9 @@ const Wedding = () => {
       {/* CTA */}
       <section className="py-20 bg-emerald-900 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 text-center relative">
-          <h2 className="font-display text-4xl font-medium text-white mb-4">Begin Your Forever</h2>
+          <h2 className="font-display text-4xl font-medium text-white mb-4">{ctaContent.title || 'Begin Your Forever'}</h2>
           <p className="text-emerald-200 mb-8 text-lg">
-            Let us help you plan the wedding of your dreams
+            {ctaContent.description || 'Let us help you plan the wedding of your dreams'}
           </p>
           <a
             href="https://wa.me/6281130700206?text=Hi,%20I%20want%20to%20inquire%20about%20wedding%20packages"
@@ -173,3 +213,4 @@ const Wedding = () => {
 };
 
 export default Wedding;
+

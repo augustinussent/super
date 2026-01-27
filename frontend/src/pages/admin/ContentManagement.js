@@ -275,7 +275,11 @@ const ContentManagement = () => {
               </div>
               <div>
                 <Label>Subtitle</Label>
-                <Input value={getContent('meeting', 'hero', 'subtitle')} onChange={(e) => updateField('meeting_hero', 'subtitle', e.target.value)} placeholder="Business Facilities" />
+                <Input value={getContent('meeting', 'hero', 'subtitle')} onChange={(e) => updateField('meeting_hero', 'subtitle', e.target.value)} placeholder="Corporate Events" />
+              </div>
+              <div>
+                <Label>Deskripsi Hero</Label>
+                <Textarea value={getContent('meeting', 'hero', 'description')} onChange={(e) => updateField('meeting_hero', 'description', e.target.value)} placeholder="Host your next corporate event..." rows={2} />
               </div>
               <ImageField
                 label="Background Image"
@@ -289,58 +293,79 @@ const ContentManagement = () => {
             </div>
           </ContentSection>
 
-          <ContentSection title="Meeting Room 1">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nama Ruangan</Label>
-                  <Input value={getContent('meeting', 'room1', 'name')} onChange={(e) => updateField('meeting_room1', 'name', e.target.value)} placeholder="Grand Ballroom" />
+          {/* Meeting Rooms */}
+          {[1, 2, 3].map((num) => (
+            <ContentSection key={`room${num}`} title={`Meeting Room ${num}`}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nama Ruangan</Label>
+                    <Input value={getContent('meeting', `room${num}`, 'name')} onChange={(e) => updateField(`meeting_room${num}`, 'name', e.target.value)} placeholder="Boardroom" />
+                  </div>
+                  <div>
+                    <Label>Kapasitas</Label>
+                    <Input value={getContent('meeting', `room${num}`, 'capacity')} onChange={(e) => updateField(`meeting_room${num}`, 'capacity', e.target.value)} placeholder="10 - 20 pax" />
+                  </div>
                 </div>
                 <div>
-                  <Label>Kapasitas</Label>
-                  <Input value={getContent('meeting', 'room1', 'capacity')} onChange={(e) => updateField('meeting_room1', 'capacity', e.target.value)} placeholder="500 pax" />
+                  <Label>Fitur (pisahkan dengan koma)</Label>
+                  <Input value={getContent('meeting', `room${num}`, 'features')} onChange={(e) => updateField(`meeting_room${num}`, 'features', e.target.value)} placeholder="4K Display, Video Conference, Whiteboard" />
                 </div>
+                <ImageField
+                  label="Gambar"
+                  value={getContent('meeting', `room${num}`, 'image')}
+                  onChange={(e) => updateField(`meeting_room${num}`, 'image', e.target.value)}
+                  onUpload={() => openMediaUpload(`meeting_room${num}`, 'image')}
+                />
+                <Button onClick={() => saveContent('meeting', `room${num}`, 'room', content[`meeting_room${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan Room {num}
+                </Button>
               </div>
-              <div>
-                <Label>Deskripsi</Label>
-                <Textarea value={getContent('meeting', 'room1', 'description')} onChange={(e) => updateField('meeting_room1', 'description', e.target.value)} rows={3} />
-              </div>
-              <ImageField
-                label="Gambar"
-                value={getContent('meeting', 'room1', 'image')}
-                onChange={(e) => updateField('meeting_room1', 'image', e.target.value)}
-                onUpload={() => openMediaUpload('meeting_room1', 'image')}
-              />
-              <Button onClick={() => saveContent('meeting', 'room1', 'room', content['meeting_room1']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Save className="w-4 h-4 mr-2" />Simpan
-              </Button>
-            </div>
-          </ContentSection>
+            </ContentSection>
+          ))}
 
-          <ContentSection title="Meeting Room 2">
+          {/* Meeting Packages */}
+          {[1, 2, 3].map((num) => (
+            <ContentSection key={`pkg${num}`} title={`Meeting Package ${num}`}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Nama Paket</Label>
+                    <Input value={getContent('meeting', `package${num}`, 'name')} onChange={(e) => updateField(`meeting_package${num}`, 'name', e.target.value)} placeholder="Half Day" />
+                  </div>
+                  <div>
+                    <Label>Durasi</Label>
+                    <Input value={getContent('meeting', `package${num}`, 'duration')} onChange={(e) => updateField(`meeting_package${num}`, 'duration', e.target.value)} placeholder="4 Hours" />
+                  </div>
+                  <div>
+                    <Label>Harga</Label>
+                    <Input value={getContent('meeting', `package${num}`, 'price')} onChange={(e) => updateField(`meeting_package${num}`, 'price', e.target.value)} placeholder="Rp 500.000/pax" />
+                  </div>
+                </div>
+                <div>
+                  <Label>Termasuk (pisahkan dengan baris baru)</Label>
+                  <Textarea value={getContent('meeting', `package${num}`, 'includes')} onChange={(e) => updateField(`meeting_package${num}`, 'includes', e.target.value)} rows={3} placeholder="1x Coffee Break&#10;Meeting Room&#10;WiFi" />
+                </div>
+                <Button onClick={() => saveContent('meeting', `package${num}`, 'package', content[`meeting_package${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan Package {num}
+                </Button>
+              </div>
+            </ContentSection>
+          ))}
+
+          {/* Meeting CTA */}
+          <ContentSection title="CTA Section (Bawah)">
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nama Ruangan</Label>
-                  <Input value={getContent('meeting', 'room2', 'name')} onChange={(e) => updateField('meeting_room2', 'name', e.target.value)} placeholder="Business Center" />
-                </div>
-                <div>
-                  <Label>Kapasitas</Label>
-                  <Input value={getContent('meeting', 'room2', 'capacity')} onChange={(e) => updateField('meeting_room2', 'capacity', e.target.value)} placeholder="50 pax" />
-                </div>
+              <div>
+                <Label>Judul CTA</Label>
+                <Input value={getContent('meeting', 'cta', 'title')} onChange={(e) => updateField('meeting_cta', 'title', e.target.value)} placeholder="Plan Your Next Event" />
               </div>
               <div>
-                <Label>Deskripsi</Label>
-                <Textarea value={getContent('meeting', 'room2', 'description')} onChange={(e) => updateField('meeting_room2', 'description', e.target.value)} rows={3} />
+                <Label>Deskripsi CTA</Label>
+                <Textarea value={getContent('meeting', 'cta', 'description')} onChange={(e) => updateField('meeting_cta', 'description', e.target.value)} rows={2} placeholder="Our dedicated events team..." />
               </div>
-              <ImageField
-                label="Gambar"
-                value={getContent('meeting', 'room2', 'image')}
-                onChange={(e) => updateField('meeting_room2', 'image', e.target.value)}
-                onUpload={() => openMediaUpload('meeting_room2', 'image')}
-              />
-              <Button onClick={() => saveContent('meeting', 'room2', 'room', content['meeting_room2']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Save className="w-4 h-4 mr-2" />Simpan
+              <Button onClick={() => saveContent('meeting', 'cta', 'cta', content['meeting_cta']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan CTA
               </Button>
             </div>
           </ContentSection>
@@ -352,11 +377,11 @@ const ContentManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label>Judul</Label>
-                <Input value={getContent('wedding', 'hero', 'title')} onChange={(e) => updateField('wedding_hero', 'title', e.target.value)} placeholder="Wedding Venue" />
+                <Input value={getContent('wedding', 'hero', 'title')} onChange={(e) => updateField('wedding_hero', 'title', e.target.value)} placeholder="Your Dream Wedding" />
               </div>
               <div>
                 <Label>Subtitle</Label>
-                <Input value={getContent('wedding', 'hero', 'subtitle')} onChange={(e) => updateField('wedding_hero', 'subtitle', e.target.value)} placeholder="Your Perfect Day" />
+                <Input value={getContent('wedding', 'hero', 'subtitle')} onChange={(e) => updateField('wedding_hero', 'subtitle', e.target.value)} placeholder="Create unforgettable memories..." />
               </div>
               <ImageField
                 label="Background Image"
@@ -370,66 +395,76 @@ const ContentManagement = () => {
             </div>
           </ContentSection>
 
-          <ContentSection title="Wedding Package 1">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nama Paket</Label>
-                  <Input value={getContent('wedding', 'package1', 'name')} onChange={(e) => updateField('wedding_package1', 'name', e.target.value)} placeholder="Intimate Garden" />
+          {/* Wedding Venues */}
+          {[1, 2, 3].map((num) => (
+            <ContentSection key={`venue${num}`} title={`Wedding Venue ${num}`}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nama Venue</Label>
+                    <Input value={getContent('wedding', `venue${num}`, 'name')} onChange={(e) => updateField(`wedding_venue${num}`, 'name', e.target.value)} placeholder="Grand Ballroom" />
+                  </div>
+                  <div>
+                    <Label>Kapasitas</Label>
+                    <Input value={getContent('wedding', `venue${num}`, 'capacity')} onChange={(e) => updateField(`wedding_venue${num}`, 'capacity', e.target.value)} placeholder="300 - 500 guests" />
+                  </div>
                 </div>
                 <div>
-                  <Label>Harga</Label>
-                  <Input value={getContent('wedding', 'package1', 'price')} onChange={(e) => updateField('wedding_package1', 'price', e.target.value)} placeholder="Rp 50.000.000" />
+                  <Label>Deskripsi</Label>
+                  <Textarea value={getContent('wedding', `venue${num}`, 'description')} onChange={(e) => updateField(`wedding_venue${num}`, 'description', e.target.value)} rows={2} placeholder="Our magnificent ballroom..." />
                 </div>
+                <ImageField
+                  label="Gambar"
+                  value={getContent('wedding', `venue${num}`, 'image')}
+                  onChange={(e) => updateField(`wedding_venue${num}`, 'image', e.target.value)}
+                  onUpload={() => openMediaUpload(`wedding_venue${num}`, 'image')}
+                />
+                <Button onClick={() => saveContent('wedding', `venue${num}`, 'venue', content[`wedding_venue${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan Venue {num}
+                </Button>
               </div>
-              <div>
-                <Label>Deskripsi</Label>
-                <Textarea value={getContent('wedding', 'package1', 'description')} onChange={(e) => updateField('wedding_package1', 'description', e.target.value)} rows={3} />
-              </div>
-              <div>
-                <Label>Fitur (pisahkan dengan baris baru)</Label>
-                <Textarea value={getContent('wedding', 'package1', 'features')} onChange={(e) => updateField('wedding_package1', 'features', e.target.value)} rows={4} placeholder="Up to 100 guests&#10;Garden venue&#10;Catering included" />
-              </div>
-              <ImageField
-                label="Gambar"
-                value={getContent('wedding', 'package1', 'image')}
-                onChange={(e) => updateField('wedding_package1', 'image', e.target.value)}
-                onUpload={() => openMediaUpload('wedding_package1', 'image')}
-              />
-              <Button onClick={() => saveContent('wedding', 'package1', 'package', content['wedding_package1']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Save className="w-4 h-4 mr-2" />Simpan
-              </Button>
-            </div>
-          </ContentSection>
+            </ContentSection>
+          ))}
 
-          <ContentSection title="Wedding Package 2">
+          {/* Wedding Services */}
+          {[
+            { num: 1, default: 'Floral Design' },
+            { num: 2, default: 'Catering' },
+            { num: 3, default: 'Photography' },
+            { num: 4, default: 'Entertainment' }
+          ].map((svc) => (
+            <ContentSection key={`service${svc.num}`} title={`Wedding Service ${svc.num}`}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nama Service</Label>
+                    <Input value={getContent('wedding', `service${svc.num}`, 'name')} onChange={(e) => updateField(`wedding_service${svc.num}`, 'name', e.target.value)} placeholder={svc.default} />
+                  </div>
+                  <div>
+                    <Label>Deskripsi Singkat</Label>
+                    <Input value={getContent('wedding', `service${svc.num}`, 'description')} onChange={(e) => updateField(`wedding_service${svc.num}`, 'description', e.target.value)} placeholder="Custom floral arrangements" />
+                  </div>
+                </div>
+                <Button onClick={() => saveContent('wedding', `service${svc.num}`, 'service', content[`wedding_service${svc.num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan Service {svc.num}
+                </Button>
+              </div>
+            </ContentSection>
+          ))}
+
+          {/* Wedding CTA */}
+          <ContentSection title="CTA Section (Bawah)">
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Nama Paket</Label>
-                  <Input value={getContent('wedding', 'package2', 'name')} onChange={(e) => updateField('wedding_package2', 'name', e.target.value)} placeholder="Grand Celebration" />
-                </div>
-                <div>
-                  <Label>Harga</Label>
-                  <Input value={getContent('wedding', 'package2', 'price')} onChange={(e) => updateField('wedding_package2', 'price', e.target.value)} placeholder="Rp 150.000.000" />
-                </div>
+              <div>
+                <Label>Judul CTA</Label>
+                <Input value={getContent('wedding', 'cta', 'title')} onChange={(e) => updateField('wedding_cta', 'title', e.target.value)} placeholder="Begin Your Forever" />
               </div>
               <div>
-                <Label>Deskripsi</Label>
-                <Textarea value={getContent('wedding', 'package2', 'description')} onChange={(e) => updateField('wedding_package2', 'description', e.target.value)} rows={3} />
+                <Label>Deskripsi CTA</Label>
+                <Textarea value={getContent('wedding', 'cta', 'description')} onChange={(e) => updateField('wedding_cta', 'description', e.target.value)} rows={2} placeholder="Let us help you plan the wedding of your dreams" />
               </div>
-              <div>
-                <Label>Fitur (pisahkan dengan baris baru)</Label>
-                <Textarea value={getContent('wedding', 'package2', 'features')} onChange={(e) => updateField('wedding_package2', 'features', e.target.value)} rows={4} />
-              </div>
-              <ImageField
-                label="Gambar"
-                value={getContent('wedding', 'package2', 'image')}
-                onChange={(e) => updateField('wedding_package2', 'image', e.target.value)}
-                onUpload={() => openMediaUpload('wedding_package2', 'image')}
-              />
-              <Button onClick={() => saveContent('wedding', 'package2', 'package', content['wedding_package2']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Save className="w-4 h-4 mr-2" />Simpan
+              <Button onClick={() => saveContent('wedding', 'cta', 'cta', content['wedding_cta']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan CTA
               </Button>
             </div>
           </ContentSection>
