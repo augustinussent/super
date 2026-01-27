@@ -1,11 +1,57 @@
 import asyncio
 import logging
-import resend
-from config import RESEND_API_KEY, SENDER_EMAIL, FRONTEND_URL
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SENDER_EMAIL, FRONTEND_URL
 from database import db
 
-resend.api_key = RESEND_API_KEY
 logger = logging.getLogger(__name__)
+
+async def send_email_smtp(to_email: str, subject: str, html_content: str):
+    """
+    Helper function to send email via SMTP (SSL/TLS)
+    """
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = SENDER_EMAIL
+    message["To"] = to_email
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText("Please enable HTML to view this email.", "plain")
+    part2 = MIMEText(html_content, "html")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+    message.attach(part2)
+
+    try:
+        # Create a secure SSL context
+        context = ssl.create_default_context()
+
+        # Run SMTP operations in a thread since they are blocking
+        def send():
+            if SMTP_PORT == 465:
+                # SSL Connection
+                with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context) as server:
+                    server.login(SMTP_USER, SMTP_PASSWORD)
+                    server.sendmail(SENDER_EMAIL, to_email, message.as_string())
+            else:
+                # TLS Connection (usually port 587)
+                with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+                    server.starttls(context=context)
+                    server.login(SMTP_USER, SMTP_PASSWORD)
+                    server.sendmail(SENDER_EMAIL, to_email, message.as_string())
+
+        await asyncio.to_thread(send)
+        logger.info(f"Email sent successfully to {to_email}")
+        return True
+    
+    except Exception as e:
+        logger.error(f"Failed to send email via SMTP: {str(e)}")
+        return False
 
 async def send_reservation_email(reservation: dict, room_type: dict):
     whatsapp_doc = await db.site_content.find_one({"section": "contact", "content_type": "whatsapp"}, {"_id": 0})
@@ -69,17 +115,11 @@ async def send_reservation_email(reservation: dict, room_type: dict):
     </div>
     """
     
-    try:
-        params = {
-            "from": SENDER_EMAIL,
-            "to": [reservation['guest_email']],
-            "subject": f"Reservation Confirmation - {reservation['booking_code']}",
-            "html": html_content
-        }
-        await asyncio.to_thread(resend.Emails.send, params)
-        logger.info(f"Reservation email sent to {reservation['guest_email']}")
-    except Exception as e:
-        logger.error(f"Failed to send reservation email: {str(e)}")
+    await send_email_smtp(
+        to_email=reservation['guest_email'],
+        subject=f"Reservation Confirmation - {reservation['booking_code']}",
+        html_content=html_content
+    )
 
 async def send_password_reset_email(email: str, token: str):
     reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
@@ -100,14 +140,8 @@ async def send_password_reset_email(email: str, token: str):
     </div>
     """
     
-    try:
-        params = {
-            "from": SENDER_EMAIL,
-            "to": [email],
-            "subject": "Password Reset - Spencer Green Hotel",
-            "html": html_content
-        }
-        await asyncio.to_thread(resend.Emails.send, params)
-        logger.info(f"Password reset email sent to {email}")
-    except Exception as e:
-        logger.error(f"Failed to send password reset email: {str(e)}")
+    await send_email_smtp(
+        to_email=email,
+        subject="Password Reset - Spencer Green Hotel",
+        html_content=html_content
+    )

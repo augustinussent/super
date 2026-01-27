@@ -14,9 +14,12 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'spencer-green-hotel-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-# Resend
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+# SMTP Email (Rackrock / cPanel)
+SMTP_HOST = os.environ.get('SMTP_HOST', 'mail.spencergreenhotel.com')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', '465')) # 465 for SSL, 587 for TLS
+SMTP_USER = os.environ.get('SMTP_USER', '')
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', SMTP_USER)
 
 # Cloudinary
 CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
