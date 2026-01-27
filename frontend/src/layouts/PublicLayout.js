@@ -86,7 +86,7 @@ const PublicLayout = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center flex-shrink-0 gap-3" data-testid="logo-link">
               <img
-                src="https://res.cloudinary.com/dgfjos8xa/image/upload/v1769512059/logo_spencer_green_hotel_batu_malang_afzyeu.png"
+                src="https://res.cloudinary.com/dgfjos8xa/image/upload/v1769523647/logo_spencer_green_hotel_batu_malang_512_inv_h0zm3e.png"
                 alt="Spencer Green Hotel Logo"
                 className="h-10 w-auto brightness-0 invert"
               />
