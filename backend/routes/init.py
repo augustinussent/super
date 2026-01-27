@@ -86,7 +86,7 @@ async def init_default_data():
             "content_type": "hero",
             "content": {
                 "title": "Spencer Green Hotel",
-                "subtitle": "Experience Luxury in the Heart of Batu",
+                "subtitle": "Hotel View Pegunungandi Batu Malang untuk Liburan & Corporate Event",
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920",
                 "cta_text": "Book Now"
             },

@@ -215,7 +215,7 @@ const PublicLayout = () => {
             <div>
               <h3 className="font-display text-xl sm:text-2xl font-medium text-white mb-4">Spencer Green Hotel</h3>
               <p className="text-emerald-200 leading-relaxed text-sm sm:text-base">
-                {footerContent?.description || 'Experience luxury and comfort in the heart of Batu city. Your perfect getaway destination.'}
+                {footerContent?.description || 'Hotel eco-friendly di Kota Batu Malang dengan kolam renang, rooftop cafe, dan fasilitas meeting untuk liburan dan corporate event.'}
               </p>
             </div>
 
