@@ -86,3 +86,127 @@ async def delete_content(page: str, section: str, request: Request, user: dict =
     )
         
     return {"message": "Content deleted"}
+
+# ==================== SPECIAL OFFERS ====================
+
+import uuid
+
+@router.get("/special-offers")
+async def get_special_offers():
+    """Public endpoint to get all active special offers"""
+    offers = await db.site_content.find(
+        {"section": "special_offer"},
+        {"_id": 0}
+    ).sort("order", 1).to_list(50)
+    
+    # Transform to simpler format
+    result = []
+    for offer in offers:
+        content = offer.get("content", {})
+        result.append({
+            "id": offer.get("content_id"),
+            "title": content.get("title", ""),
+            "description": content.get("description", ""),
+            "code": content.get("code", ""),
+            "image": content.get("image", ""),
+            "validUntil": content.get("validUntil", ""),
+            "order": offer.get("order", 0)
+        })
+    return result
+
+@router.post("/admin/special-offers")
+async def create_special_offer(offer: dict, request: Request, user: dict = Depends(require_admin)):
+    """Create a new special offer"""
+    offer_id = str(uuid.uuid4())
+    
+    # Get max order
+    last = await db.site_content.find_one(
+        {"section": "special_offer"},
+        sort=[("order", -1)]
+    )
+    new_order = (last.get("order", 0) + 1) if last else 0
+    
+    doc = {
+        "content_id": offer_id,
+        "section": "special_offer",
+        "page": "home",
+        "content_type": "offer",
+        "order": new_order,
+        "content": {
+            "title": offer.get("title", ""),
+            "description": offer.get("description", ""),
+            "code": offer.get("code", ""),
+            "image": offer.get("image", ""),
+            "validUntil": offer.get("validUntil", "")
+        },
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.site_content.insert_one(doc)
+    
+    await log_activity(
+        user=user,
+        action="create",
+        resource="special_offer",
+        resource_id=offer_id,
+        details={"title": offer.get("title")},
+        ip_address=request.client.host if request.client else None
+    )
+    
+    doc.pop("_id", None)
+    return {"id": offer_id, **doc["content"], "order": doc["order"]}
+
+@router.put("/admin/special-offers/{offer_id}")
+async def update_special_offer(offer_id: str, offer: dict, request: Request, user: dict = Depends(require_admin)):
+    """Update an existing special offer"""
+    update_data = {
+        "content.title": offer.get("title"),
+        "content.description": offer.get("description"),
+        "content.code": offer.get("code"),
+        "content.image": offer.get("image"),
+        "content.validUntil": offer.get("validUntil"),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    # Remove None values
+    update_data = {k: v for k, v in update_data.items() if v is not None}
+    
+    if "order" in offer:
+        update_data["order"] = offer["order"]
+    
+    result = await db.site_content.update_one(
+        {"content_id": offer_id, "section": "special_offer"},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
+    await log_activity(
+        user=user,
+        action="update",
+        resource="special_offer",
+        resource_id=offer_id,
+        details={"title": offer.get("title")},
+        ip_address=request.client.host if request.client else None
+    )
+    
+    return {"message": "Offer updated"}
+
+@router.delete("/admin/special-offers/{offer_id}")
+async def delete_special_offer(offer_id: str, request: Request, user: dict = Depends(require_admin)):
+    """Delete a special offer"""
+    result = await db.site_content.delete_one({"content_id": offer_id, "section": "special_offer"})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
+    await log_activity(
+        user=user,
+        action="delete",
+        resource="special_offer",
+        resource_id=offer_id,
+        details={},
+        ip_address=request.client.host if request.client else None
+    )
+    
+    return {"message": "Offer deleted"}
+

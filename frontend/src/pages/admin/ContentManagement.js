@@ -57,11 +57,67 @@ const ContentManagement = () => {
   const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [uploadTarget, setUploadTarget] = useState(null);
 
+  // Special Offers state
+  const [offers, setOffers] = useState([]);
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+
   const getToken = () => localStorage.getItem('token');
 
   useEffect(() => {
     fetchContent();
+    fetchOffers();
   }, []);
+
+  // Fetch special offers
+  const fetchOffers = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/special-offers`);
+      setOffers(response.data);
+    } catch (error) {
+      console.error('Error fetching offers:', error);
+    }
+  };
+
+  const saveOffer = async (offerData) => {
+    setIsSaving(true);
+    try {
+      if (editingOffer?.id) {
+        await axios.put(`${API_URL}/admin/special-offers/${editingOffer.id}`, offerData, {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        });
+        toast.success('Offer berhasil diupdate');
+      } else {
+        await axios.post(`${API_URL}/admin/special-offers`, offerData, {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        });
+        toast.success('Offer berhasil ditambahkan');
+      }
+      fetchOffers();
+      setShowOfferModal(false);
+      setEditingOffer(null);
+    } catch (error) {
+      toast.error('Gagal menyimpan offer');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const deleteOffer = async (offerId) => {
+    if (!window.confirm('Hapus offer ini?')) return;
+    setIsSaving(true);
+    try {
+      await axios.delete(`${API_URL}/admin/special-offers/${offerId}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      toast.success('Offer berhasil dihapus');
+      fetchOffers();
+    } catch (error) {
+      toast.error('Gagal menghapus offer');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const fetchContent = async () => {
     try {
@@ -230,6 +286,7 @@ const ContentManagement = () => {
           <TabsTrigger value="facilities">Facilities</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
+          <TabsTrigger value="offers">Special Offers</TabsTrigger>
         </TabsList>
 
         {/* ==================== HOME PAGE ==================== */}
@@ -919,6 +976,48 @@ const ContentManagement = () => {
             </div>
           </ContentSection>
         </TabsContent>
+
+        {/* ==================== SPECIAL OFFERS ==================== */}
+        <TabsContent value="offers" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Kelola Special Offers di halaman Home</span>
+            <Button onClick={() => { setEditingOffer({}); setShowOfferModal(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Plus className="w-4 h-4 mr-2" />Tambah Offer
+            </Button>
+          </div>
+
+          {offers.length === 0 ? (
+            <div className="bg-white rounded-xl p-8 shadow-soft text-center text-gray-500">
+              Belum ada special offers. Klik "Tambah Offer" untuk membuat.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {offers.map((offer) => (
+                <div key={offer.id} className="bg-white rounded-xl shadow-soft overflow-hidden">
+                  {offer.image && (
+                    <img src={offer.image} alt={offer.title} className="w-full h-32 object-cover" />
+                  )}
+                  <div className="p-4">
+                    <h4 className="font-semibold text-gray-900">{offer.title}</h4>
+                    <p className="text-sm text-gray-600 line-clamp-2">{offer.description}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">{offer.code}</span>
+                      <span className="text-xs text-gray-500">s/d {offer.validUntil}</span>
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <Button size="sm" variant="outline" onClick={() => { setEditingOffer(offer); setShowOfferModal(true); }}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50" onClick={() => deleteOffer(offer.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Media Upload Dialog */}
@@ -935,6 +1034,56 @@ const ContentManagement = () => {
             description={uploadTarget?.mediaType === 'video' ? 'Max 500MB, MP4/MOV' : 'Max 10MB, JPEG/PNG/WebP'}
             onUploadSuccess={handleMediaUpload}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Special Offer Edit Modal */}
+      <Dialog open={showOfferModal} onOpenChange={(v) => { setShowOfferModal(v); if (!v) setEditingOffer(null); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingOffer?.id ? 'Edit Offer' : 'Tambah Offer'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            saveOffer({
+              title: formData.get('title'),
+              description: formData.get('description'),
+              code: formData.get('code'),
+              image: formData.get('image'),
+              validUntil: formData.get('validUntil')
+            });
+          }} className="space-y-4">
+            <div>
+              <Label>Judul Offer</Label>
+              <Input name="title" defaultValue={editingOffer?.title || ''} placeholder="Weekend Escape" required />
+            </div>
+            <div>
+              <Label>Deskripsi</Label>
+              <Textarea name="description" defaultValue={editingOffer?.description || ''} placeholder="Get 25% off..." rows={3} required />
+            </div>
+            <div>
+              <Label>Kode Promo</Label>
+              <Input name="code" defaultValue={editingOffer?.code || ''} placeholder="WEEKEND25" required />
+            </div>
+            <div>
+              <Label>URL Gambar</Label>
+              <Input name="image" defaultValue={editingOffer?.image || ''} placeholder="https://..." />
+              {editingOffer?.image && (
+                <img src={editingOffer.image} alt="Preview" className="mt-2 rounded h-20 object-cover" />
+              )}
+            </div>
+            <div>
+              <Label>Berlaku Sampai</Label>
+              <Input name="validUntil" defaultValue={editingOffer?.validUntil || ''} placeholder="31 Jan 2026" required />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" variant="outline" onClick={() => setShowOfferModal(false)}>Batal</Button>
+              <Button type="submit" disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />{isSaving ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

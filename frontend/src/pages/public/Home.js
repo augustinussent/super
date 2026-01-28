@@ -248,54 +248,14 @@ const Home = () => {
     }
   };
 
-  // Dummy offers data
-  const offers = [
-    {
-      id: 1,
-      title: 'Weekend Escape',
-      description: 'Get 25% off for weekend stays. Valid for Friday-Sunday bookings.',
-      code: 'WEEKEND25',
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600',
-      validUntil: '31 Jan 2026'
-    },
-    {
-      id: 2,
-      title: 'Early Bird Special',
-      description: 'Book 30 days in advance and save 20% on any room type.',
-      code: 'EARLYBIRD20',
-      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600',
-      validUntil: '28 Feb 2026'
-    },
-    {
-      id: 3,
-      title: 'Honeymoon Package',
-      description: 'Romantic getaway with spa credits and dinner included.',
-      code: 'HONEYMOON',
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600',
-      validUntil: '31 Mar 2026'
-    },
-    {
-      id: 4,
-      title: 'Family Fun',
-      description: 'Kids stay free! Plus complimentary breakfast for the whole family.',
-      code: 'FAMILYFUN',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
-      validUntil: '30 Apr 2026'
-    },
-    {
-      id: 5,
-      title: 'Long Stay Discount',
-      description: 'Stay 5 nights, pay only 4. Perfect for extended holidays.',
-      code: 'LONGSTAY',
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600',
-      validUntil: '31 May 2026'
-    }
-  ];
+  // Dynamic offers from API
+  const [offers, setOffers] = useState([]);
 
   useEffect(() => {
     fetchContent();
     fetchReviews();
     fetchRooms();
+    fetchOffers();
     initData();
   }, []);
 
@@ -355,6 +315,15 @@ const Home = () => {
       setRooms(response.data);
     } catch (error) {
       console.error('Error fetching rooms:', error);
+    }
+  };
+
+  const fetchOffers = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/special-offers`);
+      setOffers(response.data);
+    } catch (error) {
+      console.error('Error fetching offers:', error);
     }
   };
 
