@@ -79,3 +79,36 @@ async def test_smtp():
         result["error"] = f"Error: {type(e).__name__} - {str(e)}"
     
     return result
+
+@router.get("/admin/test-resend")
+async def test_resend():
+    """Test Resend API configuration"""
+    from config import RESEND_API_KEY, SENDER_EMAIL
+    import resend
+    
+    result = {
+        "api_key_set": bool(RESEND_API_KEY),
+        "sender": SENDER_EMAIL,
+        "status": None,
+        "error": None
+    }
+    
+    if not RESEND_API_KEY:
+        result["error"] = "RESEND_API_KEY is missing"
+        return result
+        
+    try:
+        resend.api_key = RESEND_API_KEY
+        # Just check if we can list domains or something simple, or send a dummy logic check
+        # But sending email uses quota. Let's just return config status for now
+        # or try to get account info if possible? Resend python sdk might not have 'get account' easy
+        # easiest is to assume if key is there, it's good. 
+        # But let's try to send a test email to the sender itself?
+        
+        # For now, just confirming env var is loaded
+        result["status"] = "CONFIGURED"
+        
+    except Exception as e:
+        result["error"] = str(e)
+        
+    return result
