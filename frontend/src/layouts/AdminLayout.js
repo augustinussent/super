@@ -113,13 +113,13 @@ const AdminLayout = () => {
                 key={item.path}
                 to={item.path}
                 data-testid={`admin-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                className={`flex items-center space-x-3 py-3 rounded-lg transition-colors ${isSidebarOpen ? 'px-4' : 'justify-center px-2'} ${isActive
                   ? 'bg-emerald-600 text-white'
                   : 'text-emerald-200 hover:bg-emerald-800'
                   }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {isSidebarOpen && <span className="font-medium">{item.name}</span>}
+                {isSidebarOpen && <span className="font-medium whitespace-nowrap">{item.name}</span>}
               </Link>
             );
           })}
