@@ -29,6 +29,9 @@ CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
 # Emergent LLM
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 
+# Resend Email API
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+
 # Frontend URL
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 

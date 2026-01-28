@@ -2,16 +2,47 @@ import asyncio
 import logging
 import smtplib
 import ssl
+import resend
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SENDER_EMAIL, FRONTEND_URL
+from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SENDER_EMAIL, FRONTEND_URL, RESEND_API_KEY
 from database import db
 
 logger = logging.getLogger(__name__)
 
+async def send_email_resend(to_email: str, subject: str, html_content: str):
+    """
+    Send email via Resend API (recommended for Render)
+    """
+    if not RESEND_API_KEY:
+        logger.error("RESEND_API_KEY not set")
+        return False
+    
+    try:
+        resend.api_key = RESEND_API_KEY
+        
+        params = {
+            "from": f"Spencer Green Hotel <{SENDER_EMAIL}>",
+            "to": [to_email],
+            "subject": subject,
+            "html": html_content,
+        }
+        
+        # Run in thread since resend.Emails.send is blocking
+        def send():
+            return resend.Emails.send(params)
+        
+        result = await asyncio.to_thread(send)
+        logger.info(f"Email sent successfully via Resend to {to_email}, id: {result.get('id')}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send email via Resend: {str(e)}")
+        return False
+
 async def send_email_smtp(to_email: str, subject: str, html_content: str):
     """
-    Helper function to send email via SMTP (SSL/TLS)
+    Helper function to send email via SMTP (SSL/TLS) - Fallback
     """
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
@@ -29,8 +60,6 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str):
 
     try:
         # Create a secure SSL context but disable strict verification
-        # This is needed because the hosting provider returns a certificate for the main server hostname
-        # instead of the user's domain (mail.spencergreenhotel.com vs cloud-id102.cloudhosting.co.id)
         context = ssl.create_default_context()
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
@@ -56,6 +85,19 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str):
     except Exception as e:
         logger.error(f"Failed to send email via SMTP: {str(e)}")
         return False
+
+async def send_email(to_email: str, subject: str, html_content: str):
+    """
+    Main email sending function - tries Resend first, falls back to SMTP
+    """
+    # Try Resend first (works on Render)
+    if RESEND_API_KEY:
+        success = await send_email_resend(to_email, subject, html_content)
+        if success:
+            return True
+    
+    # Fallback to SMTP
+    return await send_email_smtp(to_email, subject, html_content)
 
 async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
     """
@@ -123,7 +165,7 @@ async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
     </div>
     """
     
-    success = await send_email_smtp(
+    success = await send_email(
         to_email=reservation['guest_email'],
         subject=f"Reservation Confirmation - {reservation['booking_code']}",
         html_content=html_content
@@ -167,7 +209,7 @@ async def send_password_reset_email(email: str, token: str):
     </div>
     """
     
-    await send_email_smtp(
+    await send_email(
         to_email=email,
         subject="Password Reset - Spencer Green Hotel",
         html_content=html_content
