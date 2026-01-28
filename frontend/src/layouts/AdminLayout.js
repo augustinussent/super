@@ -43,7 +43,7 @@ const AdminLayout = () => {
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
-    { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },
+    // { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },
     { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];
 
@@ -114,8 +114,8 @@ const AdminLayout = () => {
                 to={item.path}
                 data-testid={`admin-nav-${item.name.toLowerCase().replace(' ', '-')}`}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-emerald-200 hover:bg-emerald-800'
+                  ? 'bg-emerald-600 text-white'
+                  : 'text-emerald-200 hover:bg-emerald-800'
                   }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
