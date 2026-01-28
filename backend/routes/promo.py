@@ -14,6 +14,10 @@ async def get_promo_codes(user: dict = Depends(require_admin)):
 
 @router.post("")
 async def create_promo_code(promo: PromoCode, user: dict = Depends(require_admin)):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Received promo create request: {promo.model_dump()}")
+    
     promo_doc = promo.model_dump()
     promo_doc["code"] = promo_doc["code"].upper()
     

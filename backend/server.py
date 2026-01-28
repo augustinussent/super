@@ -44,7 +44,7 @@ api_router.include_router(analytics_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"], # TEMPORARY FIX: Allow all origins to debug CORS
     allow_methods=["*"],
     allow_headers=["*"],
 )
