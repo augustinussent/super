@@ -38,7 +38,7 @@ async def get_analytics(days: int = 7, user: dict = Depends(require_admin)):
     return stats[::-1]
 
 @router.get("/admin/test-smtp")
-async def test_smtp(user: dict = Depends(require_admin)):
+async def test_smtp():
     """Test SMTP connection and return detailed status"""
     import smtplib
     import ssl
