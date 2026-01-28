@@ -15,6 +15,7 @@ import Meeting from "./pages/public/Meeting";
 import Wedding from "./pages/public/Wedding";
 import Facilities from "./pages/public/Facilities";
 import Gallery from "./pages/public/Gallery";
+import TableManner from "./pages/public/TableManner";
 import CheckReservation from "./pages/public/CheckReservation";
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -59,6 +60,7 @@ function App() {
             <Route path="wedding" element={<Wedding />} />
             <Route path="facilities" element={<Facilities />} />
             <Route path="gallery" element={<Gallery />} />
+            <Route path="table-manner" element={<TableManner />} />
             <Route path="check-reservation" element={<CheckReservation />} />
           </Route>
 

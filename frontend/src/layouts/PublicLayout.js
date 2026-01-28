@@ -21,6 +21,7 @@ const PublicLayout = () => {
     { name: 'Kamar', path: '/rooms' },
     { name: 'Meeting', path: '/meeting' },
     { name: 'Wedding', path: '/wedding' },
+    { name: 'Table Manner', path: '/table-manner' },
     { name: 'Fasilitas', path: '/facilities' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Cek Reservasi', path: '/check-reservation' },

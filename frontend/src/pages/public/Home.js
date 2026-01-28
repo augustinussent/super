@@ -519,7 +519,7 @@ const Home = () => {
           className="hidden md:block absolute bottom-8 inset-x-0 z-30 px-4"
         >
           <div
-            className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-full max-w-4xl xl:max-w-5xl border border-emerald-100/50"
+            className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-[85%] max-w-4xl border border-emerald-100/50"
             data-testid="booking-engine"
           >
             <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">
@@ -1113,12 +1113,7 @@ const Home = () => {
       {/* Mobile Booking Sticky Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg p-3 safe-area-bottom">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <p className="text-xs text-gray-500">Check availability</p>
-            <p className="text-sm font-medium text-gray-900">
-              {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM')} · {guests} guest{guests > 1 ? 's' : ''}
-            </p>
-          </div>
+          {/* Swapped positions: Button on LEFT to avoid WhatsApp overlap (Right), Text on RIGHT */}
           <Sheet open={showMobileBooking} onOpenChange={setShowMobileBooking}>
             <SheetTrigger asChild>
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6">
@@ -1219,6 +1214,12 @@ const Home = () => {
               </div>
             </SheetContent>
           </Sheet>
+          <div className="flex-1 text-right">
+            <p className="text-xs text-gray-500">Check availability</p>
+            <p className="text-sm font-medium text-gray-900">
+              {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM')} · {guests} guest{guests > 1 ? 's' : ''}
+            </p>
+          </div>
         </div>
       </div>
     </div>
