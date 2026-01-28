@@ -11,6 +11,7 @@ class PromoCode(BaseModel):
     max_usage: int
     current_usage: int = 0
     room_type_ids: List[str] = []
+    valid_days: List[int] = []  # Empty = all days, [0,6] = Sun & Sat (weekend)
     valid_from: str
     valid_until: str
     is_active: bool = True

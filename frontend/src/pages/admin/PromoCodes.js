@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Switch } from '../../components/ui/switch';
+import { Checkbox } from '../../components/ui/checkbox';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -26,6 +27,7 @@ const PromoCodes = () => {
     discount_value: '',
     max_usage: '',
     room_type_ids: [],
+    valid_days: [],
     valid_from: format(new Date(), 'yyyy-MM-dd'),
     valid_until: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
     is_active: true
@@ -58,7 +60,7 @@ const PromoCodes = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.code || !formData.discount_value || !formData.max_usage) {
       toast.error('Please fill in all required fields');
       return;
@@ -78,7 +80,7 @@ const PromoCodes = () => {
         await axios.post(`${API_URL}/admin/promo-codes`, payload);
         toast.success('Promo code created');
       }
-      
+
       setShowModal(false);
       setEditingPromo(null);
       resetForm();
@@ -95,6 +97,7 @@ const PromoCodes = () => {
       discount_value: '',
       max_usage: '',
       room_type_ids: [],
+      valid_days: [],
       valid_from: format(new Date(), 'yyyy-MM-dd'),
       valid_until: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
       is_active: true
@@ -109,6 +112,7 @@ const PromoCodes = () => {
       discount_value: promo.discount_value.toString(),
       max_usage: promo.max_usage.toString(),
       room_type_ids: promo.room_type_ids || [],
+      valid_days: promo.valid_days || [],
       valid_from: promo.valid_from.split('T')[0],
       valid_until: promo.valid_until.split('T')[0],
       is_active: promo.is_active
@@ -223,8 +227,8 @@ const PromoCodes = () => {
                     <p className="text-gray-500">{format(new Date(promo.valid_until), 'dd MMM yyyy')}</p>
                   </TableCell>
                   <TableCell>
-                    {promo.room_type_ids?.length > 0 
-                      ? `${promo.room_type_ids.length} kamar` 
+                    {promo.room_type_ids?.length > 0
+                      ? `${promo.room_type_ids.length} kamar`
                       : 'Semua kamar'}
                   </TableCell>
                   <TableCell>
@@ -284,8 +288,8 @@ const PromoCodes = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Tipe Diskon</Label>
-                <Select 
-                  value={formData.discount_type} 
+                <Select
+                  value={formData.discount_type}
                   onValueChange={(v) => setFormData({ ...formData, discount_type: v })}
                 >
                   <SelectTrigger data-testid="discount-type-select">
@@ -345,24 +349,60 @@ const PromoCodes = () => {
               </div>
             </div>
 
+            {/* Day of Week Filter */}
             <div>
-              <Label>Berlaku untuk Kamar</Label>
-              <Select 
-                value={formData.room_type_ids.length === 0 ? 'all' : 'specific'}
-                onValueChange={(v) => {
-                  if (v === 'all') {
-                    setFormData({ ...formData, room_type_ids: [] });
-                  }
-                }}
-              >
-                <SelectTrigger data-testid="room-scope-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kamar</SelectItem>
-                  <SelectItem value="specific">Kamar Tertentu</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="mb-2 block">Berlaku di Hari (kosongkan = semua hari)</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day, idx) => (
+                  <label key={idx} className="flex items-center gap-1.5 px-2 py-1 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <Checkbox
+                      checked={formData.valid_days.includes(idx)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({ ...formData, valid_days: [...formData.valid_days, idx] });
+                        } else {
+                          setFormData({ ...formData, valid_days: formData.valid_days.filter(d => d !== idx) });
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{day}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Contoh: centang Min & Sab untuk promo Weekend</p>
+            </div>
+
+            {/* Room Selection */}
+            <div>
+              <Label className="mb-2 block">Berlaku untuk Kamar</Label>
+              <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-2">
+                <label className="flex items-center gap-2 p-1 cursor-pointer hover:bg-gray-50 rounded">
+                  <Checkbox
+                    checked={formData.room_type_ids.length === 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData({ ...formData, room_type_ids: [] });
+                      }
+                    }}
+                  />
+                  <span className="text-sm font-medium">Semua Kamar</span>
+                </label>
+                {rooms.map((room) => (
+                  <label key={room.room_type_id} className="flex items-center gap-2 p-1 cursor-pointer hover:bg-gray-50 rounded">
+                    <Checkbox
+                      checked={formData.room_type_ids.includes(room.room_type_id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({ ...formData, room_type_ids: [...formData.room_type_ids, room.room_type_id] });
+                        } else {
+                          setFormData({ ...formData, room_type_ids: formData.room_type_ids.filter(id => id !== room.room_type_id) });
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{room.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center justify-between">

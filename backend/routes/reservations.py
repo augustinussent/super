@@ -51,15 +51,38 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
             if promo["valid_from"] <= now <= promo["valid_until"]:
                 if promo["current_usage"] < promo["max_usage"]:
                     if not promo["room_type_ids"] or reservation.room_type_id in promo["room_type_ids"]:
-                        if promo["discount_type"] == "percent":
-                            discount = total_rate * (promo["discount_value"] / 100)
+                        # Check valid_days (0=Sunday, 6=Saturday in JS convention)
+                        # Python weekday: 0=Monday, so we convert
+                        valid_days = promo.get("valid_days", [])
+                        if valid_days:
+                            # Convert Python weekday (0=Mon) to JS (0=Sun)
+                            py_weekday = check_in.weekday()  # 0=Mon, 6=Sun
+                            js_weekday = (py_weekday + 1) % 7  # 0=Sun, 6=Sat
+                            if js_weekday not in valid_days:
+                                # Promo not valid for this day
+                                pass
+                            else:
+                                # Day is valid, apply discount
+                                if promo["discount_type"] == "percent":
+                                    discount = total_rate * (promo["discount_value"] / 100)
+                                else:
+                                    discount = promo["discount_value"]
+                                
+                                await db.promo_codes.update_one(
+                                    {"promo_id": promo["promo_id"]},
+                                    {"$inc": {"current_usage": 1}}
+                                )
                         else:
-                            discount = promo["discount_value"]
-                        
-                        await db.promo_codes.update_one(
-                            {"promo_id": promo["promo_id"]},
-                            {"$inc": {"current_usage": 1}}
-                        )
+                            # No day restriction, apply discount
+                            if promo["discount_type"] == "percent":
+                                discount = total_rate * (promo["discount_value"] / 100)
+                            else:
+                                discount = promo["discount_value"]
+                            
+                            await db.promo_codes.update_one(
+                                {"promo_id": promo["promo_id"]},
+                                {"$inc": {"current_usage": 1}}
+                            )
     
     res_doc = Reservation(
         guest_name=reservation.guest_name,
