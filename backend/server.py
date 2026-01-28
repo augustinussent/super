@@ -40,14 +40,7 @@ api_router.include_router(init_router)
 api_router.include_router(media_router)
 api_router.include_router(analytics_router)
 
-@api_router.get("/")
-async def root():
-    return {"message": "Spencer Green Hotel HMS API", "version": "1.0.0"}
-
-# Include API router in main app
-app.include_router(api_router)
-
-# Add CORS middleware
+# Add CORS middleware BEFORE including routers
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -55,6 +48,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@api_router.get("/")
+async def root():
+    return {"message": "Spencer Green Hotel HMS API", "version": "1.0.0"}
+
+# Include API router in main app
+app.include_router(api_router)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
