@@ -149,6 +149,13 @@ async def bulk_update_inventory(request: BulkUpdateRequest, req: Request, user: 
     current = start
     updated_count = 0
     while current <= end:
+        # Check day validation if specific days are requested
+        # Python weekday: 0=Mon, 6=Sun
+        if request.days_of_week is not None and len(request.days_of_week) > 0:
+            if current.weekday() not in request.days_of_week:
+                current += timedelta(days=1)
+                continue
+                
         date_str = current.strftime("%Y-%m-%d")
         update_fields = {}
         

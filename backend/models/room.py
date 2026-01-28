@@ -32,3 +32,4 @@ class BulkUpdateRequest(BaseModel):
     allotment: Optional[int] = None
     rate: Optional[float] = None
     is_closed: Optional[bool] = None
+    days_of_week: Optional[List[int]] = None # 0=Mon, 6=Sun

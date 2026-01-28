@@ -133,6 +133,55 @@ async def check_reservation(booking_code: str = None, email: str = None):
     reservations = await db.reservations.find(query, {"_id": 0}).to_list(10)
     return reservations
 
+@router.post("/promo/verify")
+async def verify_promo(request: dict):
+    code = request.get("code", "").upper()
+    check_in_str = request.get("check_in")
+    
+    if not code:
+        raise HTTPException(status_code=400, detail="Promo code is required")
+    
+    promo = await db.promo_codes.find_one({
+        "code": code,
+        "is_active": True
+    }, {"_id": 0})
+    
+    if not promo:
+        raise HTTPException(status_code=404, detail="Invalid promo code")
+        
+    # Check general validity period
+    now = datetime.now(timezone.utc).isoformat()
+    if not (promo["valid_from"] <= now <= promo["valid_until"]):
+        raise HTTPException(status_code=400, detail="Promo code is expired or not yet valid")
+        
+    # Check max usage
+    if promo["current_usage"] >= promo["max_usage"]:
+        raise HTTPException(status_code=400, detail="Promo code usage limit reached")
+        
+    # Check day validity if check_in is provided
+    if check_in_str:
+        try:
+            check_in = datetime.strptime(check_in_str, "%Y-%m-%d")
+            valid_days = promo.get("valid_days", [])
+            if valid_days:
+                # 0=Mon, 6=Sun in Python; 0=Sun, 6=Sat in JS/Promo convention
+                py_weekday = check_in.weekday()
+                js_weekday = (py_weekday + 1) % 7
+                
+                if js_weekday not in valid_days:
+                    raise HTTPException(status_code=400, detail="Promo code not valid for this check-in day")
+        except ValueError:
+            pass # Ignore invalid date format, just check code existence
+            
+    return {
+        "valid": True,
+        "code": promo["code"],
+        "discount_type": promo["discount_type"],
+        "discount_value": promo["discount_value"],
+        "room_type_ids": promo.get("room_type_ids", []),
+        "message": "Promo code applied!"
+    }
+
 # Admin routes
 @router.get("/admin/reservations")
 async def get_all_reservations(

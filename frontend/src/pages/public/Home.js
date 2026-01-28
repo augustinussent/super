@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves } from 'lucide-react';
+import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves, Tag as TagIcon, AlertCircle } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { trackEvent, trackBookNow, trackViewRoom } from '../../utils/analytics';
@@ -276,6 +276,11 @@ const Home = () => {
   // Dynamic offers from API
   const [offers, setOffers] = useState([]);
 
+  // Promo Code State
+  const [promoCode, setPromoCode] = useState('');
+  const [verifiedPromo, setVerifiedPromo] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+
   useEffect(() => {
     fetchContent();
     fetchReviews();
@@ -355,6 +360,7 @@ const Home = () => {
   const searchAvailability = async () => {
     setIsSearching(true);
     try {
+      // Pass verification data if exists (for price consistency)
       const response = await axios.get(`${API_URL}/availability`, {
         params: {
           check_in: format(checkIn, 'yyyy-MM-dd'),
@@ -384,6 +390,44 @@ const Home = () => {
     }
   };
 
+  const verifyPromoCode = async () => {
+    if (!promoCode) return;
+    setIsVerifying(true);
+    try {
+      const response = await axios.post(`${API_URL}/reservations/promo/verify`, {
+        code: promoCode,
+        check_in: format(checkIn, 'yyyy-MM-dd')
+      });
+
+      if (response.data.valid) {
+        setVerifiedPromo(response.data);
+        toast.success(response.data.message || 'Kode promo berhasil digunakan!');
+      }
+    } catch (error) {
+      setVerifiedPromo(null);
+      toast.error(error.response?.data?.detail || 'Kode promo tidak valid');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const getDiscountedPrice = (room, originalPrice) => {
+    if (!verifiedPromo) return originalPrice;
+
+    // Check if promo implies specific rooms
+    if (verifiedPromo.room_type_ids && verifiedPromo.room_type_ids.length > 0) {
+      if (!verifiedPromo.room_type_ids.includes(room.room_type_id)) {
+        return originalPrice;
+      }
+    }
+
+    if (verifiedPromo.discount_type === 'percent') {
+      return originalPrice * (1 - verifiedPromo.discount_value / 100);
+    } else {
+      return Math.max(0, originalPrice - verifiedPromo.discount_value);
+    }
+  };
+
   const handleCheckInSelect = (date) => {
     setCheckIn(date);
     if (date >= checkOut) {
@@ -393,6 +437,12 @@ const Home = () => {
 
   const handleBookRoom = (room) => {
     setSelectedRoom(room);
+    if (verifiedPromo) {
+      setBookingForm(prev => ({
+        ...prev,
+        promo_code: verifiedPromo.code
+      }));
+    }
     setShowBookingModal(true);
   };
 
@@ -522,7 +572,7 @@ const Home = () => {
             className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-[85%] max-w-4xl border border-emerald-100/50"
             data-testid="booking-engine"
           >
-            <div className="grid grid-cols-4 gap-3 lg:gap-4 items-end">
+            <div className="grid grid-cols-5 gap-3 lg:gap-4 items-end">
               {/* Check-in */}
               <div>
                 <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
@@ -597,6 +647,35 @@ const Home = () => {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Promo Code Input Desktop */}
+              <div className="hidden lg:block">
+                <Label className="text-gray-600 mb-1.5 block text-sm">Promo Code</Label>
+                <div className="relative flex">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <TagIcon className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Kode Promo"
+                    className="w-full h-10 lg:h-12 pl-10 pr-20 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm uppercase"
+                  />
+                  <button
+                    onClick={verifyPromoCode}
+                    disabled={isVerifying || !promoCode}
+                    className="absolute right-1 top-1 bottom-1 px-3 bg-emerald-50 text-emerald-600 rounded-md text-xs font-medium hover:bg-emerald-100 disabled:opacity-50"
+                  >
+                    {isVerifying ? '...' : verifiedPromo ? <Check className="w-4 h-4" /> : 'Verify'}
+                  </button>
+                </div>
+                {verifiedPromo && (
+                  <p className="text-[10px] text-emerald-600 mt-1 absolute font-medium">
+                    Hemat {verifiedPromo.discount_type === 'percent' ? `${verifiedPromo.discount_value}%` : `Rp ${verifiedPromo.discount_value}`}
+                  </p>
+                )}
               </div>
 
               {/* Search Button */}
@@ -754,9 +833,25 @@ const Home = () => {
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
                           <div>
-                            <span className="text-emerald-600 font-bold text-2xl">
-                              Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
-                            </span>
+                            {verifiedPromo ? (
+                              <>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-400 line-through">
+                                    Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
+                                  </span>
+                                  <span className="text-emerald-600 text-xs font-semibold bg-emerald-50 px-2 py-0.5 rounded">
+                                    Hemat {verifiedPromo.discount_type === 'percent' ? `${verifiedPromo.discount_value}%` : ''}
+                                  </span>
+                                </div>
+                                <span className="text-emerald-600 font-bold text-2xl">
+                                  Rp {getDiscountedPrice(room, room.available_rate || room.base_price).toLocaleString('id-ID')}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-emerald-600 font-bold text-2xl">
+                                Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
+                              </span>
+                            )}
                             <span className="text-gray-400 text-sm">/night</span>
                           </div>
                           <div className="flex items-center gap-3">
@@ -952,9 +1047,23 @@ const Home = () => {
                   <p className="text-sm text-gray-500">
                     {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
                   </p>
-                  <p className="text-emerald-600 font-bold">
-                    Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
-                  </p>
+                  {verifiedPromo ? (
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-400 line-through">
+                        Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-emerald-600 font-bold">
+                        Rp {getDiscountedPrice(selectedRoom, selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
+                      </span>
+                      <span className="text-[10px] text-emerald-600 font-medium">
+                        Promo Applied: {verifiedPromo.code}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-emerald-600 font-bold">
+                      Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1110,8 +1219,8 @@ const Home = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {/* Mobile Booking Sticky Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg p-3 safe-area-bottom">
+      {/* Mobile Booking Sticky Bar - Restricted Width to avoid WhatsApp Button */}
+      <div className="md:hidden fixed bottom-0 left-0 hover:w-[85%] transition-all w-[80%] z-40 bg-white border-t border-r border-gray-200 shadow-lg p-3 safe-area-bottom rounded-tr-xl">
         <div className="flex items-center justify-between gap-3">
           {/* Swapped positions: Button on LEFT to avoid WhatsApp overlap (Right), Text on RIGHT */}
           <Sheet open={showMobileBooking} onOpenChange={setShowMobileBooking}>
@@ -1191,6 +1300,35 @@ const Home = () => {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* Promo Code Mobile */}
+                <div>
+                  <Label className="text-gray-600 mb-1.5 block text-sm">Promo Code</Label>
+                  <div className="relative flex">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <TagIcon className="h-4 w-4" />
+                    </div>
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      placeholder="Kode Promo"
+                      className="w-full h-12 pl-10 pr-24 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm uppercase"
+                    />
+                    <button
+                      onClick={verifyPromoCode}
+                      disabled={isVerifying || !promoCode}
+                      className="absolute right-2 top-2 bottom-2 px-3 bg-emerald-50 text-emerald-600 rounded-md text-xs font-medium hover:bg-emerald-100 disabled:opacity-50"
+                    >
+                      {isVerifying ? 'Checking...' : verifiedPromo ? <div className="flex items-center"><Check className="w-3 h-3 mr-1" /> Applied</div> : 'Verify'}
+                    </button>
+                  </div>
+                  {verifiedPromo && (
+                    <p className="text-xs text-emerald-600 mt-1 font-medium">
+                      Code applied! Discount: {verifiedPromo.discount_type === 'percent' ? `${verifiedPromo.discount_value}%` : `Rp ${verifiedPromo.discount_value}`}
+                    </p>
+                  )}
                 </div>
 
                 {/* Search Button Mobile */}

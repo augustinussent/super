@@ -287,6 +287,7 @@ const ContentManagement = () => {
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
           <TabsTrigger value="offers">Special Offers</TabsTrigger>
+          <TabsTrigger value="table-manner">Table Manner</TabsTrigger>
         </TabsList>
 
         {/* ==================== HOME PAGE ==================== */}
@@ -889,6 +890,85 @@ const ContentManagement = () => {
               )}
             </div>
           </ContentSection>
+        </TabsContent>
+
+        {/* ==================== TABLE MANNER PAGE ==================== */}
+        <TabsContent value="table-manner" className="space-y-6">
+          <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Edit konten halaman Table Manner</span>
+            <Button onClick={() => saveAllForPage('table-manner')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
+            </Button>
+          </div>
+          <ContentSection title="Table Manner Hero">
+            <div className="space-y-4">
+              <div>
+                <Label>Judul</Label>
+                <Input value={getContent('table-manner', 'hero', 'title')} onChange={(e) => updateField('table-manner_hero', 'title', e.target.value)} placeholder="Paket Table Manner" />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input value={getContent('table-manner', 'hero', 'subtitle')} onChange={(e) => updateField('table-manner_hero', 'subtitle', e.target.value)} placeholder="Etiquette Training" />
+              </div>
+              <div>
+                <Label>Deskripsi</Label>
+                <Textarea value={getContent('table-manner', 'hero', 'description')} onChange={(e) => updateField('table-manner_hero', 'description', e.target.value)} rows={2} placeholder="Pelajari etika makan..." />
+              </div>
+              <ImageField
+                label="Background Image"
+                value={getContent('table-manner', 'hero', 'image')}
+                onChange={(e) => updateField('table-manner_hero', 'image', e.target.value)}
+                onUpload={() => openMediaUpload('table-manner_hero', 'image')}
+                altValue={getContent('table-manner', 'hero', 'imageAlt')}
+                onAltChange={(e) => updateField('table-manner_hero', 'imageAlt', e.target.value)}
+              />
+              <Button onClick={() => saveContent('table-manner', 'hero', 'hero', content['table-manner_hero']?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+            </div>
+          </ContentSection>
+
+          {/* Table Manner Packages */}
+          {[1, 2, 3].map((num) => (
+            <ContentSection key={`pkg${num}`} title={`Package ${num}`}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Nama Paket</Label>
+                    <Input value={getContent('table-manner', `package${num}`, 'name')} onChange={(e) => updateField(`table-manner_package${num}`, 'name', e.target.value)} placeholder={`Paket ${num}`} />
+                  </div>
+                  <div>
+                    <Label>Pax (Kapasitas)</Label>
+                    <Input value={getContent('table-manner', `package${num}`, 'pax')} onChange={(e) => updateField(`table-manner_package${num}`, 'pax', e.target.value)} placeholder="20 - 30 pax" />
+                  </div>
+                  <div>
+                    <Label>Harga</Label>
+                    <Input value={getContent('table-manner', `package${num}`, 'price')} onChange={(e) => updateField(`table-manner_package${num}`, 'price', e.target.value)} placeholder="Rp 150.000/pax" />
+                  </div>
+                </div>
+                <div>
+                  <Label>Termasuk (pisahkan dengan baris baru)</Label>
+                  <Textarea
+                    value={getContent('table-manner', `package${num}`, 'includes')}
+                    onChange={(e) => updateField(`table-manner_package${num}`, 'includes', e.target.value)}
+                    rows={3}
+                    placeholder="Materi Etika Makan&#10;Praktek Langsung"
+                  />
+                </div>
+                <ImageField
+                  label="Gambar Paket"
+                  value={getContent('table-manner', `package${num}`, 'image')}
+                  onChange={(e) => updateField(`table-manner_package${num}`, 'image', e.target.value)}
+                  onUpload={() => openMediaUpload(`table-manner_package${num}`, 'image')}
+                  altValue={getContent('table-manner', `package${num}`, 'imageAlt')}
+                  onAltChange={(e) => updateField(`table-manner_package${num}`, 'imageAlt', e.target.value)}
+                />
+                <Button onClick={() => saveContent('table-manner', `package${num}`, 'package', content[`table-manner_package${num}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />Simpan Package {num}
+                </Button>
+              </div>
+            </ContentSection>
+          ))}
         </TabsContent>
 
         {/* ==================== FOOTER ==================== */}

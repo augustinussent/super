@@ -10,6 +10,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Checkbox } from '../../components/ui/checkbox';
 import MediaUpload from '../../components/MediaUpload';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
@@ -47,7 +48,8 @@ const RoomManagement = () => {
     end_date: format(addDays(startOfToday(), 7), 'yyyy-MM-dd'),
     allotment: '',
     rate: '',
-    is_closed: 'unchanged'
+    is_closed: 'unchanged',
+    days_of_week: []
   });
 
   const getToken = () => localStorage.getItem('token');
@@ -309,7 +311,11 @@ const RoomManagement = () => {
         end_date: bulkForm.end_date,
         allotment: bulkForm.allotment ? Number(bulkForm.allotment) : null,
         rate: bulkForm.rate ? Number(bulkForm.rate) : null,
-        is_closed: bulkForm.is_closed === 'yes' ? true : bulkForm.is_closed === 'no' ? false : null
+        is_closed: bulkForm.is_closed === 'yes' ? true : bulkForm.is_closed === 'no' ? false : null,
+        // Convert JS days (0=Sun) to Python days (0=Mon)
+        days_of_week: bulkForm.days_of_week.length > 0
+          ? bulkForm.days_of_week.map(d => (d + 6) % 7)
+          : null
       };
 
       await axios.post(`${API_URL}/admin/inventory/bulk-update`, payload, {
@@ -883,6 +889,28 @@ const RoomManagement = () => {
               <div>
                 <Label>Tanggal Akhir</Label>
                 <Input type="date" value={bulkForm.end_date} onChange={(e) => setBulkForm({ ...bulkForm, end_date: e.target.value })} />
+              </div>
+            </div>
+
+            {/* Day Filter */}
+            <div>
+              <Label className="mb-2 block">Berlaku di Hari (kosongkan = semua hari)</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day, idx) => (
+                  <label key={idx} className="flex items-center gap-1.5 px-2 py-1 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <Checkbox
+                      checked={bulkForm.days_of_week.includes(idx)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setBulkForm({ ...bulkForm, days_of_week: [...bulkForm.days_of_week, idx] });
+                        } else {
+                          setBulkForm({ ...bulkForm, days_of_week: bulkForm.days_of_week.filter(d => d !== idx) });
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{day}</span>
+                  </label>
+                ))}
               </div>
             </div>
 

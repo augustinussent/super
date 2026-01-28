@@ -268,24 +268,24 @@ const PromoCodes = () => {
 
       {/* Add/Edit Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPromo ? 'Edit Kode Promo' : 'Tambah Kode Promo'}</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="code">Kode Promo *</Label>
-              <Input
-                id="code"
-                value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                placeholder="e.g., WEEKEND20"
-                data-testid="promo-code-input"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="code">Kode Promo *</Label>
+                <Input
+                  id="code"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                  placeholder="e.g., WEEKEND20"
+                  data-testid="promo-code-input"
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Tipe Diskon</Label>
                 <Select
@@ -301,6 +301,7 @@ const PromoCodes = () => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
                 <Label htmlFor="discount_value">Nilai Diskon *</Label>
                 <Input
@@ -312,21 +313,31 @@ const PromoCodes = () => {
                   data-testid="discount-value-input"
                 />
               </div>
-            </div>
 
-            <div>
-              <Label htmlFor="max_usage">Maksimal Penggunaan *</Label>
-              <Input
-                id="max_usage"
-                type="number"
-                value={formData.max_usage}
-                onChange={(e) => setFormData({ ...formData, max_usage: e.target.value })}
-                placeholder="100"
-                data-testid="max-usage-input"
-              />
-            </div>
+              <div>
+                <Label htmlFor="max_usage">Maksimal Penggunaan *</Label>
+                <Input
+                  id="max_usage"
+                  type="number"
+                  value={formData.max_usage}
+                  onChange={(e) => setFormData({ ...formData, max_usage: e.target.value })}
+                  placeholder="100"
+                  data-testid="max-usage-input"
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-end pb-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
+                    data-testid="is-active-switch"
+                  />
+                  <Label htmlFor="is_active">Status Aktif</Label>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="valid_from">Berlaku Dari</Label>
                 <Input
@@ -350,11 +361,11 @@ const PromoCodes = () => {
             </div>
 
             {/* Day of Week Filter */}
-            <div>
-              <Label className="mb-2 block">Berlaku di Hari (kosongkan = semua hari)</Label>
+            <div className="border-t pt-4">
+              <Label className="mb-2 block font-medium">Berlaku di Hari (kosongkan = semua hari)</Label>
               <div className="flex flex-wrap gap-2">
                 {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day, idx) => (
-                  <label key={idx} className="flex items-center gap-1.5 px-2 py-1 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <label key={idx} className="flex items-center gap-1.5 px-3 py-1.5 border rounded-lg cursor-pointer hover:bg-emerald-50 transition-colors">
                     <Checkbox
                       checked={formData.valid_days.includes(idx)}
                       onCheckedChange={(checked) => {
@@ -369,14 +380,13 @@ const PromoCodes = () => {
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Contoh: centang Min & Sab untuk promo Weekend</p>
             </div>
 
             {/* Room Selection */}
-            <div>
-              <Label className="mb-2 block">Berlaku untuk Kamar</Label>
-              <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-2">
-                <label className="flex items-center gap-2 p-1 cursor-pointer hover:bg-gray-50 rounded">
+            <div className="border-t pt-4">
+              <Label className="mb-2 block font-medium">Berlaku untuk Kamar</Label>
+              <div className="space-y-1 max-h-32 overflow-y-auto border rounded-lg p-2 bg-gray-50/50">
+                <label className="flex items-center gap-2 p-1.5 cursor-pointer hover:bg-white rounded transition-colors">
                   <Checkbox
                     checked={formData.room_type_ids.length === 0}
                     onCheckedChange={(checked) => {
@@ -388,7 +398,7 @@ const PromoCodes = () => {
                   <span className="text-sm font-medium">Semua Kamar</span>
                 </label>
                 {rooms.map((room) => (
-                  <label key={room.room_type_id} className="flex items-center gap-2 p-1 cursor-pointer hover:bg-gray-50 rounded">
+                  <label key={room.room_type_id} className="flex items-center gap-2 p-1.5 cursor-pointer hover:bg-white rounded transition-colors">
                     <Checkbox
                       checked={formData.room_type_ids.includes(room.room_type_id)}
                       onCheckedChange={(checked) => {
@@ -405,23 +415,15 @@ const PromoCodes = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="is_active">Status Aktif</Label>
-              <Switch
-                id="is_active"
-                checked={formData.is_active}
-                onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
-                data-testid="is-active-switch"
-              />
+            <div className="pt-4 sticky bottom-0 bg-white">
+              <Button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                data-testid="save-promo-btn"
+              >
+                {editingPromo ? 'Simpan Perubahan' : 'Buat Kode Promo'}
+              </Button>
             </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-              data-testid="save-promo-btn"
-            >
-              {editingPromo ? 'Simpan Perubahan' : 'Buat Kode Promo'}
-            </Button>
           </form>
         </DialogContent>
       </Dialog>
