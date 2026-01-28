@@ -34,3 +34,17 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # CORS
 CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
+if CORS_ORIGINS == ['*']:
+    CORS_ORIGINS = [
+        "http://localhost:3000",
+        "https://spencergreenhotel.com",
+        "https://www.spencergreenhotel.com",
+        "https://spensmer-backend.onrender.com"
+    ]
+else:
+    # Always append production domains just in case
+    CORS_ORIGINS.extend([
+        "https://spencergreenhotel.com",
+        "https://www.spencergreenhotel.com"
+    ])
+    CORS_ORIGINS = list(set(CORS_ORIGINS)) # Remove duplicates
