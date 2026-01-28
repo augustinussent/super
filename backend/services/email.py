@@ -28,8 +28,12 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str):
     message.attach(part2)
 
     try:
-        # Create a secure SSL context
+        # Create a secure SSL context but disable strict verification
+        # This is needed because the hosting provider returns a certificate for the main server hostname
+        # instead of the user's domain (mail.spencergreenhotel.com vs cloud-id102.cloudhosting.co.id)
         context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
 
         # Run SMTP operations in a thread since they are blocking
         def send():

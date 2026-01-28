@@ -9,7 +9,7 @@ const config = {
 
 console.log(`Connecting to ${config.host}:${config.port} via TLS...`);
 
-const socket = tls.connect(config.port, config.host, { rejectUnauthorized: false }, () => {
+const socket = tls.connect(config.port, config.host, { rejectUnauthorized: true }, () => {
     console.log('✅ Connected to server securely!');
     console.log('Waiting for greeting...');
 });
