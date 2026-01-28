@@ -210,8 +210,17 @@ const Home = () => {
   const [checkIn, setCheckIn] = useState(new Date());
   const [checkOut, setCheckOut] = useState(addDays(new Date(), 1));
   const [guests, setGuests] = useState(2);
-  const [heroContent, setHeroContent] = useState(null);
-  const [promoBanner, setPromoBanner] = useState(null);
+  const [heroContent, setHeroContent] = useState({
+    title: 'Spencer Green Hotel',
+    subtitle: 'Hotel view pegunungan di Batu Malang untuk Liburan & Corporate Event',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'
+  });
+  const [promoBanner, setPromoBanner] = useState({
+    title: 'Special Weekend Offer',
+    description: 'Get 20% off for weekend stays. Use code: WEEKEND20',
+    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200',
+    is_active: true
+  });
   const [reviews, setReviews] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -231,7 +240,21 @@ const Home = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const offersRef = useRef(null);
-  const roomsRef = useRef(null)
+  const roomsRef = useRef(null);
+  const bookingEngineRef = useRef(null);
+
+  const scrollToBooking = () => {
+    if (bookingEngineRef.current) {
+      const headerOffset = 100;
+      const elementPosition = bookingEngineRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
 
   // Gallery state
   const [showGallery, setShowGallery] = useState(false);
@@ -459,7 +482,7 @@ const Home = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'})`
+            backgroundImage: `url(${heroContent?.image})`
           }}
         >
           <div className="absolute inset-0 bg-black/25" />
@@ -476,16 +499,17 @@ const Home = () => {
             <h1 className="sr-only">SPENCER GREEN HOTEL BATU – Hotel di Batu Malang dengan Kamar Nyaman, Kolam Renang & Paket Meeting</h1>
             {/* Visual Title */}
             <p className="font-display hero-title text-4xl sm:text-5xl text-white mb-4 sm:mb-6" role="heading" aria-level="2">
-              {heroContent?.title || 'Spencer Green Hotel'}
+              {heroContent?.title}
             </p>
             <p className="hero-subtitle text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
-              {heroContent?.subtitle || 'Hotel view pegunungan di Batu Malang untuk Liburan & Corporate Event'}
+              {heroContent?.subtitle}
             </p>
           </motion.div>
         </div>
 
         {/* Booking Engine - Desktop Only, positioned inside viewport */}
         <motion.div
+          ref={bookingEngineRef}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
@@ -649,7 +673,10 @@ const Home = () => {
                   <p className="text-gray-500 text-sm mb-3 line-clamp-2">{offer.description}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-400">Valid until {offer.validUntil}</span>
-                    <button className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center">
+                    <button
+                      onClick={scrollToBooking}
+                      className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center"
+                    >
                       Book <ArrowRight className="w-4 h-4 ml-1" />
                     </button>
                   </div>
@@ -756,7 +783,7 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="relative rounded-2xl overflow-hidden">
               <img
-                src={promoBanner.image || 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200'}
+                src={promoBanner.image}
                 alt="Promo"
                 className="w-full h-56 sm:h-64 md:h-80 object-cover"
               />
