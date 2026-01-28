@@ -53,7 +53,11 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str):
         logger.error(f"Failed to send email via SMTP: {str(e)}")
         return False
 
-async def send_reservation_email(reservation: dict, room_type: dict):
+async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
+    """
+    Send reservation confirmation email and log the result to database.
+    Returns True if email was sent successfully, False otherwise.
+    """
     whatsapp_doc = await db.site_content.find_one({"section": "contact", "content_type": "whatsapp"}, {"_id": 0})
     wa_number = whatsapp_doc.get("content", {}).get("number", "6281130700206") if whatsapp_doc else "6281130700206"
     
@@ -115,11 +119,30 @@ async def send_reservation_email(reservation: dict, room_type: dict):
     </div>
     """
     
-    await send_email_smtp(
+    success = await send_email_smtp(
         to_email=reservation['guest_email'],
         subject=f"Reservation Confirmation - {reservation['booking_code']}",
         html_content=html_content
     )
+    
+    # Log email send attempt to database
+    from datetime import datetime, timezone
+    email_log = {
+        "reservation_id": reservation.get('reservation_id'),
+        "booking_code": reservation.get('booking_code'),
+        "to_email": reservation['guest_email'],
+        "subject": f"Reservation Confirmation - {reservation['booking_code']}",
+        "status": "sent" if success else "failed",
+        "sent_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.email_logs.insert_one(email_log)
+    
+    if success:
+        logger.info(f"Reservation email sent successfully to {reservation['guest_email']} for booking {reservation['booking_code']}")
+    else:
+        logger.error(f"Failed to send reservation email to {reservation['guest_email']} for booking {reservation['booking_code']}")
+    
+    return success
 
 async def send_password_reset_email(email: str, token: str):
     reset_link = f"{FRONTEND_URL}/reset-password?token={token}"

@@ -5,6 +5,7 @@ from database import db
 from models.reservation import ReservationCreate, Reservation
 from services.auth import require_admin
 from services.email import send_reservation_email
+from services.audit import log_activity
 
 router = APIRouter(tags=["reservations"])
 
@@ -151,3 +152,31 @@ async def update_reservation_status(reservation_id: str, status: str, request: R
     )
         
     return {"message": "Status updated"}
+
+@router.post("/admin/reservations/{reservation_id}/resend-email")
+async def resend_reservation_email(reservation_id: str, request: Request, user: dict = Depends(require_admin)):
+    """Resend reservation confirmation email to guest"""
+    reservation = await db.reservations.find_one({"reservation_id": reservation_id}, {"_id": 0})
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+    
+    room = await db.room_types.find_one({"room_type_id": reservation["room_type_id"]}, {"_id": 0})
+    if not room:
+        room = {"name": reservation.get("room_type_name", "N/A")}
+    
+    success = await send_reservation_email(reservation, room)
+    
+    await log_activity(
+        user=user,
+        action="resend_email",
+        resource="reservations",
+        resource_id=reservation_id,
+        details={"success": success, "to_email": reservation["guest_email"]},
+        ip_address=request.client.host if request.client else None
+    )
+    
+    if success:
+        return {"message": "Email sent successfully", "success": True}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send email")
+

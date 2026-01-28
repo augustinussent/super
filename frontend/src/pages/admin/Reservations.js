@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Eye, CheckCircle, XCircle, LogIn, LogOut } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, LogIn, LogOut, Mail, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ const Reservations = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   useEffect(() => {
     fetchReservations();
@@ -45,7 +46,7 @@ const Reservations = () => {
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(r => 
+      filtered = filtered.filter(r =>
         r.guest_name.toLowerCase().includes(query) ||
         r.booking_code.toLowerCase().includes(query) ||
         r.guest_email.toLowerCase().includes(query)
@@ -67,6 +68,18 @@ const Reservations = () => {
       setShowDetailModal(false);
     } catch (error) {
       toast.error('Failed to update status');
+    }
+  };
+
+  const resendEmail = async (reservationId) => {
+    setIsSendingEmail(true);
+    try {
+      await axios.post(`${API_URL}/admin/reservations/${reservationId}/resend-email`);
+      toast.success('Email berhasil dikirim');
+    } catch (error) {
+      toast.error('Gagal mengirim email: ' + (error.response?.data?.detail || 'Unknown error'));
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -290,6 +303,23 @@ const Reservations = () => {
                     </Button>
                   ))}
                 </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100">
+                <Button
+                  variant="outline"
+                  onClick={() => resendEmail(selectedReservation.reservation_id)}
+                  disabled={isSendingEmail}
+                  className="w-full"
+                  data-testid="resend-email-btn"
+                >
+                  {isSendingEmail ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Mail className="w-4 h-4 mr-2" />
+                  )}
+                  {isSendingEmail ? 'Mengirim...' : 'Kirim Ulang Email Konfirmasi'}
+                </Button>
               </div>
             </div>
           )}

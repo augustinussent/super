@@ -126,7 +126,7 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Video Container - Fullscreen */}
-          <div className="relative bg-black w-full h-full flex items-center justify-center">
+          <div className="relative bg-black w-full h-full flex items-center justify-center group">
             {isYouTube ? (
               <iframe
                 src={videoUrl?.replace('watch?v=', 'embed/') + '?autoplay=1'}
@@ -148,7 +148,7 @@ const VideoModal = ({ isOpen, onClose, videoUrl, roomName }) => {
                 />
 
                 {/* Video Controls Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center group">
+                <div className="absolute inset-0 flex items-center justify-center">
                   <button
                     onClick={togglePlay}
                     className="w-20 h-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100"
@@ -812,7 +812,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-12">
           <div className="text-center">
             <p className="text-emerald-600 uppercase tracking-widest text-xs sm:text-sm mb-2">Akomodasi</p>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Kamar Kami</h2>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Pilihan Kamar Nyaman Kami</h2>
           </div>
         </div>
 
