@@ -16,29 +16,25 @@ async def send_email_resend(to_email: str, subject: str, html_content: str):
     """
     if not RESEND_API_KEY:
         logger.error("RESEND_API_KEY not set")
-        return False
+        raise Exception("RESEND_API_KEY not set")
     
-    try:
-        resend.api_key = RESEND_API_KEY
-        
-        params = {
-            "from": f"Spencer Green Hotel <{SENDER_EMAIL}>",
-            "to": [to_email],
-            "subject": subject,
-            "html": html_content,
-        }
-        
-        # Run in thread since resend.Emails.send is blocking
-        def send():
-            return resend.Emails.send(params)
-        
-        result = await asyncio.to_thread(send)
-        logger.info(f"Email sent successfully via Resend to {to_email}, id: {result.get('id')}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Failed to send email via Resend: {str(e)}")
-        return False
+    # Allow exceptions to bubble up so we can see the real error (e.g. domain validation)
+    resend.api_key = RESEND_API_KEY
+    
+    params = {
+        "from": f"Spencer Green Hotel <{SENDER_EMAIL}>",
+        "to": [to_email],
+        "subject": subject,
+        "html": html_content,
+    }
+    
+    # Run in thread since resend.Emails.send is blocking
+    def send():
+        return resend.Emails.send(params)
+    
+    result = await asyncio.to_thread(send)
+    logger.info(f"Email sent successfully via Resend to {to_email}, id: {result.get('id')}")
+    return True
 
 async def send_email_smtp(to_email: str, subject: str, html_content: str):
     """
@@ -88,15 +84,14 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str):
 
 async def send_email(to_email: str, subject: str, html_content: str):
     """
-    Main email sending function - tries Resend first, falls back to SMTP
+    Main email sending function - tries Resend first.
+    If RESEND_API_KEY is present, we rely on it and DO NOT fallback to SMTP
+    because SMTP on Render hangs (firewall) causing timeouts.
     """
-    # Try Resend first (works on Render)
     if RESEND_API_KEY:
-        success = await send_email_resend(to_email, subject, html_content)
-        if success:
-            return True
+        return await send_email_resend(to_email, subject, html_content)
     
-    # Fallback to SMTP
+    # Only use SMTP if Resend is not configured
     return await send_email_smtp(to_email, subject, html_content)
 
 async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
