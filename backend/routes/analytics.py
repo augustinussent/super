@@ -36,3 +36,46 @@ async def get_analytics(days: int = 7, user: dict = Depends(require_admin)):
     stats = await cursor.to_list(days)
     # Reverse to show chronological
     return stats[::-1]
+
+@router.get("/admin/test-smtp")
+async def test_smtp(user: dict = Depends(require_admin)):
+    """Test SMTP connection and return detailed status"""
+    import smtplib
+    import ssl
+    from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+    
+    result = {
+        "host": SMTP_HOST,
+        "port": SMTP_PORT,
+        "user": SMTP_USER,
+        "password_set": bool(SMTP_PASSWORD),
+        "connection": None,
+        "login": None,
+        "error": None
+    }
+    
+    try:
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context, timeout=10) as server:
+                result["connection"] = "SUCCESS"
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                result["login"] = "SUCCESS"
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+                result["connection"] = "SUCCESS"
+                server.starttls(context=context)
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                result["login"] = "SUCCESS"
+                
+    except smtplib.SMTPAuthenticationError as e:
+        result["error"] = f"Authentication failed: {str(e)}"
+    except smtplib.SMTPConnectError as e:
+        result["error"] = f"Connection failed: {str(e)}"
+    except Exception as e:
+        result["error"] = f"Error: {type(e).__name__} - {str(e)}"
+    
+    return result
