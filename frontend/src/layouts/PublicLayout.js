@@ -96,15 +96,24 @@ const PublicLayout = () => {
               </span>
             </Link>
 
-            {/* Hamburger Menu Button - Always visible */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`p-2 rounded-lg text-white transition-colors ${isScrolled ? 'hover:bg-emerald-800' : 'hover:bg-white/20'
-                }`}
-              data-testid="menu-toggle"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Book Now Button + Hamburger Menu */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link
+                to="/#booking"
+                className="px-3 sm:px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-colors"
+                data-testid="header-book-now"
+              >
+                Book Now
+              </Link>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className={`p-2 rounded-lg text-white transition-colors ${isScrolled ? 'hover:bg-emerald-800' : 'hover:bg-white/20'
+                  }`}
+                data-testid="menu-toggle"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
       </header>

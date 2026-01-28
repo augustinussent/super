@@ -14,6 +14,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { cn } from '../../lib/utils';
 import ImageGalleryOverlay from '../../components/ImageGalleryOverlay';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../../components/ui/sheet';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -242,6 +243,7 @@ const Home = () => {
   const offersRef = useRef(null);
   const roomsRef = useRef(null);
   const bookingEngineRef = useRef(null);
+  const [showMobileBooking, setShowMobileBooking] = useState(false);
 
   const scrollToBooking = () => {
     if (bookingEngineRef.current) {
@@ -1108,6 +1110,117 @@ const Home = () => {
           </div>
         </DialogContent>
       </Dialog>
+      {/* Mobile Booking Sticky Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg p-3 safe-area-bottom">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <p className="text-xs text-gray-500">Check availability</p>
+            <p className="text-sm font-medium text-gray-900">
+              {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM')} · {guests} guest{guests > 1 ? 's' : ''}
+            </p>
+          </div>
+          <Sheet open={showMobileBooking} onOpenChange={setShowMobileBooking}>
+            <SheetTrigger asChild>
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6">
+                <Search className="w-4 h-4 mr-2" />
+                Book Now
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-2xl overflow-y-auto">
+              <SheetHeader className="mb-4">
+                <SheetTitle className="text-lg font-display">Find Your Room</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-4">
+                {/* Check-in Mobile */}
+                <div>
+                  <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-12"
+                      >
+                        <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
+                        {checkIn ? format(checkIn, 'dd MMM yyyy') : 'Select date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={checkIn}
+                        onSelect={handleCheckInSelect}
+                        disabled={(date) => isBefore(date, startOfToday())}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Check-out Mobile */}
+                <div>
+                  <Label className="text-gray-600 mb-1.5 block text-sm">Check-out</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-12"
+                      >
+                        <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
+                        {checkOut ? format(checkOut, 'dd MMM yyyy') : 'Select date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={checkOut}
+                        onSelect={setCheckOut}
+                        disabled={(date) => isBefore(date, addDays(checkIn, 1))}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Guests Mobile */}
+                <div>
+                  <Label className="text-gray-600 mb-1.5 block text-sm">Guests</Label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
+                    <select
+                      value={guests}
+                      onChange={(e) => setGuests(Number(e.target.value))}
+                      className="w-full h-12 pl-10 pr-4 border rounded-lg appearance-none bg-white focus:ring-2 focus:ring-emerald-500"
+                    >
+                      {[1, 2, 3, 4].map(n => (
+                        <option key={n} value={n}>{n} Guest{n > 1 ? 's' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Search Button Mobile */}
+                <Button
+                  onClick={() => {
+                    searchAvailability();
+                    setShowMobileBooking(false);
+                  }}
+                  disabled={isSearching}
+                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {isSearching ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-4 w-4" />
+                      Search Availability
+                    </>
+                  )}
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
     </div>
   );
 };
