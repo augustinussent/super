@@ -15,18 +15,35 @@ async def get_promo_codes(user: dict = Depends(require_admin)):
 @router.post("")
 async def create_promo_code(promo: PromoCode, user: dict = Depends(require_admin)):
     import logging
+    import traceback
     logger = logging.getLogger(__name__)
-    logger.info(f"Received promo create request: {promo.model_dump()}")
     
-    promo_doc = promo.model_dump()
-    promo_doc["code"] = promo_doc["code"].upper()
-    
-    existing = await db.promo_codes.find_one({"code": promo_doc["code"]}, {"_id": 0})
-    if existing:
-        raise HTTPException(status_code=400, detail="Promo code already exists")
-    
-    await db.promo_codes.insert_one(promo_doc)
-    return promo_doc
+    try:
+        logger.info(f"Received promo create request: {promo.model_dump()}")
+        
+        promo_doc = promo.model_dump()
+        promo_doc["code"] = promo_doc["code"].upper()
+        
+        # Check database connection/collection
+        if db.promo_codes is None:
+             raise Exception("Database collection promo_codes is None")
+
+        existing = await db.promo_codes.find_one({"code": promo_doc["code"]}, {"_id": 0})
+        if existing:
+            raise HTTPException(status_code=400, detail="Promo code already exists")
+        
+        await db.promo_codes.insert_one(promo_doc)
+        
+        # Fix: Ensure _id is removed before returning if it was added
+        promo_doc.pop("_id", None)
+        
+        return promo_doc
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating promo code: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @router.put("/{promo_id}")
 async def update_promo_code(promo_id: str, promo: dict, user: dict = Depends(require_admin)):
