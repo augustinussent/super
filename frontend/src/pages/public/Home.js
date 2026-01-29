@@ -395,7 +395,7 @@ const Home = () => {
     if (!promoCode) return;
     setIsVerifying(true);
     try {
-      const response = await axios.post(`${API_URL}/reservations/promo/verify`, {
+      const response = await axios.post(`${API_URL}/promo/verify`, {
         code: promoCode,
         check_in: format(checkIn, 'yyyy-MM-dd')
       });
@@ -431,9 +431,8 @@ const Home = () => {
 
   const handleCheckInSelect = (date) => {
     setCheckIn(date);
-    if (date >= checkOut) {
-      setCheckOut(addDays(date, 1));
-    }
+    // Always default check-out to H+1 when check-in changes
+    setCheckOut(addDays(date, 1));
   };
 
   const handleBookRoom = (room) => {
@@ -498,7 +497,7 @@ const Home = () => {
         room_type_id: selectedRoom.room_type_id,
         check_in: format(checkIn, 'yyyy-MM-dd'),
         check_out: format(checkOut, 'yyyy-MM-dd'),
-        guests
+        guests: 1 // Default
       });
 
       toast.success('Booking successful! Check your email for confirmation.');
@@ -506,7 +505,7 @@ const Home = () => {
       setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '', rate_plan_id: '' });
 
       const waNumber = '6281130700206';
-      const message = `Hi, I just made a booking with code ${response.data.booking_code}. I would like to complete the payment.`;
+      const message = `Halo Spencer Green Hotel, saya baru saja melakukan booking via website.\n\nBooking Code: ${response.data.booking_code}\nNama: ${response.data.guest_name}\nCheck-in: ${response.data.check_in}`;
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Booking failed');
@@ -534,19 +533,22 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-emerald-50/30">
+    <div className="min-h-screen bg-white">
+      <Navbar />
+
       {/* Hero Section */}
-      <section className="relative h-[100svh] min-h-[600px]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${heroContent?.image})`
-          }}
-        >
-          <div className="absolute inset-0 bg-black/25" />
+      <section className="relative h-[85vh] sm:h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Background Image/Video */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Luxury Hotel"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
-        <div className="relative h-full flex flex-col justify-center items-center text-center px-4 pb-32 sm:pb-40">
+        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto -mt-20 sm:mt-0">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -601,7 +603,7 @@ const Home = () => {
                       mode="single"
                       selected={checkIn}
                       onSelect={handleCheckInSelect}
-                      disabled={(date) => isBefore(date, startOfToday())}
+                      disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
                       initialFocus
                     />
                   </PopoverContent>
@@ -630,7 +632,7 @@ const Home = () => {
                       mode="single"
                       selected={checkOut}
                       onSelect={setCheckOut}
-                      disabled={(date) => isBefore(date, addDays(checkIn, 1))}
+                      disabled={(date) => date <= checkIn}
                       initialFocus
                     />
                   </PopoverContent>
