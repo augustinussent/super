@@ -976,7 +976,7 @@ const Home = () => {
                       <Button
                         onClick={() => {
                           trackBookNow(room.name);
-                          handleBookRoom(room);
+                          setShowSearchModal(true);
                         }}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                       >
