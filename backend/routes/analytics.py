@@ -32,7 +32,7 @@ async def track_visit(request: Request, page: str = "/"):
 @router.get("/admin/analytics")
 async def get_analytics(days: int = 7, user: dict = Depends(require_admin)):
     # Get last N days
-    cursor = db.daily_stats.find().sort("date", -1).limit(days)
+    cursor = db.daily_stats.find({}, {"_id": 0}).sort("date", -1).limit(days)
     stats = await cursor.to_list(days)
     # Reverse to show chronological
     return stats[::-1]
