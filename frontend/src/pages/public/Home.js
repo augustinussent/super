@@ -246,20 +246,19 @@ const Home = () => {
   const bookingEngineRef = useRef(null);
   const [showMobileBooking, setShowMobileBooking] = useState(false);
 
-  const scrollToBooking = () => {
-    if (bookingEngineRef.current) {
-      const headerOffset = 100;
-      const elementPosition = bookingEngineRef.current.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+  const location = useLocation();
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
+  // Listen for #booking hash from header/external links
+  useEffect(() => {
+    if (location.hash === '#booking') {
+      setShowSearchModal(true);
+      // Clear hash so that clicking the link again works if modal was closed
+      window.history.replaceState(null, '', window.location.pathname);
     }
-  };
+  }, [location.hash]);
 
   // Gallery state
+
   const [showGallery, setShowGallery] = useState(false);
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
