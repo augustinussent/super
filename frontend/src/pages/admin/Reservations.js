@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Eye, CheckCircle, XCircle, LogIn, LogOut, Mail, Loader2 } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, LogIn, LogOut, Mail, Loader2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
@@ -22,6 +23,9 @@ const Reservations = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
+  const { user } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     fetchReservations();
   }, []);
@@ -38,6 +42,23 @@ const Reservations = () => {
       toast.error('Error fetching reservations');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const deleteReservation = async (reservationId) => {
+    if (!window.confirm('APAKAH ANDA YAKIN? Data reservasi ini akan dihapus PERMANEN dan tidak bisa dikembalikan.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await axios.delete(`${API_URL}/reservations/${reservationId}`);
+      toast.success('Reservasi berhasil dihapus permanen');
+      fetchReservations(); // Refresh list
+    } catch (error) {
+      toast.error('Gagal menghapus reservasi: ' + (error.response?.data?.detail || 'Unknown error'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -198,17 +219,31 @@ const Reservations = () => {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedReservation(reservation);
-                        setShowDetailModal(true);
-                      }}
-                      data-testid={`view-reservation-${reservation.reservation_id}`}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Super Admin Delete Button */}
+                      {user?.role === 'superadmin' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteReservation(reservation.reservation_id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Hapus Permanen"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedReservation(reservation);
+                          setShowDetailModal(true);
+                        }}
+                        data-testid={`view-reservation-${reservation.reservation_id}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

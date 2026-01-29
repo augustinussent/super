@@ -4,6 +4,7 @@ import { Star, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Switch } from '../../components/ui/switch';
@@ -13,6 +14,8 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchReviews();
@@ -26,6 +29,20 @@ const Reviews = () => {
       toast.error('Error fetching reviews');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const deleteReview = async (reviewId) => {
+    if (!window.confirm('Hapus review ini secara permanen?')) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/admin/reviews/${reviewId}`);
+      toast.success('Review berhasil dihapus');
+      fetchReviews();
+    } catch (error) {
+      toast.error('Gagal menghapus review');
     }
   };
 
@@ -121,16 +138,26 @@ const Reviews = () => {
                     {format(new Date(review.created_at), 'dd MMM yyyy')}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      review.is_visible 
-                        ? 'bg-emerald-100 text-emerald-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${review.is_visible
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {review.is_visible ? 'Ditampilkan' : 'Tersembunyi'}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {user?.role === 'superadmin' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteReview(review.review_id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Hapus Review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"

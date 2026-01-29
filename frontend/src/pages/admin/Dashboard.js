@@ -70,7 +70,7 @@ const Dashboard = () => {
       value: `Rp ${(stats.monthly_revenue / 1000000).toFixed(1)}M`,
       icon: DollarSign,
       color: 'bg-amber-500',
-      description: 'Simulasi'
+      description: 'Realtime'
     },
     {
       title: 'Review Pending',

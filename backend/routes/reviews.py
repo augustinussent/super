@@ -2,9 +2,17 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from database import db
 from models.review import ReviewCreate, Review
-from services.auth import require_admin
+from services.auth import require_admin, require_super_admin
 
 router = APIRouter(tags=["reviews"])
+
+@router.delete("/admin/reviews/{review_id}")
+async def delete_review(review_id: str, user: dict = Depends(require_super_admin)):
+    result = await db.reviews.delete_one({"review_id": review_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Review not found")
+    
+    return {"message": "Review deleted permanently"}
 
 @router.get("/reviews")
 async def get_visible_reviews():

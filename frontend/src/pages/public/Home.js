@@ -247,15 +247,18 @@ const Home = () => {
   const [showMobileBooking, setShowMobileBooking] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Listen for #booking hash from header/external links
   useEffect(() => {
     if (location.hash === '#booking') {
       setShowSearchModal(true);
       // Clear hash so that clicking the link again works if modal was closed
-      window.history.replaceState(null, '', window.location.pathname);
+      // Use navigate to keep React Router in sync
+      const newPath = location.pathname;
+      navigate(newPath, { replace: true });
     }
-  }, [location.hash]);
+  }, [location.hash, navigate]);
 
   // Gallery state
 

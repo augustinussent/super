@@ -3,11 +3,25 @@ from datetime import datetime, timezone, timedelta
 
 from database import db
 from models.reservation import ReservationCreate, Reservation
-from services.auth import require_admin
+from services.auth import require_admin, require_super_admin
 from services.email import send_reservation_email
 from services.audit import log_activity
 
 router = APIRouter(tags=["reservations"])
+
+@router.delete("/reservations/{reservation_id}")
+async def delete_reservation(reservation_id: str, user: dict = Depends(require_super_admin)):
+    result = await db.reservations.delete_one({"reservation_id": reservation_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+    
+    await log_activity(
+        db,
+        user_id=user["user_id"],
+        action="delete_reservation",
+        details={"reservation_id": reservation_id}
+    )
+    return {"message": "Reservation deleted permanently"}
 
 @router.post("/reservations")
 async def create_reservation(reservation: ReservationCreate, background_tasks: BackgroundTasks):

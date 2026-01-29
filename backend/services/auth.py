@@ -83,3 +83,11 @@ def require_permission(perm_key: str):
     
     return permission_checker
 
+async def require_super_admin(user: dict = Depends(get_current_user_with_permissions)):
+    """Allow access ONLY if user is superadmin"""
+    role = user.get("role")
+    
+    if role == "superadmin":
+        return user
+    
+    raise HTTPException(status_code=403, detail="Super Admin access required")
