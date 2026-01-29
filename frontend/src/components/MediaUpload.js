@@ -126,6 +126,7 @@ export const MediaUpload = ({
   };
 
   // Open Cloudinary Upload Widget (works without login)
+
   // Open Cloudinary Upload Widget (with signed access for Media Library)
   const openCloudinaryWidget = async () => {
     if (!window.cloudinary) {
@@ -134,33 +135,57 @@ export const MediaUpload = ({
     }
 
     try {
-      // Fetch signature from backend
-      const response = await fetch(`${API_URL}/media/signature`, {
+      // 1. Get Cloudinary Config (API Key, Cloud Name) from Backend
+      // We need this because API Key might not be exposed in frontend env
+      const configResponse = await fetch(`${API_URL}/media/config`, {
         headers: {
           'Authorization': `Bearer ${getToken()}`
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get Cloudinary signature');
+      if (!configResponse.ok) {
+        throw new Error('Failed to load Cloudinary configuration');
       }
 
-      const { signature, timestamp, api_key, cloud_name } = await response.json();
+      const config = await configResponse.json();
 
       // Close parent dialog first to avoid z-index conflicts
       if (onCloseDialog) {
         onCloseDialog();
       }
 
-      // Wait for dialog to close, then open Cloudinary Upload Widget
+      // 2. Define signature generation function
+      const generateSignature = async (callback, params_to_sign) => {
+        try {
+          const response = await fetch(`${API_URL}/media/signature`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify(params_to_sign)
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to generate signature');
+          }
+
+          const data = await response.json();
+          // Widget expects the signature string
+          callback(data.signature);
+        } catch (error) {
+          console.error('Signature generation error:', error);
+          toast.error("Gagal membuat signature: " + error.message);
+        }
+      };
+
+      // 3. Open Widget
       setTimeout(() => {
         const widgetConfig = {
-          cloudName: cloud_name,
-          apiKey: api_key,
-          uploadSignature: signature,
-          timestamp: timestamp,
-          // uploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET, // Try omitting unsigned preset for signed mode
-          sources: ['local', 'url', 'camera', 'cloudinary'], // Added cloudinary source
+          cloudName: config.cloud_name,
+          apiKey: config.api_key,
+          uploadSignature: generateSignature,
+          sources: ['local', 'url', 'camera', 'cloudinary'],
           multiple: isMultiple,
           maxFiles: isMultiple ? maxFiles : 1,
           resourceType: cloudinaryResourceType === 'video' ? 'video' : 'image',
@@ -194,7 +219,6 @@ export const MediaUpload = ({
           (error, result) => {
             if (error) {
               console.error('Cloudinary error:', error);
-              // Don't show toast for "Widget closed" or neutral events
               if (error.message !== 'User closed widget') {
                 toast.error("Upload/Select error: " + (error.message || error.statusText || 'Unknown error'));
               }
@@ -219,7 +243,7 @@ export const MediaUpload = ({
 
     } catch (error) {
       console.error('Error opening Cloudinary widget:', error);
-      toast.error("Gagal membuka widget Cloudinary (Signature Error)");
+      toast.error("Gagal membuka widget Cloudinary: " + error.message);
     }
   };
 

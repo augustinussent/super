@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query, Body
+from config import CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY
+
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -275,9 +277,24 @@ async def delete_room_video(
     return {"success": True, "message": "Video deleted"}
 
 
-@router.get("/signature")
-async def get_signature(user: dict = Depends(require_admin)):
+@router.post("/signature")
+async def get_signature(
+    params_to_sign: dict = Body(...),
+    user: dict = Depends(require_admin)
+):
     """
     Get signature for signed Cloudinary widget.
+    Accepts params_to_sign from the widget.
     """
-    return generate_upload_signature()
+    return generate_upload_signature(params_to_sign)
+
+
+@router.get("/config")
+async def get_cloudinary_config(user: dict = Depends(require_admin)):
+    """
+    Get Cloudinary configuration for widget initialization.
+    """
+    return {
+        "cloud_name": CLOUDINARY_CLOUD_NAME,
+        "api_key": CLOUDINARY_API_KEY
+    }

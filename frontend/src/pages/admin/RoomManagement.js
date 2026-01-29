@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Checkbox } from '../../components/ui/checkbox';
@@ -652,6 +652,9 @@ const RoomManagement = () => {
         <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingRoom ? 'Edit Kamar' : 'Tambah Kamar Baru'}</DialogTitle>
+            <DialogDescription>
+              Isi detail kamar, harga, fasilitas, dan media pendukung.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -842,6 +845,9 @@ const RoomManagement = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Hapus Kamar?</DialogTitle>
+            <DialogDescription>
+              Tindakan ini tidak dapat dibatalkan secara permanen setelah dihapus.
+            </DialogDescription>
           </DialogHeader>
           <p className="text-gray-500">
             Apakah Anda yakin ingin menghapus <strong>{roomToDelete?.name}</strong>?
@@ -864,6 +870,9 @@ const RoomManagement = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Bulk Update</DialogTitle>
+            <DialogDescription>
+              Update harga, allotment, dan status kamar untuk rentang tanggal tertentu.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -951,6 +960,9 @@ const RoomManagement = () => {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Upload Foto Kamar</DialogTitle>
+            <DialogDescription>
+              Pilih foto dari perangkat Anda atau dari library Cloudinary.
+            </DialogDescription>
           </DialogHeader>
           <MediaUpload
             uploadEndpoint={
@@ -973,6 +985,9 @@ const RoomManagement = () => {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Upload Video Room Tour</DialogTitle>
+            <DialogDescription>
+              Upload video tour untuk tipe kamar ini (Max 500MB).
+            </DialogDescription>
           </DialogHeader>
           <MediaUpload
             uploadEndpoint={editingRoom ? `/media/upload/room-video?room_type_id=${editingRoom.room_type_id}` : "/media/upload/gallery?category=videos"}

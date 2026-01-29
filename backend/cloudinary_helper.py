@@ -224,9 +224,12 @@ def validate_video_file(content_type: str, file_size: int) -> tuple:
     return True, None
 
 
-def generate_upload_signature(timestamp: int = None, folder: str = None) -> dict:
+def generate_upload_signature(params: dict = None) -> dict:
     """
     Generate signature for signed uploads/access.
+    
+    Args:
+        params: Dictionary of parameters to sign (from widget)
     
     Returns:
         Dictionary containing signature, timestamp, and api_key
@@ -234,21 +237,19 @@ def generate_upload_signature(timestamp: int = None, folder: str = None) -> dict
     import time
     from cloudinary.utils import api_sign_request
     
-    if timestamp is None:
-        timestamp = int(time.time())
+    if params is None:
+        params = {}
         
-    params = {
-        "timestamp": timestamp,
-    }
+    # Ensure timestamp is present
+    if "timestamp" not in params:
+        params["timestamp"] = int(time.time())
     
-    if folder:
-        params["folder"] = folder
-        
+    # Sign the parameters directly
     signature = api_sign_request(params, CLOUDINARY_API_SECRET)
     
     return {
         "signature": signature,
-        "timestamp": timestamp,
+        "timestamp": params["timestamp"],
         "api_key": CLOUDINARY_API_KEY,
         "cloud_name": CLOUDINARY_CLOUD_NAME
     }
