@@ -128,7 +128,7 @@ export const MediaUpload = ({
   // Open Cloudinary Upload Widget (works without login)
 
   // Open Cloudinary Upload Widget (with signed access for Media Library)
-  const openCloudinaryWidget = async () => {
+  const openCloudinaryWidget = async (defaultSource = 'local') => {
     if (!window.cloudinary) {
       toast.error("Library Cloudinary gagal dimuat. Refresh halaman dan coba lagi.");
       return;
@@ -190,6 +190,7 @@ export const MediaUpload = ({
           apiKey: config.api_key,
           uploadSignature: generateSignature,
           sources: ['local', 'url', 'camera', 'cloudinary'],
+          defaultSource: defaultSource,
           multiple: isMultiple,
           maxFiles: isMultiple ? maxFiles : 1,
           resourceType: cloudinaryResourceType === 'video' ? 'video' : 'image',
@@ -251,11 +252,9 @@ export const MediaUpload = ({
     }
   };
 
-  // Open Cloudinary Dashboard in new tab (for browsing existing assets)
+  // Open Cloudinary Media Library directly (using the widget)
   const openCloudinaryDashboard = () => {
-    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    window.open(`https://console.cloudinary.com/console/c-${cloudName}/media_library/folders/home`, '_blank');
-    toast.info('Cloudinary Dashboard dibuka di tab baru. Copy URL gambar dan paste di kolom URL.');
+    openCloudinaryWidget('cloudinary');
   };
 
   const uploadFiles = async () => {
