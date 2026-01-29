@@ -11,7 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Switch } from '../../components/ui/switch';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+// Fallback to localhost in development if env var points to production or is missing
+const API_URL = (process.env.NODE_ENV === 'development' && (!process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL.includes('onrender')))
+    ? 'http://localhost:8000/api'
+    : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000') + '/api';
 
 const RatePlans = () => {
     const [ratePlans, setRatePlans] = useState([]);
