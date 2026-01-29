@@ -244,8 +244,15 @@ def generate_upload_signature(params: dict = None) -> dict:
     if "timestamp" not in params:
         params["timestamp"] = int(time.time())
     
-    # Sign the parameters directly
-    signature = api_sign_request(params, CLOUDINARY_API_SECRET)
+    # Filter out parameters that should not be part of the signature
+    # api_sign_request in Python SDK signs EVERYTHING in the dict passed to it.
+    # The widget might send api_key or cloud_name in params_to_sign (though unlikely, it's safer to remove).
+    params_to_sign = params.copy()
+    for key in ["api_key", "cloud_name", "file", "resource_type"]:
+        params_to_sign.pop(key, None)
+        
+    # Sign the cleaned parameters
+    signature = api_sign_request(params_to_sign, CLOUDINARY_API_SECRET)
     
     return {
         "signature": signature,

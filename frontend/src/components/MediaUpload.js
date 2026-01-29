@@ -157,6 +157,8 @@ export const MediaUpload = ({
       // 2. Define signature generation function
       const generateSignature = async (callback, params_to_sign) => {
         try {
+          console.log("Cloudinary Widget requesting signature for params:", params_to_sign);
+
           const response = await fetch(`${API_URL}/media/signature`, {
             method: 'POST',
             headers: {
@@ -171,6 +173,8 @@ export const MediaUpload = ({
           }
 
           const data = await response.json();
+          console.log("Signature generated:", data);
+
           // Widget expects the signature string
           callback(data.signature);
         } catch (error) {
