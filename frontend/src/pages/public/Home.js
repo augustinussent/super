@@ -583,7 +583,7 @@ const Home = () => {
             <DialogHeader>
               <DialogTitle className="font-display text-2xl mb-4">Find Your Stay</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-5 gap-4 items-end">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 items-end">
               {/* Check-in */}
               <div>
                 <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
@@ -597,7 +597,7 @@ const Home = () => {
                       )}
                     >
                       <Calendar className="mr-2 h-4 w-4 text-emerald-600 flex-shrink-0" />
-                      <span className="truncate">{checkIn ? format(checkIn, "dd MMM") : "Select"}</span>
+                      <span className="truncate">{checkIn ? format(checkIn, "dd MMM yyyy") : "Select date"}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -625,7 +625,7 @@ const Home = () => {
                       )}
                     >
                       <Calendar className="mr-2 h-4 w-4 text-emerald-600 flex-shrink-0" />
-                      <span className="truncate">{checkOut ? format(checkOut, "dd MMM") : "Select"}</span>
+                      <span className="truncate">{checkOut ? format(checkOut, "dd MMM yyyy") : "Select date"}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -687,23 +687,25 @@ const Home = () => {
               </div>
 
               {/* Search Button */}
-              <Button
-                onClick={() => {
-                  searchAvailability();
-                  setShowSearchModal(false);
-                }}
-                disabled={isSearching}
-                className="h-12 bg-emerald-600 hover:bg-emerald-700 text-white text-base w-full"
-              >
-                {isSearching ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                ) : (
-                  <>
-                    <Search className="mr-2 h-4 w-4" />
-                    Search
-                  </>
-                )}
-              </Button>
+              <div className="col-span-2 lg:col-span-1">
+                <Button
+                  onClick={() => {
+                    searchAvailability();
+                    setShowSearchModal(false);
+                  }}
+                  disabled={isSearching}
+                  className="h-12 bg-emerald-600 hover:bg-emerald-700 text-white text-base w-full"
+                >
+                  {isSearching ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-4 w-4" />
+                      Search
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
