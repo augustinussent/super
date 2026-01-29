@@ -534,7 +534,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
 
       {/* Hero Section */}
       <section className="relative h-[85vh] sm:h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
@@ -564,6 +563,12 @@ const Home = () => {
             <p className="hero-subtitle text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {heroContent?.subtitle}
             </p>
+            <Button
+              onClick={() => setShowBookingModal(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105"
+            >
+              Book Now
+            </Button>
           </motion.div>
         </div>
 
@@ -574,7 +579,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
           // PERBAIKAN TOTAL: Gunakan inset-x-0 dan mx-auto agar elemen otomatis di tengah tanpa perlu translate-x
-          className="hidden md:block absolute bottom-8 inset-x-0 z-30 px-4"
+          className="hidden absolute bottom-8 inset-x-0 z-30 px-4"
         >
           <div
             className="bg-white rounded-2xl shadow-luxury p-4 lg:p-6 mx-auto w-[85%] max-w-4xl border border-emerald-100/50"
