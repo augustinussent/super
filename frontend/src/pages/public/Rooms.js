@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, X, Users, Maximize2, Volume2, VolumeX, Pause, Images } from 'lucide-react';
 import axios from 'axios';
@@ -229,6 +230,7 @@ const Rooms = () => {
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [galleryRoomName, setGalleryRoomName] = useState('');
   const [heroContent, setHeroContent] = useState(null);
+  const navigate = useNavigate();
 
   const fetchRooms = async () => {
     try {
@@ -414,7 +416,7 @@ const Rooms = () => {
                       <Button
                         onClick={() => {
                           trackBookNow(room.name);
-                          window.location.href = '/?book=' + room.room_type_id;
+                          navigate('/#booking');
                         }}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
                         data-testid={`book-now-btn-${room.room_type_id}`}
