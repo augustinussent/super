@@ -6,7 +6,7 @@ from database import db
 from services.auth import require_admin
 from cloudinary_helper import (
     upload_image, upload_video, delete_media, delete_folder,
-    validate_image_file, validate_video_file
+    validate_image_file, validate_video_file, generate_upload_signature
 )
 from ai_helper import generate_image_caption
 
@@ -273,3 +273,11 @@ async def delete_room_video(
     )
     
     return {"success": True, "message": "Video deleted"}
+
+
+@router.get("/signature")
+async def get_signature(user: dict = Depends(require_admin)):
+    """
+    Get signature for signed Cloudinary widget.
+    """
+    return generate_upload_signature()

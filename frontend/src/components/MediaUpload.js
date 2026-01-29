@@ -126,47 +126,48 @@ export const MediaUpload = ({
   };
 
   // Open Cloudinary Upload Widget (works without login)
-  const openCloudinaryWidget = () => {
+  // Open Cloudinary Upload Widget (with signed access for Media Library)
+  const openCloudinaryWidget = async () => {
     if (!window.cloudinary) {
       toast.error("Library Cloudinary gagal dimuat. Refresh halaman dan coba lagi.");
       return;
     }
 
-    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+    try {
+      // Fetch signature from backend
+      const response = await fetch(`${API_URL}/media/signature`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      });
 
-    // Debug logging
-    console.log('Cloudinary Config:', { cloudName, uploadPreset });
+      if (!response.ok) {
+        throw new Error('Failed to get Cloudinary signature');
+      }
 
-    if (!cloudName) {
-      toast.error("REACT_APP_CLOUDINARY_CLOUD_NAME belum dikonfigurasi.");
-      return;
-    }
+      const { signature, timestamp, api_key, cloud_name } = await response.json();
 
-    if (!uploadPreset) {
-      toast.error("REACT_APP_CLOUDINARY_UPLOAD_PRESET belum dikonfigurasi di Vercel.");
-      return;
-    }
+      // Close parent dialog first to avoid z-index conflicts
+      if (onCloseDialog) {
+        onCloseDialog();
+      }
 
-    // Close parent dialog first to avoid z-index conflicts
-    if (onCloseDialog) {
-      onCloseDialog();
-    }
-
-    // Wait for dialog to close, then open Cloudinary Upload Widget
-    setTimeout(() => {
-      const widget = window.cloudinary.createUploadWidget(
-        {
-          cloudName: cloudName,
-          uploadPreset: uploadPreset,
-          sources: ['local', 'url', 'camera'],
+      // Wait for dialog to close, then open Cloudinary Upload Widget
+      setTimeout(() => {
+        const widgetConfig = {
+          cloudName: cloud_name,
+          apiKey: api_key,
+          uploadSignature: signature,
+          timestamp: timestamp,
+          // uploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET, // Try omitting unsigned preset for signed mode
+          sources: ['local', 'url', 'camera', 'cloudinary'], // Added cloudinary source
           multiple: isMultiple,
           maxFiles: isMultiple ? maxFiles : 1,
           resourceType: cloudinaryResourceType === 'video' ? 'video' : 'image',
           clientAllowedFormats: cloudinaryResourceType === 'video'
             ? ['mp4', 'webm', 'mov']
             : ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-          showAdvancedOptions: false,
+          showAdvancedOptions: true,
           showCompletedButton: true,
           singleUploadAutoClose: !isMultiple,
           styles: {
@@ -186,29 +187,40 @@ export const MediaUpload = ({
               sourceBg: "#F9FAFB"
             }
           }
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary error:', error);
-            toast.error("Upload gagal: " + (error.message || error.statusText || 'Unknown error'));
-            return;
-          }
+        };
 
-          if (result.event === 'success') {
-            const mediaData = {
-              secure_url: result.info.secure_url,
-              public_id: result.info.public_id,
-              resource_type: result.info.resource_type
-            };
-            console.log('Cloudinary upload success, mediaData:', mediaData);
-            onUploadSuccess(mediaData);
-            toast.success('Media berhasil diupload via Cloudinary');
-          }
-        }
-      );
+        const widget = window.cloudinary.createUploadWidget(
+          widgetConfig,
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary error:', error);
+              // Don't show toast for "Widget closed" or neutral events
+              if (error.message !== 'User closed widget') {
+                toast.error("Upload/Select error: " + (error.message || error.statusText || 'Unknown error'));
+              }
+              return;
+            }
 
-      widget.open();
-    }, 500); // 500ms delay to ensure dialog animation completes
+            if (result.event === 'success') {
+              const mediaData = {
+                secure_url: result.info.secure_url,
+                public_id: result.info.public_id,
+                resource_type: result.info.resource_type
+              };
+              console.log('Cloudinary success, mediaData:', mediaData);
+              onUploadSuccess(mediaData);
+              toast.success('Media berhasil dipilih/diupload');
+            }
+          }
+        );
+
+        widget.open();
+      }, 500);
+
+    } catch (error) {
+      console.error('Error opening Cloudinary widget:', error);
+      toast.error("Gagal membuka widget Cloudinary (Signature Error)");
+    }
   };
 
   // Open Cloudinary Dashboard in new tab (for browsing existing assets)

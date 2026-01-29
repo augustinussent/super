@@ -222,3 +222,33 @@ def validate_video_file(content_type: str, file_size: int) -> tuple:
         return False, f"Video size exceeds {MAX_VIDEO_SIZE // (1024*1024)}MB limit"
     
     return True, None
+
+
+def generate_upload_signature(timestamp: int = None, folder: str = None) -> dict:
+    """
+    Generate signature for signed uploads/access.
+    
+    Returns:
+        Dictionary containing signature, timestamp, and api_key
+    """
+    import time
+    from cloudinary.utils import api_sign_request
+    
+    if timestamp is None:
+        timestamp = int(time.time())
+        
+    params = {
+        "timestamp": timestamp,
+    }
+    
+    if folder:
+        params["folder"] = folder
+        
+    signature = api_sign_request(params, CLOUDINARY_API_SECRET)
+    
+    return {
+        "signature": signature,
+        "timestamp": timestamp,
+        "api_key": CLOUDINARY_API_KEY,
+        "cloud_name": CLOUDINARY_CLOUD_NAME
+    }
