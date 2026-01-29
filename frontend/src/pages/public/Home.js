@@ -236,7 +236,8 @@ const Home = () => {
     guest_email: '',
     guest_phone: '',
     special_requests: '',
-    promo_code: ''
+    promo_code: '',
+    rate_plan_id: ''
   });
   const [isBooking, setIsBooking] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
@@ -437,12 +438,17 @@ const Home = () => {
 
   const handleBookRoom = (room) => {
     setSelectedRoom(room);
-    if (verifiedPromo) {
-      setBookingForm(prev => ({
-        ...prev,
-        promo_code: verifiedPromo.code
-      }));
-    }
+
+    // Default to first plan if available, or 'standard'
+    const defaultPlanId = room.rate_plans && room.rate_plans.length > 0
+      ? room.rate_plans[0].rate_plan_id
+      : 'standard';
+
+    setBookingForm(prev => ({
+      ...prev,
+      rate_plan_id: defaultPlanId,
+      promo_code: verifiedPromo ? verifiedPromo.code : prev.promo_code
+    }));
     setShowBookingModal(true);
   };
 
@@ -497,7 +503,7 @@ const Home = () => {
 
       toast.success('Booking successful! Check your email for confirmation.');
       setShowBookingModal(false);
-      setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '' });
+      setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '', rate_plan_id: '' });
 
       const waNumber = '6281130700206';
       const message = `Hi, I just made a booking with code ${response.data.booking_code}. I would like to complete the payment.`;
@@ -1042,28 +1048,59 @@ const Home = () => {
                   alt={selectedRoom.name}
                   className="w-20 h-20 object-cover rounded-lg"
                 />
-                <div>
+                <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">{selectedRoom.name}</h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 mb-1">
                     {format(checkIn, 'dd MMM')} - {format(checkOut, 'dd MMM yyyy')}
                   </p>
-                  {verifiedPromo ? (
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-400 line-through">
-                        Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}
-                      </span>
-                      <span className="text-emerald-600 font-bold">
-                        Rp {getDiscountedPrice(selectedRoom, selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
-                      </span>
-                      <span className="text-[10px] text-emerald-600 font-medium">
-                        Promo Applied: {verifiedPromo.code}
-                      </span>
+
+                  {/* Rate Plan Selector */}
+                  {selectedRoom.rate_plans && selectedRoom.rate_plans.length > 1 && (
+                    <div className="mb-2">
+                      <select
+                        value={bookingForm.rate_plan_id}
+                        onChange={(e) => setBookingForm({ ...bookingForm, rate_plan_id: e.target.value })}
+                        className="text-xs p-1 border rounded bg-white w-full"
+                      >
+                        {selectedRoom.rate_plans.map(plan => (
+                          <option key={plan.rate_plan_id} value={plan.rate_plan_id}>
+                            {plan.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ) : (
-                    <p className="text-emerald-600 font-bold">
-                      Rp {(selectedRoom.available_rate || selectedRoom.base_price).toLocaleString('id-ID')}/night
-                    </p>
                   )}
+
+                  {(() => {
+                    const selectedPlan = selectedRoom.rate_plans?.find(p => p.rate_plan_id === bookingForm.rate_plan_id)
+                      || selectedRoom.rate_plans?.[0]
+                      || { nightly_price: selectedRoom.available_rate || selectedRoom.base_price };
+
+                    const pricePerNight = selectedPlan.nightly_price;
+
+                    return verifiedPromo ? (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-400 line-through">
+                          Rp {pricePerNight.toLocaleString('id-ID')}
+                        </span>
+                        <span className="text-emerald-600 font-bold">
+                          Rp {getDiscountedPrice(selectedRoom, pricePerNight).toLocaleString('id-ID')}/night
+                        </span>
+                        <span className="text-[10px] text-emerald-600 font-medium">
+                          Promo Applied: {verifiedPromo.code}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col">
+                        <span className="text-emerald-600 font-bold">
+                          Rp {pricePerNight.toLocaleString('id-ID')}/night
+                        </span>
+                        {selectedPlan.description && (
+                          <span className="text-[10px] text-gray-500">{selectedPlan.description}</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

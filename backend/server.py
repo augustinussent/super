@@ -10,12 +10,14 @@ from routes import (
     reservations_router,
     reviews_router,
     promo_router,
+    rate_plans_router,
     content_router,
     admin_router,
     init_router,
     init_router,
     media_router,
-    analytics_router
+    analytics_router,
+    rate_plans_router
 )
 
 # Configure logging

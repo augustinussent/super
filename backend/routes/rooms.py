@@ -218,24 +218,102 @@ async def check_availability(check_in: str, check_out: str):
     rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).sort("display_order", 1).to_list(100)
     available_rooms = []
     
+    # Get active rate plans
+    rate_plans = await db.rate_plans.find({"is_active": True}, {"_id": 0}).to_list(100)
+    
+    # Organize rate plans by room_type_id (None = global)
+    global_plans = [p for p in rate_plans if not p.get("room_type_id")]
+    specific_plans = {p["room_type_id"]: [] for p in rate_plans if p.get("room_type_id")}
+    for p in rate_plans:
+        if p.get("room_type_id"):
+            specific_plans[p["room_type_id"]].append(p)
+
     for room in rooms:
+        # Check inventory availability first
         inventory = await db.room_inventory.find({
             "room_type_id": room["room_type_id"],
             "date": {"$gte": check_in, "$lt": check_out}
         }, {"_id": 0}).to_list(100)
         
-        min_rate = room.get("base_price", 500000)
+        # Calculate base rate per night logic
+        # We need to know the total base price for the stay to apply rate plans correctly
         is_available = True
+        total_base_price = 0
+        night_rates = []
         
-        if inventory:
-            for inv in inventory:
-                if inv.get("is_closed", False) or inv.get("allotment", 0) <= 0:
-                    is_available = False
-                    break
-                min_rate = min(min_rate, inv.get("rate", min_rate))
+        check_in_date = datetime.strptime(check_in, "%Y-%m-%d")
+        check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
+        nights = (check_out_date - check_in_date).days
+        
+        if nights <= 0:
+            is_available = False
+        else:
+            for i in range(nights):
+                date_str = (check_in_date + timedelta(days=i)).strftime("%Y-%m-%d")
+                inv = next((x for x in inventory if x["date"] == date_str), None)
+                
+                if inv:
+                    if inv.get("is_closed", False) or inv.get("allotment", 0) <= 0:
+                        is_available = False
+                        break
+                    rate = inv.get("rate", room.get("base_price", 500000))
+                    total_base_price += rate
+                    night_rates.append(rate)
+                else:
+                    # Default if no specific inventory
+                    rate = room.get("base_price", 500000)
+                    total_base_price += rate
+                    night_rates.append(rate)
         
         if is_available:
-            room["available_rate"] = min_rate
+            # Calculate available rate plans for this room
+            room_plans = global_plans + specific_plans.get(room["room_type_id"], [])
+            
+            calculated_plans = []
+            
+            # Always add "Standard Rate" if no plans, or as a base? 
+            # Let's assume there's always a "Standard Rate" implicitly or we can create a dummy one
+            # Ideally, the user creates rate plans. If there are none, we just show base price.
+            # But specific logic: "Standard Rate" is just base price.
+            
+            standard_plan = {
+                "rate_plan_id": "standard",
+                "name": "Standard Rate",
+                "description": "Room only, standard cancellation policy",
+                "total_price": total_base_price,
+                "nightly_price": total_base_price / nights if nights > 0 else 0,
+                "conditions": ["free-cancellation"]
+            }
+            calculated_plans.append(standard_plan)
+            
+            for plan in room_plans:
+                plan_price = total_base_price
+                
+                if plan["price_modifier_type"] == "percent":
+                    # e.g. -10 means 10% discount, +10 means 10% surcharge
+                    modifier = plan["price_modifier_val"] / 100
+                    plan_price = total_base_price * (1 + modifier)
+                elif plan["price_modifier_type"] == "absolute_add":
+                    # Add X per night
+                    plan_price = total_base_price + (plan["price_modifier_val"] * nights)
+                elif plan["price_modifier_type"] == "absolute_total":
+                    # Fixed total add (rare, but maybe "cleaning fee" style?) 
+                    # Or maybe replace price? "absolute_total" usually means "add X to total"
+                    plan_price = total_base_price + plan["price_modifier_val"]
+                
+                calculated_plans.append({
+                    "rate_plan_id": plan["rate_plan_id"],
+                    "name": plan["name"],
+                    "description": plan["description"],
+                    "total_price": plan_price,
+                    "nightly_price": plan_price / nights if nights > 0 else 0,
+                    "conditions": plan.get("conditions", [])
+                })
+            
+            room["rate_plans"] = calculated_plans
+            # Keep backward compatibility for frontend that expects 'available_rate'
+            room["available_rate"] = min(p["nightly_price"] for p in calculated_plans)
+            
             available_rooms.append(room)
     
     return available_rooms

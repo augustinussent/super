@@ -14,7 +14,8 @@ import {
   ChevronRight,
   Settings,
   Shield,
-  Image
+  Image,
+  List
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -41,6 +42,7 @@ const AdminLayout = () => {
     { name: 'Reservasi', path: '/admin/reservations', icon: CalendarCheck, permKey: 'reservations' },
     { name: 'Pengguna', path: '/admin/users', icon: Users, permKey: 'users' },
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
+    { name: 'Rate Plans', path: '/admin/rate-plans', icon: List, permKey: 'rooms' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
     // { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },

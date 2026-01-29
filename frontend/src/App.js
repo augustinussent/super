@@ -28,6 +28,7 @@ import RoomManagement from "./pages/admin/RoomManagement";
 import Reservations from "./pages/admin/Reservations";
 import Users from "./pages/admin/Users";
 import PromoCodes from "./pages/admin/PromoCodes";
+import RatePlans from "./pages/admin/RatePlans";
 import Reviews from "./pages/admin/Reviews";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ActivityLogs from "./pages/admin/ActivityLogs";
@@ -76,6 +77,7 @@ function App() {
             <Route path="reservations" element={<PermissionGuard permKey="reservations"><Reservations /></PermissionGuard>} />
             <Route path="users" element={<PermissionGuard permKey="users"><Users /></PermissionGuard>} />
             <Route path="promo-codes" element={<PermissionGuard permKey="promo"><PromoCodes /></PermissionGuard>} />
+            <Route path="rate-plans" element={<PermissionGuard permKey="rooms"><RatePlans /></PermissionGuard>} />
             <Route path="reviews" element={<PermissionGuard permKey="reviews"><Reviews /></PermissionGuard>} />
             <Route path="content" element={<PermissionGuard permKey="content"><ContentManagement /></PermissionGuard>} />
             <Route path="logs" element={<PermissionGuard permKey="logs"><ActivityLogs /></PermissionGuard>} />

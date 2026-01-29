@@ -10,6 +10,7 @@ class ReservationCreate(BaseModel):
     check_in: str
     check_out: str
     guests: int
+    rate_plan_id: str = ""
     special_requests: str = ""
     promo_code: str = ""
 
@@ -29,6 +30,8 @@ class Reservation(BaseModel):
     total_amount: float = 0
     discount_amount: float = 0
     promo_code: str = ""
+    rate_plan_id: str = ""
+    rate_plan_name: str = "Standard Rate"
     special_requests: str = ""
     status: str = "pending"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

@@ -39,6 +39,28 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
         else:
             total_rate += room.get("base_price", 500000)
     
+    # Apply Rate Plan
+    rate_plan_name = "Standard Rate"
+    if reservation.rate_plan_id and reservation.rate_plan_id != "standard":
+        rate_plan = await db.rate_plans.find_one({
+            "rate_plan_id": reservation.rate_plan_id,
+            "is_active": True
+        }, {"_id": 0})
+        
+        if rate_plan:
+            rate_plan_name = rate_plan["name"]
+            if rate_plan["price_modifier_type"] == "percent":
+                modifier = rate_plan["price_modifier_val"] / 100
+                total_rate = total_rate * (1 + modifier)
+            elif rate_plan["price_modifier_type"] == "absolute_add":
+                total_rate = total_rate + (rate_plan["price_modifier_val"] * nights)
+            elif rate_plan["price_modifier_type"] == "absolute_total":
+                total_rate = total_rate + rate_plan["price_modifier_val"]
+        else:
+            # Fallback or error? Let's treat invalid ID as Standard for robustness, or error?
+            # Ideally strict validation
+            raise HTTPException(status_code=400, detail="Invalid rate plan")
+    
     discount = 0
     if reservation.promo_code:
         promo = await db.promo_codes.find_one({
@@ -90,6 +112,8 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
         guest_phone=reservation.guest_phone,
         room_type_id=reservation.room_type_id,
         room_type_name=room["name"],
+        rate_plan_id=reservation.rate_plan_id,
+        rate_plan_name=rate_plan_name,
         check_in=reservation.check_in,
         check_out=reservation.check_out,
         guests=reservation.guests,
