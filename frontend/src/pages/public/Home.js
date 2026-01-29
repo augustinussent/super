@@ -563,12 +563,136 @@ const Home = () => {
             <p className="hero-subtitle text-base sm:text-lg lg:text-xl text-emerald-100 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               {heroContent?.subtitle}
             </p>
-            <Button
-              onClick={() => setShowBookingModal(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105"
-            >
-              Book Now
-            </Button>
+            <Sheet open={showMobileBooking} onOpenChange={setShowMobileBooking}>
+              <SheetTrigger asChild>
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105"
+                >
+                  Book Now
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] rounded-t-2xl overflow-y-auto">
+                <SheetHeader className="mb-4">
+                  <SheetTitle className="text-lg font-display">Find Your Room</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4">
+                  {/* Check-in Input */}
+                  <div>
+                    <Label className="text-gray-600 mb-1.5 block text-sm">Check-in</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal h-12"
+                        >
+                          <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
+                          {checkIn ? format(checkIn, 'dd MMM yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={checkIn}
+                          onSelect={handleCheckInSelect}
+                          disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Check-out Input */}
+                  <div>
+                    <Label className="text-gray-600 mb-1.5 block text-sm">Check-out</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal h-12"
+                        >
+                          <Calendar className="mr-2 h-4 w-4 text-emerald-600" />
+                          {checkOut ? format(checkOut, 'dd MMM yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={checkOut}
+                          onSelect={setCheckOut}
+                          disabled={(date) => date <= checkIn}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Guests Input */}
+                  <div>
+                    <Label className="text-gray-600 mb-1.5 block text-sm">Guests</Label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
+                      <select
+                        value={guests}
+                        onChange={(e) => setGuests(Number(e.target.value))}
+                        className="w-full h-12 pl-10 pr-4 border rounded-lg appearance-none bg-white focus:ring-2 focus:ring-emerald-500"
+                      >
+                        {[1, 2, 3, 4].map(n => (
+                          <option key={n} value={n}>{n} Guest{n > 1 ? 's' : ''}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Promo Code Input */}
+                  <div>
+                    <Label className="text-gray-600 mb-1.5 block text-sm">Promo Code</Label>
+                    <div className="relative flex">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <TagIcon className="h-4 w-4" />
+                      </div>
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="Kode Promo"
+                        className="w-full h-12 pl-10 pr-24 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm uppercase"
+                      />
+                      <button
+                        onClick={verifyPromoCode}
+                        disabled={isVerifying || !promoCode}
+                        className="absolute right-2 top-2 bottom-2 px-3 bg-emerald-50 text-emerald-600 rounded-md text-xs font-medium hover:bg-emerald-100 disabled:opacity-50"
+                      >
+                        {isVerifying ? 'Checking...' : verifiedPromo ? <div className="flex items-center"><Check className="w-3 h-3 mr-1" /> Applied</div> : 'Verify'}
+                      </button>
+                    </div>
+                    {verifiedPromo && (
+                      <p className="text-xs text-emerald-600 mt-1 font-medium">
+                        Code applied! Discount: {verifiedPromo.discount_type === 'percent' ? `${verifiedPromo.discount_value}%` : `Rp ${verifiedPromo.discount_value}`}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Search Button */}
+                  <Button
+                    onClick={() => {
+                      searchAvailability();
+                      setShowMobileBooking(false);
+                    }}
+                    disabled={isSearching}
+                    className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    {isSearching ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                    ) : (
+                      <>
+                        <Search className="mr-2 h-4 w-4" />
+                        Search Availability
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </motion.div>
         </div>
 
