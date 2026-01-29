@@ -14,7 +14,6 @@ from routes import (
     content_router,
     admin_router,
     init_router,
-    init_router,
     media_router,
     analytics_router,
     rate_plans_router
@@ -34,6 +33,7 @@ api_router = APIRouter(prefix="/api")
 api_router.include_router(auth_router)
 api_router.include_router(rooms_router)
 api_router.include_router(reservations_router)
+api_router.include_router(rate_plans_router)
 api_router.include_router(reviews_router)
 api_router.include_router(promo_router)
 api_router.include_router(content_router)
