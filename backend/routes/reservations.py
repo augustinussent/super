@@ -40,7 +40,7 @@ async def create_reservation(reservation: ReservationCreate, background_tasks: B
             total_rate += room.get("base_price", 500000)
     
     # Apply Rate Plan
-    rate_plan_name = "Standard Rate"
+    rate_plan_name = "Room Only"
     if reservation.rate_plan_id and reservation.rate_plan_id != "standard":
         rate_plan = await db.rate_plans.find_one({
             "rate_plan_id": reservation.rate_plan_id,

@@ -31,7 +31,7 @@ class Reservation(BaseModel):
     discount_amount: float = 0
     promo_code: str = ""
     rate_plan_id: str = ""
-    rate_plan_name: str = "Standard Rate"
+    rate_plan_name: str = "Room Only"
     special_requests: str = ""
     status: str = "pending"
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

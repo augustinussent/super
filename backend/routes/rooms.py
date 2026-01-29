@@ -271,14 +271,14 @@ async def check_availability(check_in: str, check_out: str):
             
             calculated_plans = []
             
-            # Always add "Standard Rate" if no plans, or as a base? 
-            # Let's assume there's always a "Standard Rate" implicitly or we can create a dummy one
+            # Always add "Room Only" if no plans, or as a base? 
+            # Let's assume there's always a "Room Only" implicitly or we can create a dummy one
             # Ideally, the user creates rate plans. If there are none, we just show base price.
-            # But specific logic: "Standard Rate" is just base price.
+            # But specific logic: "Room Only" is just base price.
             
             standard_plan = {
                 "rate_plan_id": "standard",
-                "name": "Standard Rate",
+                "name": "Room Only",
                 "description": "Room only, standard cancellation policy",
                 "total_price": total_base_price,
                 "nightly_price": total_base_price / nights if nights > 0 else 0,
