@@ -11,9 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Switch } from '../../components/ui/switch';
 
-// Fallback to localhost in development if env var points to production or is missing
-// Hardcoded local URL for debugging
-const API_URL = 'http://localhost:8000/api';
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const RatePlans = () => {
     const [ratePlans, setRatePlans] = useState([]);
