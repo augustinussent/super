@@ -282,7 +282,8 @@ def list_gallery_images(folder_prefix: str = None, resource_type: str = "image",
             "type": "upload",
             "max_results": max_results,
             "context": True,
-            "tags": True
+            "tags": True,
+            "direction": "desc" 
         }
         
         # Only add prefix if it's provided and not empty
