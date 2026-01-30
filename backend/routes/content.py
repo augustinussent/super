@@ -88,6 +88,40 @@ async def delete_content(page: str, section: str, request: Request, user: dict =
         
     return {"message": "Content deleted"}
 
+@router.post("/admin/content/fix-duplicates")
+async def fix_duplicate_content(user: dict = Depends(require_admin)):
+    """
+    Scans for duplicate content (same page & section).
+    Keeps the most recently updated one and deletes the rest.
+    """
+    all_content = await db.site_content.find({}, {"_id": 0}).to_list(2000)
+    
+    grouped = {}
+    for c in all_content:
+        key = f"{c['page']}_{c['section']}"
+        if key not in grouped:
+            grouped[key] = []
+        grouped[key].append(c)
+        
+    stats = {"merged": 0, "deleted": 0}
+    
+    for key, items in grouped.items():
+        if len(items) > 1:
+            # Sort by updated_at desc (newest first)
+            # Handle missing updated_at by treating as old
+            items.sort(key=lambda x: x.get("updated_at", ""), reverse=True)
+            
+            master = items[0]
+            duplicates = items[1:]
+            
+            for dup in duplicates:
+                await db.site_content.delete_one({"content_id": dup["content_id"]})
+                stats["deleted"] += 1
+            
+            stats["merged"] += 1
+            
+    return {"message": "Deduplication complete", "stats": stats}
+
 # ==================== SPECIAL OFFERS ====================
 
 @router.get("/special-offers")

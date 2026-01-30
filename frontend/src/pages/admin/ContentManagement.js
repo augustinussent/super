@@ -336,9 +336,28 @@ const ContentManagement = () => {
 
   return (
     <div data-testid="content-management">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-gray-900">Kelola Konten</h1>
-        <p className="text-gray-500">Edit semua teks, foto, dan video di setiap halaman</p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-gray-900">Kelola Konten</h1>
+          <p className="text-gray-500">Edit semua teks, foto, dan video di setiap halaman</p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={async () => {
+            if (!window.confirm("Perbaiki duplikasi konten? Ini akan menghapus versi lama jika ada duplikat.")) return;
+            try {
+              const res = await axios.post(`${API_URL}/admin/content/fix-duplicates`, {}, {
+                headers: { Authorization: `Bearer ${getToken()}` }
+              });
+              toast.success(`Deduplikasi: ${res.data.stats.merged} merged, ${res.data.stats.deleted} deleted`);
+              fetchContent();
+            } catch (e) {
+              toast.error("Gagal memperbaiki duplikat");
+            }
+          }}
+        >
+          Fix Duplicates
+        </Button>
       </div>
 
       <Tabs defaultValue="home" className="space-y-6">
