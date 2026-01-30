@@ -27,7 +27,6 @@ MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
 async def upload_image(
     file_content: bytes,
     folder: str,
-    folder: str,
     eager_transforms: Optional[List[dict]] = None,
     force_format: str = None,
     public_id: str = None
