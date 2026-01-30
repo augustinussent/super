@@ -10,16 +10,18 @@ from services.audit import log_activity
 router = APIRouter(tags=["reservations"])
 
 @router.delete("/reservations/{reservation_id}")
-async def delete_reservation(reservation_id: str, user: dict = Depends(require_super_admin)):
+async def delete_reservation(reservation_id: str, request: Request, user: dict = Depends(require_super_admin)):
     result = await db.reservations.delete_one({"reservation_id": reservation_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Reservation not found")
     
     await log_activity(
-        db,
-        user_id=user["user_id"],
-        action="delete_reservation",
-        details={"reservation_id": reservation_id}
+        user=user,
+        action="delete",
+        resource="reservations",
+        resource_id=reservation_id,
+        details={"reservation_id": reservation_id},
+        ip_address=request.client.host if request.client else None
     )
     return {"message": "Reservation deleted permanently"}
 

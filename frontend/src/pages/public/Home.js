@@ -888,15 +888,15 @@ const Home = () => {
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
                             <div className="flex flex-col">
                               {room.allotment !== undefined ? (
-                                <span className="text-xs text-gray-500 mb-0.5">Rate Malam ini</span>
+                                <span className="text-sm text-gray-500 mb-0.5">Rate Malam ini</span>
                               ) : (
-                                <span className="text-xs text-gray-500 mb-0.5">Mulai dari</span>
+                                <span className="text-sm text-gray-500 mb-0.5">Mulai dari</span>
                               )}
 
                               {verifiedPromo ? (
                                 <>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-400 line-through">
+                                    <span className="text-sm text-gray-400 line-through">
                                       Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
                                     </span>
                                     <span className="text-emerald-600 text-xs font-semibold bg-emerald-50 px-2 py-0.5 rounded">
