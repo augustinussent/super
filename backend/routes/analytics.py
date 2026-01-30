@@ -98,25 +98,44 @@ async def track_event(
     return {"status": "recorded", "event_id": event_doc["event_id"]}
 
 @router.get("/admin/dashboard-stats")
-async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin)):
+async def get_dashboard_stats(
+    days: int = 30, 
+    start_date: str = None, 
+    end_date: str = None,
+    user: dict = Depends(require_admin)
+):
     """Aggregate stats for the dashboard"""
-    # 1. Fetch Daily Stats (Traffic, Demographics)
-    cursor = db.daily_stats.find({}, {"_id": 0}).sort("date", -1).limit(days)
-    daily_data = await cursor.to_list(days)
-    daily_data.reverse() # Chronological order
+    
+    # Determine Date Range
+    if start_date and end_date:
+        query_start = start_date
+        query_end = end_date
+        # For daily_stats, we need to match the date string format YYYY-MM-DD
+        date_query = {"date": {"$gte": query_start, "$lte": query_end}}
+        # For timestamps (ISO), we usually assume start of day to end of day
+        # But for simplicity, let's treat the inputs as inclusive YYYY-MM-DD
+        iso_start = f"{query_start}T00:00:00"
+        iso_end = f"{query_end}T23:59:59"
+    else:
+        # Default to 'days' lookback
+        query_end = datetime.now().strftime("%Y-%m-%d")
+        dt_start = datetime.now() - timedelta(days=days)
+        query_start = dt_start.strftime("%Y-%m-%d")
+        
+        date_query = {"date": {"$gte": query_start, "$lte": query_end}}
+        iso_start = dt_start.isoformat()
+        iso_end = datetime.now().isoformat()
 
+    # 1. Fetch Daily Stats (Traffic, Demographics)
+    cursor = db.daily_stats.find(date_query, {"_id": 0}).sort("date", 1) # Sort ascending for chart
+    daily_data = await cursor.to_list(None)
+    # daily_data is already chronological if sorted by date: 1
+    
     # 2. Key Metrics (Revenue, Bookings) from Reservations
-    # We aggregate ALL reservations for the simplified KPI cards, 
-    # or filter by created_at for "Period" KPIs. 
-    # For this dashboard, let's show "All Time" or "This Month".
-    # Let's do "Last 30 Days" revenue trend.
-    
-    start_date = (datetime.now() - timedelta(days=30)).isoformat()
-    
     pipeline = [
         {
             "$match": {
-                "created_at": {"$gte": start_date},
+                "created_at": {"$gte": iso_start, "$lte": iso_end},
                 "status": {"$nin": ["cancelled"]}
             }
         },
@@ -132,14 +151,11 @@ async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin
     
     revenue_trend = await db.reservations.aggregate(pipeline).to_list(None)
     
-    # Merge Revenue into Daily Data?
-    # Or just return separate arrays. Separate is easier for Recharts composed chart.
-    
-    # 3. Overall KPI (Last 30 Days)
+    # 3. Overall KPI (In Selected Period)
     kpi_pipeline = [
         {
             "$match": {
-                "created_at": {"$gte": start_date}
+                "created_at": {"$gte": iso_start, "$lte": iso_end}
             }
         },
         {
@@ -204,7 +220,7 @@ async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin
     funnel_pipeline = [
         {
             "$match": {
-                "timestamp": {"$gte": start_date},
+                "timestamp": {"$gte": iso_start, "$lte": iso_end},
                 "event_name": {"$in": ["view_room_detail", "click_book_now", "booking_success"]}
             }
         },
@@ -231,7 +247,7 @@ async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin
     lead_time_pipeline = [
          {
             "$match": {
-                "created_at": {"$gte": start_date},
+                "created_at": {"$gte": iso_start, "$lte": iso_end},
                 "status": {"$nin": ["cancelled"]}
             }
         },

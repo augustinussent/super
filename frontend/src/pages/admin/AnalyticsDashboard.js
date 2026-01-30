@@ -23,17 +23,28 @@ const AnalyticsDashboard = () => {
     const [data, setData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [timeRange, setTimeRange] = useState(30);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     useEffect(() => {
         fetchDashboardData();
-    }, [timeRange]);
+    }, [timeRange, startDate, endDate]);
 
     const fetchDashboardData = async () => {
+        // Only fetch if using preset OR both dates are selected
+        if (timeRange === 'custom' && (!startDate || !endDate)) return;
+
         setIsLoading(true);
         try {
+            const params = { days: timeRange !== 'custom' ? timeRange : undefined };
+            if (timeRange === 'custom' && startDate && endDate) {
+                params.start_date = startDate;
+                params.end_date = endDate;
+            }
+
             const response = await axios.get(`${API_URL}/admin/dashboard-stats`, {
                 headers: { Authorization: `Bearer ${getToken()}` },
-                params: { days: timeRange }
+                params
             });
             setData(response.data);
         } catch (error) {
@@ -42,6 +53,27 @@ const AnalyticsDashboard = () => {
             setIsLoading(false);
         }
     };
+
+    const handlePresetClick = (days) => {
+        setTimeRange(days);
+        setStartDate('');
+        setEndDate('');
+    };
+
+    const handleDateChange = (type, value) => {
+        if (type === 'start') setStartDate(value);
+        else setEndDate(value);
+        setTimeRange('custom');
+    };
+
+    if (isLoading && !data) {
+        // Show spinner only on initial load or if we want to block UI
+        // Better to show spinner overlay or just loading state
+    }
+
+    // ... (Loading check moved inside render or separate component if needed, 
+    // but the existing logic 'if (isLoading) return ...' is fine for full page load. 
+    // For updates, maybe just opacity change? Keeping simple for now.)
 
     if (isLoading) {
         return (
@@ -78,26 +110,49 @@ const AnalyticsDashboard = () => {
 
     return (
         <div className="space-y-8 p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Analytics</h2>
                     <p className="text-gray-500">Overview of your hotel performance and visitor insights.</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant={timeRange === 7 ? "default" : "outline"}
-                        onClick={() => setTimeRange(7)}
-                        size="sm"
-                    >
-                        7 Days
-                    </Button>
-                    <Button
-                        variant={timeRange === 30 ? "default" : "outline"}
-                        onClick={() => setTimeRange(30)}
-                        size="sm"
-                    >
-                        30 Days
-                    </Button>
+                <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-2 rounded-lg shadow-sm">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">From:</span>
+                        <input
+                            type="date"
+                            className="text-sm border rounded px-2 py-1 outline-none focus:ring-1 focus:ring-emerald-500"
+                            value={startDate}
+                            onChange={(e) => handleDateChange('start', e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">To:</span>
+                        <input
+                            type="date"
+                            className="text-sm border rounded px-2 py-1 outline-none focus:ring-1 focus:ring-emerald-500"
+                            value={endDate}
+                            onChange={(e) => handleDateChange('end', e.target.value)}
+                        />
+                    </div>
+                    <div className="h-4 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                            variant={timeRange === 7 ? "default" : "outline"}
+                            onClick={() => handlePresetClick(7)}
+                            size="sm"
+                            className="flex-1 sm:flex-none"
+                        >
+                            7 Days
+                        </Button>
+                        <Button
+                            variant={timeRange === 30 ? "default" : "outline"}
+                            onClick={() => handlePresetClick(30)}
+                            size="sm"
+                            className="flex-1 sm:flex-none"
+                        >
+                            30 Days
+                        </Button>
+                    </div>
                 </div>
             </div>
 

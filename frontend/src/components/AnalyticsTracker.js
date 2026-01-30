@@ -12,7 +12,4 @@ const AnalyticsTracker = () => {
 
     return null;
 };
-
-export default AnalyticsTracker;
-
 export default AnalyticsTracker;
