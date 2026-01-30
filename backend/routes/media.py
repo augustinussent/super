@@ -37,7 +37,8 @@ async def upload_gallery_image(
     
     result = await upload_image(
         file_content=file_content,
-        folder=f"gallery/{category}"
+        folder=f"gallery/{category}",
+        force_format="webp"
     )
     
     # Generate AI caption if requested
@@ -79,7 +80,8 @@ async def upload_room_image(
     
     result = await upload_image(
         file_content=file_content,
-        folder=f"rooms/{room_type_id}"
+        folder=f"rooms/{room_type_id}",
+        force_format="webp"
     )
     
     # Update room with new image
