@@ -2,6 +2,10 @@ import { useState, useCallback, useRef } from 'react';
 import { Upload, X, CheckCircle2, AlertCircle, Loader2, Image as ImageIcon, Video, Link as LinkIcon, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
+import { Progress } from './ui/progress';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import MediaPicker from './MediaPicker';
 
