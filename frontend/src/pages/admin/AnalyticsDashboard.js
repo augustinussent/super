@@ -192,11 +192,11 @@ const AnalyticsDashboard = () => {
 
             {/* Demographics Row */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Browser Stats */}
+                {/* Traffic Sources - Modified from Browser Stats */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Monitor className="w-4 h-4" /> Browser Distribution
+                            <Globe className="w-4 h-4" /> Traffic Sources
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -204,7 +204,7 @@ const AnalyticsDashboard = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={browserData}
+                                        data={data.demographics.sources || []}
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={60}
@@ -212,7 +212,7 @@ const AnalyticsDashboard = () => {
                                         paddingAngle={5}
                                         dataKey="value"
                                     >
-                                        {browserData.map((entry, index) => (
+                                        {(data.demographics.sources || []).map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -224,35 +224,26 @@ const AnalyticsDashboard = () => {
                     </CardContent>
                 </Card>
 
-                {/* OS Stats */}
-                <Card>
+                {/* Conversion Funnel */}
+                <Card className="col-span-1 lg:col-span-1">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Activity className="w-4 h-4" /> Operating Systems
+                            <TrendingUp className="w-4 h-4" /> Conversion Funnel
                         </CardTitle>
+                        <CardDescription>User journey drop-off</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[250px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={osData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {osData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={['#EC4899', '#8B5CF6', '#F59E0B', '#10B981'][index % 4]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend layout="vertical" align="right" verticalAlign="middle" />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={data.funnel || []} layout="vertical" margin={{ left: 0, right: 30 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 11 }} />
+                                <Tooltip cursor={{ fill: 'transparent' }} />
+                                <Bar dataKey="value" fill="#10b981" radius={[0, 4, 4, 0]} barSize={30}>
+                                    {/* Add label list if needed, or just relying on tooltip */}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
@@ -276,6 +267,31 @@ const AnalyticsDashboard = () => {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Advanced Metrics Row */}
+            <div className="grid gap-4 md:grid-cols-3">
+                <KPICard
+                    title="Avg Lead Time"
+                    value={`${kpi.avg_lead_time || 0} Days`}
+                    subtext="Booking in advance"
+                    icon={Clock}
+                    color="blue"
+                />
+                <KPICard
+                    title="Look-to-Book"
+                    value={`${(kpi.look_to_book || 0).toFixed(1)}%`}
+                    subtext="View to Booking Conversion"
+                    icon={Activity}
+                    color="purple"
+                />
+                <KPICard
+                    title="ARPU"
+                    value={`Rp ${(Math.round(kpi.arpu || 0) / 1000).toFixed(0)}k`}
+                    subtext="Rev per Visitor"
+                    icon={DollarSign}
+                    color="green"
+                />
             </div>
 
             {/* Recent Activity */}

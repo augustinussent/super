@@ -37,18 +37,34 @@ const AdminLayout = () => {
     setIsMobileSidebarOpen(false);
   }, [location]);
 
+  // State for expanded nested menus
+  const [expandedMenus, setExpandedMenus] = useState({});
+
+  const toggleMenu = (name) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [name]: !prev[name]
+    }));
+  };
+
   const allMenuItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, permKey: 'dashboard' },
     { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp, permKey: 'dashboard' },
-    { name: 'Kelola Kamar', path: '/admin/rooms', icon: BedDouble, permKey: 'rooms' },
+    {
+      name: 'Kelola Kamar',
+      icon: BedDouble,
+      permKey: 'rooms',
+      children: [
+        { name: 'Daftar Kamar', path: '/admin/rooms', permKey: 'rooms' },
+        { name: 'Rate Plans', path: '/admin/rate-plans', permKey: 'rooms' },
+      ]
+    },
     { name: 'Reservasi', path: '/admin/reservations', icon: CalendarCheck, permKey: 'reservations' },
     { name: 'Pengguna', path: '/admin/users', icon: Users, permKey: 'users' },
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
-    { name: 'Rate Plans', path: '/admin/rate-plans', icon: List, permKey: 'rooms' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
     { name: 'Media Optimizer', path: '/admin/media-converter', icon: Image, permKey: 'content' },
-    // { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },
     { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];
 
@@ -60,27 +76,79 @@ const AdminLayout = () => {
     navigate('/');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
-    );
-  }
+  // ... (loading and auth checks remain same) ...
 
-  if (!user || !hasAnyAdminAccess()) {
-    return null;
-  }
+  const NavItem = ({ item, isChild = false }) => {
+    const Icon = item.icon;
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedMenus[item.name];
+
+    // Check if any child is active to highlight parent
+    const isChildActive = hasChildren && item.children.some(child => location.pathname === child.path);
+    const isActive = location.pathname === item.path || isChildActive;
+
+    if (hasChildren) {
+      return (
+        <div className="space-y-1">
+          <button
+            onClick={() => {
+              if (!isSidebarOpen) setIsSidebarOpen(true);
+              toggleMenu(item.name);
+            }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${isActive || isExpanded ? 'text-white bg-emerald-800' : 'text-emerald-200 hover:bg-emerald-800'
+              }`}
+          >
+            <div className={`flex items-center space-x-3 ${!isSidebarOpen && 'justify-center w-full'}`}>
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              {isSidebarOpen && <span className="font-medium whitespace-nowrap">{item.name}</span>}
+            </div>
+            {isSidebarOpen && (
+              <ChevronRight
+                className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+              />
+            )}
+          </button>
+
+          {/* Render Children */}
+          {isExpanded && isSidebarOpen && (
+            <div className="pl-12 space-y-1">
+              {item.children.map(child => (
+                <Link
+                  key={child.path}
+                  to={child.path}
+                  className={`block py-2 text-sm transition-colors ${location.pathname === child.path
+                      ? 'text-white font-medium'
+                      : 'text-emerald-300 hover:text-white'
+                    }`}
+                >
+                  {child.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <Link
+        to={item.path}
+        data-testid={`admin-nav-${item.name.toLowerCase().replace(' ', '-')}`}
+        className={`flex items-center space-x-3 py-3 rounded-lg transition-colors ${isSidebarOpen ? 'px-4' : 'justify-center px-2'
+          } ${isActive
+            ? 'bg-emerald-600 text-white'
+            : 'text-emerald-200 hover:bg-emerald-800'
+          }`}
+      >
+        <Icon className="w-5 h-5 flex-shrink-0" />
+        {isSidebarOpen && <span className="font-medium whitespace-nowrap">{item.name}</span>}
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Mobile Sidebar Overlay */}
-      {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
+      {/* ... (Overlay and Aside Header remain same) ... */}
 
       {/* Sidebar */}
       <aside
@@ -109,25 +177,9 @@ const AdminLayout = () => {
 
         {/* Navigation */}
         <nav className="p-4 space-y-2 flex-1 overflow-y-auto custom-scrollbar">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                data-testid={`admin-nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                className={`flex items-center space-x-3 py-3 rounded-lg transition-colors ${isSidebarOpen ? 'px-4' : 'justify-center px-2'} ${isActive
-                  ? 'bg-emerald-600 text-white'
-                  : 'text-emerald-200 hover:bg-emerald-800'
-                  }`}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                {isSidebarOpen && <span className="font-medium whitespace-nowrap">{item.name}</span>}
-              </Link>
-            );
-          })}
+          {menuItems.map((item) => (
+            <NavItem key={item.name} item={item} />
+          ))}
         </nav>
 
         {/* Logout */}

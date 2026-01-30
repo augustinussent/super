@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Request, Depends
+import uuid
+from fastapi import APIRouter, Request, Depends, Body
 from datetime import datetime, timezone, timedelta
 from database import db
 from models.analytics import DailyStats
@@ -7,7 +8,14 @@ from services.auth import require_admin
 router = APIRouter(tags=["analytics"])
 
 @router.post("/analytics/track")
-async def track_visit(request: Request, page: str = "/"):
+async def track_visit(
+    request: Request, 
+    page: str = "/",
+    referrer: str = None,
+    utm_source: str = None,
+    utm_medium: str = None,
+    utm_campaign: str = None
+):
     today = datetime.now().strftime("%Y-%m-%d")
     ua_string = request.headers.get("user-agent", "")
     ip = request.client.host if request.client else "unknown"
@@ -30,10 +38,7 @@ async def track_visit(request: Request, page: str = "/"):
     elif "Linux" in ua_string: os = "Linux"
 
     # Mock Location (In real app, use GeoIP DB)
-    # Using simple hashing of IP to distribute "randomly" for demo purposes 
-    # if no real GeoIP service is attached.
     locations = ["Jakarta", "Surabaya", "Bali", "Bandung", "Medan", "Singapore", "Kuala Lumpur", "Unknown"]
-    # consistent hash for "stickiness"
     loc_idx = sum(ord(c) for c in ip) % len(locations)
     location = locations[loc_idx] if ip != "unknown" else "Unknown"
 
@@ -45,6 +50,18 @@ async def track_visit(request: Request, page: str = "/"):
         f"os_stats.{os}": 1,
         f"location_stats.{location}": 1
     }
+    
+    # Track Source if present
+    if utm_source:
+        inc_update[f"traffic_sources.{utm_source.replace('.', '_')}"] = 1
+    elif referrer and "google" in referrer:
+         inc_update["traffic_sources.Google"] = 1
+    elif referrer and "facebook" in referrer or referrer and "instagram" in referrer:
+         inc_update["traffic_sources.Social"] = 1
+    elif not referrer:
+         inc_update["traffic_sources.Direct"] = 1
+    else:
+         inc_update["traffic_sources.Other"] = 1
 
     await db.daily_stats.update_one(
         {"date": today},
@@ -56,6 +73,29 @@ async def track_visit(request: Request, page: str = "/"):
     )
     
     return {"status": "ok"}
+
+@router.post("/analytics/event")
+async def track_event(
+    request: Request,
+    event_name: str = Body(...),
+    category: str = Body(None),
+    label: str = Body(None),
+    metadata: dict = Body({})
+):
+    """Store granular events"""
+    event_doc = {
+        "event_id": str(uuid.uuid4()),
+        "event_name": event_name,
+        "category": category,
+        "label": label,
+        "metadata": metadata,
+        "ip_address": request.client.host if request.client else None,
+        "user_agent": request.headers.get("user-agent"),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.analytics_events.insert_one(event_doc)
+    return {"status": "recorded", "event_id": event_doc["event_id"]}
 
 @router.get("/admin/dashboard-stats")
 async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin)):
@@ -146,6 +186,7 @@ async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin
     total_browsers = {}
     total_os = {}
     total_locations = {}
+    traffic_sources = {}
     
     for day in daily_data:
         for b, count in day.get("browser_stats", {}).items():
@@ -154,18 +195,92 @@ async def get_dashboard_stats(days: int = 30, user: dict = Depends(require_admin
             total_os[o] = total_os.get(o, 0) + count
         for l, count in day.get("location_stats", {}).items():
             total_locations[l] = total_locations.get(l, 0) + count
+        for s, count in day.get("traffic_sources", {}).items():
+             source = s.replace("_", ".") # Restore dots
+             traffic_sources[source] = traffic_sources.get(source, 0) + count
+
+    # 7. Funnel Analysis (from analytics_events)
+    # Pipeline to count events by name for the last 30 days
+    funnel_pipeline = [
+        {
+            "$match": {
+                "timestamp": {"$gte": start_date},
+                "event_name": {"$in": ["view_room_detail", "click_book_now", "booking_success"]}
+            }
+        },
+        {
+            "$group": {
+                "_id": "$event_name",
+                "count": {"$sum": 1}
+            }
+        }
+    ]
+    funnel_data_raw = await db.analytics_events.aggregate(funnel_pipeline).to_list(None)
+    funnel_map = {item["_id"]: item["count"] for item in funnel_data_raw}
+    
+    # Construct Funnel (Fill gaps with 0)
+    funnel = [
+        {"name": "View Room", "value": funnel_map.get("view_room_detail", 0)},
+        {"name": "Click Book", "value": funnel_map.get("click_book_now", 0)},
+        # For "Success", we can also use confirmed bookings count if event tracking is not fully ready
+        {"name": "Success", "value": max(funnel_map.get("booking_success", 0), kpi["confirmed_bookings"])} 
+    ]
+    
+    # 8. Booking Lead Time & Look-to-Book
+    # Lead Time calculation
+    lead_time_pipeline = [
+         {
+            "$match": {
+                "created_at": {"$gte": start_date},
+                "status": {"$nin": ["cancelled"]}
+            }
+        },
+        {
+             "$project": {
+                  "lead_days": {
+                       "$divide": [
+                            {"$subtract": [{"$toDate": "$check_in"}, {"$toDate": "$created_at"}]},
+                            1000 * 60 * 60 * 24 # Milliseconds to Days
+                       ]
+                  }
+             }
+        },
+        {
+             "$group": {
+                  "_id": None,
+                  "avg_lead_time": {"$avg": "$lead_days"}
+             }
+        }
+    ]
+    lead_time_res = await db.reservations.aggregate(lead_time_pipeline).to_list(1)
+    avg_lead_time = round(lead_time_res[0]["avg_lead_time"], 1) if lead_time_res else 0
+    
+    # Look-to-Book
+    total_room_views = funnel_map.get("view_room_detail", 0)
+    look_to_book = (kpi["confirmed_bookings"] / total_room_views * 100) if total_room_views > 0 else 0
+    
+    # ARPU
+    total_visitors = sum(d.get("total_visits", 0) for d in daily_data)
+    arpu = kpi["total_revenue"] / total_visitors if total_visitors > 0 else 0
 
     return {
         "daily_traffic": daily_data,
         "revenue_trend": revenue_trend,
-        "kpi": kpi,
+        "kpi": {
+             **kpi,
+             "avg_lead_time": avg_lead_time,
+             "look_to_book": look_to_book,
+             "arpu": arpu
+        },
         "room_stats": room_stats,
         "recent_activity": recent_logs,
         "demographics": {
             "browsers": [{"name": k, "value": v} for k, v in total_browsers.items()],
             "os": [{"name": k, "value": v} for k, v in total_os.items()],
-            "locations": [{"name": k, "value": v} for k, v in total_locations.items()]
-        }
+            "locations": [{"name": k, "value": v} for k, v in total_locations.items()],
+            "sources": [{"name": k, "value": v} for k, v in traffic_sources.items()]
+        },
+        "funnel": funnel
     }
 
 @router.get("/admin/analytics")

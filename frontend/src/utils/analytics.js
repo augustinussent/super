@@ -26,12 +26,24 @@ export const initAnalytics = () => {
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 /**
- * Track Page View to Backend
+ * Track Page View to Backend with Referrer and UTM
  * @param {string} pagePath 
  */
 export const trackPageView = async (pagePath) => {
     try {
-        await fetch(`${API_URL}/analytics/track?page=${encodeURIComponent(pagePath)}`, {
+        const queryParams = new URLSearchParams(window.location.search);
+        const utmSource = queryParams.get('utm_source');
+        const utmMedium = queryParams.get('utm_medium');
+        const utmCampaign = queryParams.get('utm_campaign');
+        const referrer = document.referrer;
+
+        let url = `${API_URL}/analytics/track?page=${encodeURIComponent(pagePath)}`;
+        if (referrer) url += `&referrer=${encodeURIComponent(referrer)}`;
+        if (utmSource) url += `&utm_source=${encodeURIComponent(utmSource)}`;
+        if (utmMedium) url += `&utm_medium=${encodeURIComponent(utmMedium)}`;
+        if (utmCampaign) url += `&utm_campaign=${encodeURIComponent(utmCampaign)}`;
+
+        await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -44,52 +56,70 @@ export const trackPageView = async (pagePath) => {
 
 /**
  * Track Custom Event in GA4 & Backend
- * @param {string} category - Event category (e.g., 'Contact', 'Engagement')
- * @param {string} action - Event action (e.g., 'Click WhatsApp', 'Scroll 75%')
- * @param {string} label - Event label (optional, e.g., 'Footer', 'Room Detail')
+ * @param {string} eventName - Internal event name (e.g., 'view_room_detail')
+ * @param {string} category - Event category (e.g., 'Content', 'Ecommerce')
+ * @param {string} label - Event label (optional, e.g., 'Room Name')
+ * @param {object} metadata - Extra data
  */
-export const trackEvent = (category, action, label) => {
-    // GA4 Tracking
+export const trackEvent = async (eventName, category, label, metadata = {}) => {
+    // GA4 Tracking (Use standard event structure)
     if (GA_MEASUREMENT_ID) {
         ReactGA.event({
-            category,
-            action,
-            label,
+            category: category || 'General',
+            action: eventName,
+            label: label,
         });
     }
 
-    // Backend Tracking (Optional: could extend /analytics/track to accept events)
-    // For now, we mainly track page views for the dashboard chart
+    // Backend Tracking
+    try {
+        await fetch(`${API_URL}/analytics/event`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                event_name: eventName,
+                category,
+                label,
+                metadata
+            })
+        });
+    } catch (error) {
+        // fail silently
+    }
 };
 
 /**
- * Helper for WhatsApp Click
- * @param {string} location - Where the click happened (e.g., 'Footer', 'Room Card')
+ * Track Funnel Step
+ * @param {string} step - 'view_room', 'click_book', 'guest_info', 'payment', 'success'
+ * @param {object} details 
  */
+export const trackFunnelStep = (step, details = {}) => {
+    const eventMap = {
+        'view_room': 'view_room_detail',
+        'click_book': 'click_book_now',
+        'guest_info': 'view_guest_info',
+        'payment': 'view_payment',
+        'success': 'booking_success'
+    };
+
+    const eventName = eventMap[step] || step;
+    trackEvent(eventName, 'Funnel', details.room_name || null, details);
+};
+
 export const trackWhatsAppClick = (location) => {
-    trackEvent('Contact', 'click_whatsapp', location);
+    trackEvent('click_whatsapp', 'Contact', location);
 };
 
-/**
- * Helper for Phone Click
- * @param {string} location - Where the click happened
- */
 export const trackPhoneClick = (location) => {
-    trackEvent('Contact', 'click_phone', location);
+    trackEvent('click_phone', 'Contact', location);
 };
 
-/**
- * Helper for Book Now Click
- * @param {string} roomName - Name of the room being booked (or 'General')
- */
 export const trackBookNow = (roomName) => {
-    trackEvent('Conversion', 'click_book_now', roomName);
+    trackFunnelStep('click_book', { room_name: roomName });
 };
 
-/**
- * Helper for Room Detail View
- * @param {string} roomName 
- */
 export const trackViewRoom = (roomName) => {
-    trackEvent('Content', 'view_room_detail', roomName);
+    trackFunnelStep('view_room', { room_name: roomName });
 };
