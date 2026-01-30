@@ -215,7 +215,11 @@ const ContentManagement = () => {
 
   const handleMediaUpload = (mediaData) => {
     if (uploadTarget) {
-      updateField(uploadTarget.key, uploadTarget.field, mediaData.secure_url);
+      if (uploadTarget.context === 'offer') {
+        setEditingOffer(prev => ({ ...prev, image: mediaData.secure_url }));
+      } else {
+        updateField(uploadTarget.key, uploadTarget.field, mediaData.secure_url);
+      }
       setShowMediaUpload(false);
       setUploadTarget(null);
       toast.success('Media berhasil diupload');
@@ -1131,32 +1135,78 @@ const ContentManagement = () => {
               title: formData.get('title'),
               description: formData.get('description'),
               code: formData.get('code'),
-              image: formData.get('image'),
+              image: editingOffer?.image || formData.get('image'), // Ensure we take from state if controlled
               validUntil: formData.get('validUntil')
             });
           }} className="space-y-4">
             <div>
               <Label>Judul Offer</Label>
-              <Input name="title" defaultValue={editingOffer?.title || ''} placeholder="Weekend Escape" required />
+              <Input
+                name="title"
+                value={editingOffer?.title || ''}
+                onChange={(e) => setEditingOffer(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Weekend Escape"
+                required
+              />
             </div>
             <div>
               <Label>Deskripsi</Label>
-              <Textarea name="description" defaultValue={editingOffer?.description || ''} placeholder="Get 25% off..." rows={3} required />
+              <Textarea
+                name="description"
+                value={editingOffer?.description || ''}
+                onChange={(e) => setEditingOffer(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Get 25% off..."
+                rows={3}
+                required
+              />
             </div>
             <div>
               <Label>Kode Promo</Label>
-              <Input name="code" defaultValue={editingOffer?.code || ''} placeholder="WEEKEND25" required />
+              <Input
+                name="code"
+                value={editingOffer?.code || ''}
+                onChange={(e) => setEditingOffer(prev => ({ ...prev, code: e.target.value }))}
+                placeholder="WEEKEND25"
+                required
+              />
             </div>
             <div>
-              <Label>URL Gambar</Label>
-              <Input name="image" defaultValue={editingOffer?.image || ''} placeholder="https://..." />
+              <Label>Gambar Offer</Label>
+              <div className="flex gap-2">
+                <Input
+                  name="image"
+                  value={editingOffer?.image || ''}
+                  onChange={(e) => setEditingOffer(prev => ({ ...prev, image: e.target.value }))}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setUploadTarget({ context: 'offer', mediaType: 'image' });
+                    setShowMediaUpload(true);
+                  }}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Pilih
+                </Button>
+              </div>
               {editingOffer?.image && (
-                <img src={editingOffer.image} alt="Preview" className="mt-2 rounded h-20 object-cover" />
+                <div className="mt-2">
+                  <img src={editingOffer.image} alt="Preview" className="w-full h-40 object-cover rounded-lg border" />
+                </div>
               )}
             </div>
             <div>
               <Label>Berlaku Sampai</Label>
-              <Input name="validUntil" defaultValue={editingOffer?.validUntil || ''} placeholder="31 Jan 2026" required />
+              <Input
+                name="validUntil"
+                value={editingOffer?.validUntil || ''}
+                onChange={(e) => setEditingOffer(prev => ({ ...prev, validUntil: e.target.value }))}
+                placeholder="31 Jan 2026"
+                required
+              />
             </div>
             <div className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="outline" onClick={() => setShowOfferModal(false)}>Batal</Button>
