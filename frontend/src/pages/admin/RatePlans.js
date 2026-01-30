@@ -178,18 +178,35 @@ const RatePlans = () => {
                     <h1 className="font-display text-3xl font-bold text-gray-900">Rate Plans</h1>
                     <p className="text-gray-500">Manage rate plans (e.g. Breakfast Included, Room Only)</p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setEditingPlan(null);
-                        resetForm();
-                        setShowModal(true);
-                    }}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                    data-testid="add-plan-btn"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Rate Plan
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={async () => {
+                            if (!window.confirm("Fix duplicate rooms? This will merge same-named rooms.")) return;
+                            try {
+                                const res = await axios.post(`${API_URL}/admin/rooms/fix-duplicates`);
+                                toast.success(`Fixed! Merged: ${res.data.stats.merged}, Deleted: ${res.data.stats.deleted}`);
+                                fetchRooms(); // Refresh rooms list
+                            } catch (e) {
+                                toast.error("Failed to fix duplicates");
+                            }
+                        }}
+                    >
+                        Fix Duplicate Rooms
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setEditingPlan(null);
+                            resetForm();
+                            setShowModal(true);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        data-testid="add-plan-btn"
+                    >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Rate Plan
+                    </Button>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-soft overflow-hidden">

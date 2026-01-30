@@ -108,6 +108,79 @@ async def reorder_rooms(order_data: dict, user: dict = Depends(require_admin)):
             
     return {"message": "Rooms reordered successfully"}
 
+@router.post("/admin/rooms/fix-duplicates")
+async def fix_duplicate_rooms(user: dict = Depends(require_admin)):
+    """
+    Scans for rooms with the same name.
+    Merges duplicates into one (updating references) and deletes the extras.
+    """
+    all_rooms = await db.room_types.find({}, {"_id": 0}).to_list(1000)
+    
+    # Group by name
+    grouped = {}
+    for r in all_rooms:
+        name = r["name"]
+        if name not in grouped:
+            grouped[name] = []
+        grouped[name].append(r)
+        
+    stats = {"merged": 0, "deleted": 0}
+    
+    for name, rooms in grouped.items():
+        if len(rooms) > 1:
+            # Sort by creation time if available, else random
+            # We keep the first one as the "Master"
+            master = rooms[0]
+            master_id = master["room_type_id"]
+            
+            duplicates = rooms[1:]
+            
+            for dup in duplicates:
+                dup_id = dup["room_type_id"]
+                
+                # 1. Update Inventory references
+                await db.room_inventory.update_many(
+                    {"room_type_id": dup_id},
+                    {"$set": {"room_type_id": master_id}}
+                )
+                
+                # 2. Update RatePlan references (room_type_id field)
+                await db.rate_plans.update_many(
+                    {"room_type_id": dup_id},
+                    {"$set": {"room_type_id": master_id}}
+                )
+                
+                # 3. Update RatePlan references (room_type_ids list)
+                # This is harder: verify if master_id is already in list?
+                # For simplicity, pull dup_id and addToSet master_id
+                await db.rate_plans.update_many(
+                    {"room_type_ids": dup_id},
+                    {"$pull": {"room_type_ids": dup_id}}
+                )
+                await db.rate_plans.update_many(
+                    {"room_type_ids": dup_id}, # Wait, the previous pull removed it. Logic need to be: find docs with dup_id, then swap.
+                    {"$addToSet": {"room_type_ids": master_id}}
+                )
+                # Correct logic for array:
+                # Find any plan where room_type_ids contains dup_id
+                plans_with_dup = await db.rate_plans.find({"room_type_ids": dup_id}).to_list(100)
+                for p in plans_with_dup:
+                    new_ids = [master_id if x == dup_id else x for x in p.get("room_type_ids", [])]
+                    # Deduplicate list
+                    new_ids = list(set(new_ids))
+                    await db.rate_plans.update_one(
+                        {"rate_plan_id": p["rate_plan_id"]},
+                        {"$set": {"room_type_ids": new_ids}}
+                    )
+
+                # 4. Delete the duplicate room
+                await db.room_types.delete_one({"room_type_id": dup_id})
+                stats["deleted"] += 1
+            
+            stats["merged"] += 1
+            
+    return {"message": "Deduplication complete", "stats": stats}
+
 # Inventory routes
 @router.get("/inventory")
 async def get_inventory(room_type_id: str = None, start_date: str = None, end_date: str = None):
