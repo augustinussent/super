@@ -262,12 +262,12 @@ def generate_upload_signature(params: dict = None) -> dict:
     }
 
 
-def list_gallery_images(folder_prefix: str = "spencer-green", max_results: int = 50, next_cursor: str = None) -> dict:
+def list_gallery_images(folder_prefix: str = None, max_results: int = 50, next_cursor: str = None) -> dict:
     """
     List images from Cloudinary folder.
     
     Args:
-        folder_prefix: The folder prefix to search in
+        folder_prefix: The folder prefix to search in (optional)
         max_results: Max results to return
         next_cursor: Cursor for pagination
     
@@ -278,22 +278,28 @@ def list_gallery_images(folder_prefix: str = "spencer-green", max_results: int =
         # Use Admin API resources for folder browsing
         params = {
             "type": "upload",
-            "prefix": folder_prefix,
             "max_results": max_results,
             "context": True,
             "tags": True
         }
         
+        # Only add prefix if it's provided and not empty
+        if folder_prefix and folder_prefix.strip():
+            params["prefix"] = folder_prefix
+        
         if next_cursor:
             params["next_cursor"] = next_cursor
             
+        print(f"DEBUG: Listing Cloudinary resources with params: {params}")
         result = cloudinary.api.resources(**params)
+        print(f"DEBUG: Cloudinary list result count: {len(result.get('resources', []))}")
         
         return {
             "resources": result.get("resources", []),
             "next_cursor": result.get("next_cursor")
         }
     except Exception as e:
-        logger.error(f"Cloudinary list resources error: {str(e)}")
-        # Don't crash, just return empty
+        error_msg = f"Cloudinary list resources error: {str(e)}"
+        print(f"DEBUG ERROR: {error_msg}")
+        logger.error(error_msg)
         return {"resources": [], "error": str(e)}

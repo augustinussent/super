@@ -292,7 +292,7 @@ async def get_signature(
 
 @router.get("/gallery")
 async def get_gallery(
-    prefix: str = "spencer-green",
+    prefix: Optional[str] = None,
     next_cursor: Optional[str] = None,
     user: dict = Depends(require_admin)
 ):
