@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query, Body
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query, Body, Form
 from config import CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY
 
 from typing import Optional
