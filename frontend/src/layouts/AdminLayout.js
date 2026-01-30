@@ -84,11 +84,11 @@ const AdminLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-emerald-950 text-white z-50 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'
+        className={`fixed top-0 left-0 h-full bg-emerald-950 text-white z-50 transition-all duration-300 flex flex-col ${isSidebarOpen ? 'w-64' : 'w-20'
           } ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-emerald-800">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-emerald-800 flex-shrink-0">
           {isSidebarOpen && (
             <span className="font-display text-xl font-bold">Spencer Green</span>
           )}
@@ -108,7 +108,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -131,7 +131,7 @@ const AdminLayout = () => {
         </nav>
 
         {/* Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-emerald-800">
+        <div className="p-4 border-t border-emerald-800 flex-shrink-0">
           <button
             onClick={handleLogout}
             data-testid="logout-button"
