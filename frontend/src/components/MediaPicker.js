@@ -208,7 +208,7 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
             <div className="pt-4 flex justify-between items-center border-t mt-4">
                 <Button variant="secondary" onClick={handleSwitchToOptimizer} className="flex items-center gap-2">
                     <Upload className="w-4 h-4" />
-                    Upload Baru (Optimizer)
+                    Upload via Optimizer
                 </Button>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={onClose}>Batal</Button>
