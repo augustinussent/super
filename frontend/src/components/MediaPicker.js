@@ -1,77 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { Loader2, Image as ImageIcon, Check } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Check, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-const MediaPicker = ({ onSelect, onClose }) => {
+const MediaPicker = ({ onSelect, onClose, onUpload }) => {
     const { getToken } = useAuth();
-    const [images, setImages] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [nextCursor, setNextCursor] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
+    // ... state ...
 
-    const fetchImages = async (cursor = null) => {
-        try {
-            setLoading(true);
-            let url = `${API_URL}/api/media/gallery`;
-            if (cursor) {
-                url += `?next_cursor=${cursor}`;
-            }
+    // ... fetchImages ...
 
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${getToken()}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch images');
-            }
-
-            const data = await response.json();
-
-            if (cursor) {
-                setImages(prev => [...prev, ...data.resources]);
-            } else {
-                setImages(data.resources);
-            }
-
-            setNextCursor(data.next_cursor);
-        } catch (error) {
-            console.error('Error fetching gallery:', error);
-            toast.error('Gagal memuat galeri media');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchImages();
-    }, []);
-
-    const handleSelect = (image) => {
-        setSelectedImage(image);
-    };
-
-    const handleConfirm = () => {
-        if (selectedImage) {
-            onSelect({
-                secure_url: selectedImage.secure_url,
-                public_id: selectedImage.public_id,
-                resource_type: selectedImage.resource_type
-            });
-            onClose();
-        }
-    };
+    // ... handleSelect ...
 
     return (
         <div className="flex flex-col h-[500px]">
+            {/* ... ScrollArea ... */}
             <div className="flex-1 min-h-0 relative">
                 <ScrollArea className="h-full w-full rounded-md border p-4">
+                    {/* ... content ... */}
                     {images.length === 0 && !loading ? (
                         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
                             <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
@@ -118,15 +67,21 @@ const MediaPicker = ({ onSelect, onClose }) => {
                 </ScrollArea>
             </div>
 
-            <div className="pt-4 flex justify-end gap-2 border-t mt-4">
-                <Button variant="outline" onClick={onClose}>Batal</Button>
-                <Button
-                    onClick={handleConfirm}
-                    disabled={!selectedImage}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
-                    Pilih Media
+            <div className="pt-4 flex justify-between items-center border-t mt-4">
+                <Button variant="secondary" onClick={onUpload} className="flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    Upload Baru
                 </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={onClose}>Batal</Button>
+                    <Button
+                        onClick={handleConfirm}
+                        disabled={!selectedImage}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                        Pilih Media
+                    </Button>
+                </div>
             </div>
         </div>
     );

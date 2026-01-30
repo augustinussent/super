@@ -354,232 +354,26 @@ export const MediaUpload = ({
 
   const isVideoType = acceptedTypes.some(t => t.startsWith('video/'));
 
+  // Open Cloudinary Widget for uploading (triggered by MediaPicker)
+  const handleUploadRequest = () => {
+    openCloudinaryWidget('local'); // Open widget with local source default
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* URL Input Section */}
-        {showUrlInput && (
-          <div className="flex gap-2">
-            <Input
-              placeholder="Paste URL media (gambar/video)..."
-              value={urlInputValue}
-              onChange={(e) => setUrlInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleUrlSubmit();
-                }
-              }}
-              className="flex-1"
-              data-testid="media-url-input"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleUrlSubmit}
-              disabled={!urlInputValue.trim()}
-              data-testid="media-url-submit"
-            >
-              <LinkIcon className="w-4 h-4 mr-2" />
-              Link
-            </Button>
-          </div>
-        )}
-
-        {/* Cloudinary Buttons */}
-        {showCloudinaryBrowser && (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={openCloudinaryWidget}
-              className="flex-1 border-emerald-200 hover:bg-emerald-50 text-emerald-700"
-              data-testid="cloudinary-upload-btn"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload via Cloudinary
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={openCloudinaryDashboard}
-              className="text-gray-500 hover:text-emerald-700"
-              data-testid="cloudinary-dashboard-btn"
-              title="Buka Cloudinary Dashboard untuk copy URL"
-            >
-              <Search className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-
-        {/* Divider */}
-        {(showUrlInput || showCloudinaryBrowser) && (
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">atau upload baru</span>
-            </div>
-          </div>
-        )}
-
-        {/* Drop Zone */}
-        <div
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-          className={`
-            border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
-            ${dragActive
-              ? 'border-emerald-500 bg-emerald-50'
-              : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
-            }
-          `}
-          data-testid="media-dropzone"
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            multiple={isMultiple}
-            accept={acceptedTypes.join(',')}
-            onChange={handleChange}
-            className="hidden"
-            data-testid="media-input"
-          />
-
-          <div className="flex flex-col items-center gap-2">
-            {isVideoType ? (
-              <Video className="w-10 h-10 text-gray-400" />
-            ) : (
-              <ImageIcon className="w-10 h-10 text-gray-400" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-gray-700">
-                {dragActive ? 'Drop files here' : 'Drag & drop atau klik untuk upload'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Max {maxFileSize / (1024 * 1024)}MB • {acceptedTypes.map(t => t.split('/')[1].toUpperCase()).join(', ')}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* File Previews */}
-        {files.length > 0 && (
-          <div className="space-y-3">
-            {files.map((fileData, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-              >
-                {/* Preview */}
-                {fileData.file.type.startsWith('image/') ? (
-                  <img
-                    src={fileData.preview}
-                    alt="preview"
-                    className="w-14 h-14 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-14 h-14 bg-gray-200 rounded flex items-center justify-center">
-                    <Video className="w-6 h-6 text-gray-500" />
-                  </div>
-                )}
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{fileData.file.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {(fileData.file.size / (1024 * 1024)).toFixed(2)} MB
-                  </p>
-
-                  {/* Progress */}
-                  {fileData.status === 'uploading' && (
-                    <div className="mt-2">
-                      <Progress value={fileData.progress} className="h-1" />
-                      <p className="text-xs text-gray-500 mt-1">{fileData.progress}%</p>
-                    </div>
-                  )}
-
-                  {/* Error */}
-                  {fileData.status === 'error' && (
-                    <p className="text-xs text-red-500 mt-1">{fileData.error}</p>
-                  )}
-                </div>
-
-                {/* Status Icons */}
-                <div className="flex-shrink-0">
-                  {fileData.status === 'pending' && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFile(index);
-                      }}
-                      className="p-1 hover:bg-gray-200 rounded"
-                    >
-                      <X className="w-5 h-5 text-gray-400" />
-                    </button>
-                  )}
-                  {fileData.status === 'uploading' && (
-                    <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
-                  )}
-                  {fileData.status === 'complete' && (
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  )}
-                  {fileData.status === 'error' && (
-                    <AlertCircle className="w-5 h-5 text-red-500" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Upload Button */}
-        <Button
-          onClick={uploadFiles}
-          disabled={files.length === 0 || isUploading || files.every(f => f.status !== 'pending')}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-          data-testid="upload-btn"
-        >
-          {isUploading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <Upload className="w-4 h-4 mr-2" />
-              Upload {files.length > 0 ? `(${files.length})` : ''}
-            </>
-          )}
-        </Button>
+    <Card className="w-full border-0 shadow-none">
+      <CardContent className="p-0">
+        <MediaPicker
+          onSelect={(media) => {
+            onUploadSuccess(media);
+            toast.success("Media dipilih");
+            if (onCloseDialog) onCloseDialog();
+          }}
+          onClose={() => {
+            if (onCloseDialog) onCloseDialog();
+          }}
+          onUpload={handleUploadRequest}
+        />
       </CardContent>
-
-      <Dialog open={showMediaPicker} onOpenChange={setShowMediaPicker}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Pilih Media dari Library</DialogTitle>
-            <DialogDescription>
-              Pilih foto/video yang sudah ada di gallery hotel.
-            </DialogDescription>
-          </DialogHeader>
-          <MediaPicker
-            onSelect={(media) => {
-              onUploadSuccess(media);
-              setShowMediaPicker(false);
-              toast.success("Media dipilih dari library");
-            }}
-            onClose={() => setShowMediaPicker(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 };
