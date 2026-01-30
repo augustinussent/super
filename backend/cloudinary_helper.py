@@ -27,7 +27,8 @@ MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
 async def upload_image(
     file_content: bytes,
     folder: str,
-    eager_transforms: Optional[List[dict]] = None
+    eager_transforms: Optional[List[dict]] = None,
+    force_format: str = None
 ) -> dict:
     """
     Upload an image to Cloudinary with automatic optimization.
@@ -36,6 +37,7 @@ async def upload_image(
         file_content: The file bytes to upload
         folder: Cloudinary folder path (e.g., "spencer-green/rooms")
         eager_transforms: List of eager transformations to apply
+        force_format: Force specific format (e.g., "webp")
     
     Returns:
         Dictionary containing upload response with public_id, secure_url, and metadata
@@ -50,6 +52,11 @@ async def upload_image(
             "fetch_format": "auto"
         }
         
+        if force_format:
+            upload_params["format"] = force_format
+            # If forcing format, we might want to disable fetch_format auto to ensure the URL ends in .webp
+            # But normally Cloudinary handles this. Let's explicitly set it.
+            
         if eager_transforms:
             upload_params["eager"] = eager_transforms
         else:
@@ -83,13 +90,6 @@ async def upload_video(
 ) -> dict:
     """
     Upload a video to Cloudinary with automatic transcoding and thumbnail generation.
-    
-    Args:
-        file_content: The video file bytes to upload
-        folder: Cloudinary folder path
-    
-    Returns:
-        Dictionary containing upload response with public_id, secure_url, duration, and thumbnails
     """
     try:
         upload_params = {

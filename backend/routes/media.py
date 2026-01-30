@@ -184,6 +184,59 @@ async def upload_content_image(
     }
 
 
+@router.post("/convert")
+async def convert_media(
+    file: UploadFile = File(...),
+    user: dict = Depends(require_admin)
+):
+    """
+    Upload and optimize media.
+    Images -> WebP
+    Videos -> Optimized MP4/WebM
+    """
+    content = await file.read()
+    content_type = file.content_type
+    
+    try:
+        if content_type.startswith("image/"):
+            # Image optimization (force WebP)
+            result = await upload_image(
+                file_content=content,
+                folder="optimized",
+                force_format="webp"
+            )
+            return {
+                "message": "Image converted to WebP successfully",
+                "original_name": file.filename,
+                "url": result.get("secure_url"),
+                "format": result.get("format"),
+                "size": result.get("bytes"),
+                "public_id": result.get("public_id")
+            }
+            
+        elif content_type.startswith("video/"):
+            # Video optimization
+            result = await upload_video(
+                file_content=content,
+                folder="optimized-videos"
+            )
+            return {
+                "message": "Video optimized successfully",
+                "original_name": file.filename,
+                "url": result.get("secure_url"),
+                "thumbnail": result.get("thumbnail_url"),
+                "format": result.get("format"),
+                "size": result.get("bytes"),
+                "public_id": result.get("public_id")
+            }
+            
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported media type")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.delete("/delete")
 async def delete_media_file(
     public_id: str,

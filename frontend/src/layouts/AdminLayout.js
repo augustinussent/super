@@ -45,6 +45,7 @@ const AdminLayout = () => {
     { name: 'Rate Plans', path: '/admin/rate-plans', icon: List, permKey: 'rooms' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
+    { name: 'Media Optimizer', path: '/admin/media-converter', icon: Image, permKey: 'content' },
     // { name: 'Pengaturan', path: '/admin/settings', icon: Settings, permKey: 'settings' },
     { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];

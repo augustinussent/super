@@ -32,6 +32,7 @@ import RatePlans from "./pages/admin/RatePlans";
 import Reviews from "./pages/admin/Reviews";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ActivityLogs from "./pages/admin/ActivityLogs";
+import MediaConverter from "./pages/admin/MediaConverter";
 import PermissionGuard from "./components/PermissionGuard";
 
 import "./App.css";
@@ -80,6 +81,7 @@ function App() {
             <Route path="rate-plans" element={<PermissionGuard permKey="rooms"><RatePlans /></PermissionGuard>} />
             <Route path="reviews" element={<PermissionGuard permKey="reviews"><Reviews /></PermissionGuard>} />
             <Route path="content" element={<PermissionGuard permKey="content"><ContentManagement /></PermissionGuard>} />
+            <Route path="media-converter" element={<PermissionGuard permKey="content"><MediaConverter /></PermissionGuard>} />
             <Route path="logs" element={<PermissionGuard permKey="logs"><ActivityLogs /></PermissionGuard>} />
           </Route>
         </Routes>
