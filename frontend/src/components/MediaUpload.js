@@ -1,10 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Upload, X, CheckCircle2, AlertCircle, Loader2, Image as ImageIcon, Video, Link as LinkIcon, Search } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
-import { Progress } from './ui/progress';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import MediaPicker from './MediaPicker';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -20,15 +19,23 @@ export const MediaUpload = ({
   showCloudinaryBrowser = true,
   showUrlInput = true,
   cloudinaryResourceType = 'image',
-  onCloseDialog = null // Close parent dialog before opening Cloudinary
+  onCloseDialog = null
 }) => {
+  const { getToken } = useAuth(); // Ensure useAuth is imported or passed. Wait, previous snippet didn't show useAuth import. 
+  // Inspecting MediaUpload.js first to see if useAuth is imported.
+  // It is NOT in the previous snippet. But `getToken` was used in `openCloudinaryWidget` in my previous edits.
+  // I need to check if `useAuth` is imported. It probably isn't.
+  // I added usages of `getToken()` in `openCloudinaryWidget` in previous turns.
+  // If `useAuth` is not imported, I must import it.
+
   const [files, setFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
   const inputRef = useRef(null);
 
-  const getToken = () => localStorage.getItem('token');
+
 
   const validateFile = (file) => {
     if (!acceptedTypes.includes(file.type)) {
@@ -254,7 +261,7 @@ export const MediaUpload = ({
 
   // Open Cloudinary Media Library directly (using the widget)
   const openCloudinaryDashboard = () => {
-    openCloudinaryWidget('cloudinary');
+    setShowMediaPicker(true);
   };
 
   const uploadFiles = async () => {
@@ -550,6 +557,25 @@ export const MediaUpload = ({
           )}
         </Button>
       </CardContent>
+
+      <Dialog open={showMediaPicker} onOpenChange={setShowMediaPicker}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Pilih Media dari Library</DialogTitle>
+            <DialogDescription>
+              Pilih foto/video yang sudah ada di gallery hotel.
+            </DialogDescription>
+          </DialogHeader>
+          <MediaPicker
+            onSelect={(media) => {
+              onUploadSuccess(media);
+              setShowMediaPicker(false);
+              toast.success("Media dipilih dari library");
+            }}
+            onClose={() => setShowMediaPicker(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

@@ -8,7 +8,8 @@ from database import db
 from services.auth import require_admin
 from cloudinary_helper import (
     upload_image, upload_video, delete_media, delete_folder,
-    validate_image_file, validate_video_file, generate_upload_signature
+    validate_image_file, validate_video_file, generate_upload_signature,
+    list_gallery_images
 )
 from ai_helper import generate_image_caption
 
@@ -287,6 +288,18 @@ async def get_signature(
     Accepts params_to_sign from the widget.
     """
     return generate_upload_signature(params_to_sign)
+
+
+@router.get("/gallery")
+async def get_gallery(
+    prefix: str = "spencer-green",
+    next_cursor: Optional[str] = None,
+    user: dict = Depends(require_admin)
+):
+    """
+    Get list of images from Cloudinary.
+    """
+    return list_gallery_images(folder_prefix=prefix, next_cursor=next_cursor)
 
 
 @router.get("/config")

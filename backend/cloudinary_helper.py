@@ -260,3 +260,40 @@ def generate_upload_signature(params: dict = None) -> dict:
         "api_key": CLOUDINARY_API_KEY,
         "cloud_name": CLOUDINARY_CLOUD_NAME
     }
+
+
+def list_gallery_images(folder_prefix: str = "spencer-green", max_results: int = 50, next_cursor: str = None) -> dict:
+    """
+    List images from Cloudinary folder.
+    
+    Args:
+        folder_prefix: The folder prefix to search in
+        max_results: Max results to return
+        next_cursor: Cursor for pagination
+    
+    Returns:
+        Dictionary containing resources and next_cursor
+    """
+    try:
+        # Use Admin API resources for folder browsing
+        params = {
+            "type": "upload",
+            "prefix": folder_prefix,
+            "max_results": max_results,
+            "context": True,
+            "tags": True
+        }
+        
+        if next_cursor:
+            params["next_cursor"] = next_cursor
+            
+        result = cloudinary.api.resources(**params)
+        
+        return {
+            "resources": result.get("resources", []),
+            "next_cursor": result.get("next_cursor")
+        }
+    except Exception as e:
+        logger.error(f"Cloudinary list resources error: {str(e)}")
+        # Don't crash, just return empty
+        return {"resources": [], "error": str(e)}
