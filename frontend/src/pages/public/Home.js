@@ -1096,7 +1096,8 @@ const Home = () => {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            );
+          })}
         </div>
       </section>
 
