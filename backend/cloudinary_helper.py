@@ -262,12 +262,13 @@ def generate_upload_signature(params: dict = None) -> dict:
     }
 
 
-def list_gallery_images(folder_prefix: str = None, max_results: int = 50, next_cursor: str = None) -> dict:
+def list_gallery_images(folder_prefix: str = None, resource_type: str = "image", max_results: int = 50, next_cursor: str = None) -> dict:
     """
     List images from Cloudinary folder.
     
     Args:
         folder_prefix: The folder prefix to search in (optional)
+        resource_type: Type of resource (image, video, raw)
         max_results: Max results to return
         next_cursor: Cursor for pagination
     
@@ -277,6 +278,7 @@ def list_gallery_images(folder_prefix: str = None, max_results: int = 50, next_c
     try:
         # Use Admin API resources for folder browsing
         params = {
+            "resource_type": resource_type,
             "type": "upload",
             "max_results": max_results,
             "context": True,

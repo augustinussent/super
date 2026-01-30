@@ -293,13 +293,14 @@ async def get_signature(
 @router.get("/gallery")
 async def get_gallery(
     prefix: Optional[str] = None,
+    resource_type: str = "image",
     next_cursor: Optional[str] = None,
     user: dict = Depends(require_admin)
 ):
     """
     Get list of images from Cloudinary.
     """
-    return list_gallery_images(folder_prefix=prefix, next_cursor=next_cursor)
+    return list_gallery_images(folder_prefix=prefix, resource_type=resource_type, next_cursor=next_cursor)
 
 
 @router.get("/config")

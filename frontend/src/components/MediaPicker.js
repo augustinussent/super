@@ -7,19 +7,19 @@ import { useAuth } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-const MediaPicker = ({ onSelect, onClose, onUpload }) => {
+const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceType = 'image' }) => {
     const { getToken } = useAuth();
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [nextCursor, setNextCursor] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedItems, setSelectedItems] = useState([]);
 
     const fetchImages = async (cursor = null) => {
         try {
             setLoading(true);
-            let url = `${API_URL}/api/media/gallery`;
+            let url = `${API_URL}/api/media/gallery?resource_type=${resourceType}`;
             if (cursor) {
-                url += `?next_cursor=${cursor}`;
+                url += `&next_cursor=${cursor}`;
             }
 
             const response = await fetch(url, {
@@ -50,20 +50,42 @@ const MediaPicker = ({ onSelect, onClose, onUpload }) => {
     };
 
     useEffect(() => {
+        setImages([]); // Reset images when resourceType changes
+        setNextCursor(null);
+        setSelectedItems([]);
         fetchImages();
-    }, []);
+    }, [resourceType]);
 
     const handleSelect = (image) => {
-        setSelectedImage(image);
+        if (multiple) {
+            setSelectedItems(prev => {
+                const exists = prev.find(i => i.public_id === image.public_id);
+                if (exists) {
+                    return prev.filter(i => i.public_id !== image.public_id);
+                } else {
+                    return [...prev, image];
+                }
+            });
+        } else {
+            setSelectedItems([image]);
+        }
     };
 
+    const isSelected = (image) => !!selectedItems.find(i => i.public_id === image.public_id);
+
     const handleConfirm = () => {
-        if (selectedImage) {
-            onSelect({
-                secure_url: selectedImage.secure_url,
-                public_id: selectedImage.public_id,
-                resource_type: selectedImage.resource_type
-            });
+        if (selectedItems.length > 0) {
+            const formattedItems = selectedItems.map(item => ({
+                secure_url: item.secure_url,
+                public_id: item.public_id,
+                resource_type: item.resource_type
+            }));
+
+            if (multiple) {
+                onSelect(formattedItems);
+            } else {
+                onSelect(formattedItems[0]);
+            }
             onClose();
         }
     };
@@ -79,26 +101,37 @@ const MediaPicker = ({ onSelect, onClose, onUpload }) => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {images.map((image) => (
-                                <div
-                                    key={image.public_id}
-                                    className={`relative aspect-square group cursor-pointer rounded-lg overflow-hidden border-2 ${selectedImage?.public_id === image.public_id ? 'border-emerald-500 ring-2 ring-emerald-500 ring-offset-2' : 'border-transparent hover:border-gray-300'
-                                        }`}
-                                    onClick={() => handleSelect(image)}
-                                >
-                                    <img
-                                        src={image.secure_url.replace('/upload/', '/upload/w_300,h_300,c_fill/')}
-                                        alt="Gallery item"
-                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                        loading="lazy"
-                                    />
-                                    {selectedImage?.public_id === image.public_id && (
-                                        <div className="absolute top-2 right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
-                                            <Check className="w-3 h-3" />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                            {images.map((image) => {
+                                const selected = isSelected(image);
+                                return (
+                                    <div
+                                        key={image.public_id}
+                                        className={`relative aspect-square group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${selected ? 'border-emerald-500 ring-2 ring-emerald-500 ring-offset-2' : 'border-transparent hover:border-gray-300'
+                                            }`}
+                                        onClick={() => handleSelect(image)}
+                                    >
+                                        {resourceType === 'video' ? (
+                                            <video
+                                                src={image.secure_url}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <img
+                                                src={image.secure_url.replace('/upload/', '/upload/w_300,h_300,c_fill/')}
+                                                alt="Gallery item"
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        )}
+
+                                        {selected && (
+                                            <div className="absolute top-2 right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
+                                                <Check className="w-3 h-3" />
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
                         </div>
                     )}
 
@@ -127,10 +160,10 @@ const MediaPicker = ({ onSelect, onClose, onUpload }) => {
                     <Button variant="outline" onClick={onClose}>Batal</Button>
                     <Button
                         onClick={handleConfirm}
-                        disabled={!selectedImage}
+                        disabled={selectedItems.length === 0}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                        Pilih Media
+                        {multiple && selectedItems.length > 0 ? `Pilih ${selectedItems.length} Media` : 'Pilih Media'}
                     </Button>
                 </div>
             </div>

@@ -363,9 +363,16 @@ export const MediaUpload = ({
     <Card className="w-full border-0 shadow-none">
       <CardContent className="p-0">
         <MediaPicker
+          multiple={isMultiple}
+          resourceType={cloudinaryResourceType || 'image'}
           onSelect={(media) => {
-            onUploadSuccess(media);
-            toast.success("Media dipilih");
+            if (Array.isArray(media)) {
+              media.forEach(m => onUploadSuccess(m));
+              toast.success(`${media.length} media dipilih`);
+            } else {
+              onUploadSuccess(media);
+              toast.success("Media dipilih");
+            }
             if (onCloseDialog) onCloseDialog();
           }}
           onClose={() => {
