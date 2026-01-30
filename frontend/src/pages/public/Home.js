@@ -850,7 +850,13 @@ const Home = () => {
                             </div>
                           </div>
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
-                            <div>
+                            <div className="flex flex-col">
+                              {room.allotment !== undefined ? (
+                                <span className="text-xs text-gray-500 mb-0.5">Rate Malam ini</span>
+                              ) : (
+                                <span className="text-xs text-gray-500 mb-0.5">Mulai dari</span>
+                              )}
+
                               {verifiedPromo ? (
                                 <>
                                   <div className="flex items-center gap-2">
@@ -870,7 +876,6 @@ const Home = () => {
                                   Rp {(room.available_rate || room.base_price).toLocaleString('id-ID')}
                                 </span>
                               )}
-                              <span className="text-gray-400 text-sm">/night</span>
                             </div>
                             <div className="flex items-center gap-3">
                               <Button
@@ -963,7 +968,10 @@ const Home = () => {
                 <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
                   <div className="p-8 sm:p-10 lg:p-16 max-w-xl">
                     <p className="text-emerald-600 uppercase tracking-widest text-xs mb-3">
-                      From Rp {room.base_price.toLocaleString('id-ID')} / night
+                      {room.allotment !== undefined
+                        ? `Rate Malam ini Rp ${room.available_rate.toLocaleString('id-ID')}`
+                        : `From Rp ${room.base_price.toLocaleString('id-ID')} / night`
+                      }
                     </p>
                     <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{room.name}</h3>
                     <p className="text-gray-500 leading-relaxed mb-6">{room.description}</p>

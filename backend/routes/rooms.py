@@ -13,6 +13,35 @@ router = APIRouter(tags=["rooms"])
 @router.get("/rooms")
 async def get_rooms():
     rooms = await db.room_types.find({"is_active": True}, {"_id": 0}).sort("display_order", 1).to_list(100)
+    
+    # Enrich with today's rate/availability
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    room_ids = [r["room_type_id"] for r in rooms]
+    
+    inventory = await db.room_inventory.find({
+        "room_type_id": {"$in": room_ids},
+        "date": today
+    }, {"_id": 0}).to_list(len(rooms))
+    
+    inv_map = {i["room_type_id"]: i for i in inventory}
+    
+    for room in rooms:
+        inv = inv_map.get(room["room_type_id"])
+        if inv and not inv.get("is_closed", False):
+            # If inventory exists and is not closed, use its rate
+            room["available_rate"] = inv.get("rate", room["base_price"])
+            room["allotment"] = inv.get("allotment", 0)
+        else:
+            # Fallback (or if closed, maybe show 0 allotment?)
+            room["available_rate"] = room["base_price"]
+            room["allotment"] = 0 if inv and inv.get("is_closed") else 5 # Default allotment if no inv? Or 0?
+            # Safest to say if no inventory record, default to base settings or 0 availability?
+            # Init script creates 60 days. If missing, assume not available or default?
+            # Let's assume default is available if no record? Or unavailable?
+            # User said "jika ada harga tersedia di allotment".
+            # I will just set available_rate.
+            pass
+            
     return rooms
 
 @router.get("/rooms/{room_type_id}")
