@@ -217,11 +217,12 @@ async def get_dashboard_stats(
 
     # 7. Funnel Analysis (from analytics_events)
     # Pipeline to count events by name for the last 30 days
+    # Pipeline to count events by name for the last 30 days
     funnel_pipeline = [
         {
             "$match": {
                 "timestamp": {"$gte": iso_start, "$lte": iso_end},
-                "event_name": {"$in": ["view_room_detail", "click_book_now", "booking_success"]}
+                "event_name": {"$in": ["view_room_detail", "click_book_now", "view_guest_info", "view_payment", "booking_success"]}
             }
         },
         {
@@ -238,6 +239,8 @@ async def get_dashboard_stats(
     funnel = [
         {"name": "View Room", "value": funnel_map.get("view_room_detail", 0)},
         {"name": "Click Book", "value": funnel_map.get("click_book_now", 0)},
+        {"name": "Guest Info", "value": funnel_map.get("view_guest_info", 0)},
+        {"name": "Payment", "value": funnel_map.get("view_payment", 0)},
         # For "Success", we can also use confirmed bookings count if event tracking is not fully ready
         {"name": "Success", "value": max(funnel_map.get("booking_success", 0), kpi["confirmed_bookings"])} 
     ]

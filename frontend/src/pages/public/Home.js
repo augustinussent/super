@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves, Tag as TagIcon, AlertCircle, ChevronsDown } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
-import { trackEvent, trackBookNow, trackViewRoom } from '../../utils/analytics';
+import { trackEvent, trackBookNow, trackViewRoom, trackFunnelStep } from '../../utils/analytics';
 import { toast } from 'sonner';
 import { Calendar as CalendarComponent } from '../../components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
@@ -439,6 +439,7 @@ const Home = () => {
 
   const handleBookRoom = (room) => {
     setSelectedRoom(room);
+    trackFunnelStep('guest_info', { room_name: room.name });
 
     // Default to first plan if available, or 'standard'
     const defaultPlanId = room.rate_plans && room.rate_plans.length > 0
@@ -499,6 +500,8 @@ const Home = () => {
     }
 
     setIsBooking(true);
+    trackFunnelStep('payment', { room_name: selectedRoom?.name }); // Intent to pay (redirect to WA)
+
     try {
       const response = await axios.post(`${API_URL}/reservations`, {
         ...bookingForm,
@@ -508,6 +511,7 @@ const Home = () => {
         guests: 1 // Default
       });
 
+      trackFunnelStep('success', { room_name: selectedRoom?.name, booking_code: response.data.booking_code });
       toast.success('Booking successful! Check your email for confirmation.');
       setShowBookingModal(false);
       setBookingForm({ guest_name: '', guest_email: '', guest_phone: '', special_requests: '', promo_code: '', rate_plan_id: '' });
