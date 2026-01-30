@@ -75,8 +75,10 @@ export const AuthProvider = ({ children }) => {
     return Object.values(perms).some(v => v === true);
   };
 
+  const getToken = () => localStorage.getItem('token');
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin, hasPermission, hasAnyAdminAccess, token }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin, hasPermission, hasAnyAdminAccess, token, getToken }}>
       {children}
     </AuthContext.Provider>
   );
