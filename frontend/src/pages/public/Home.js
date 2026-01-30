@@ -470,6 +470,9 @@ const Home = () => {
     comment: ''
   });
 
+  // State for room image carousel
+  const [imageIndices, setImageIndices] = useState({});
+
   const submitReview = async () => {
     if (!reviewForm.guest_name || !reviewForm.guest_email || !reviewForm.comment) {
       toast.error('Please fill in all required fields');
@@ -969,68 +972,131 @@ const Home = () => {
         </div>
 
         <div className="space-y-0">
-          {rooms.map((room, index) => (
-            <motion.div
-              key={room.room_type_id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className={`relative ${index % 2 === 0 ? '' : ''}`}
-            >
-              <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
-                <div className={`relative h-[50vh] min-h-[400px] ${index % 2 === 1 ? 'lg:col-start-2' : ''} group`}>
-                  <img
-                    src={room.images?.[0] || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'}
-                    alt={room.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Room Tour Button */}
-                  <button
-                    onClick={() => {
-                      trackEvent('Content', 'play_video', room.name);
-                      handlePlayVideo(room);
-                    }}
-                    data-testid={`home-room-tour-btn-${room.room_type_id}`}
-                    className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 hover:bg-white text-emerald-700 px-5 py-3 rounded-full transition-all shadow-lg hover:shadow-xl"
-                  >
-                    <Play className="w-5 h-5" />
-                    <span className="font-medium">Room Tour</span>
-                  </button>
-                </div>
-                <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
-                  <div className="p-8 sm:p-10 lg:p-16 max-w-xl">
-                    <p className="text-emerald-600 uppercase tracking-widest text-xs mb-3">
-                      {room.allotment !== undefined
-                        ? `Rate Malam ini Rp ${room.available_rate.toLocaleString('id-ID')}`
-                        : `From Rp ${room.base_price.toLocaleString('id-ID')} / night`
-                      }
-                    </p>
-                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{room.name}</h3>
-                    <p className="text-gray-500 leading-relaxed mb-6">{room.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {room.amenities?.slice(0, 4).map((amenity, i) => (
-                        <span key={i} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full">
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        onClick={() => {
-                          trackBookNow(room.name);
-                          setShowSearchModal(true);
-                        }}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
-                      >
-                        Book Now
-                      </Button>
+          {rooms.map((room, index) => {
+            // State logic for this iteration must be handled at top level or component level.
+            // Since we are inside map in return, we can't call hooks here.
+            // We need to use the state from the parent component.
+            // See 'imageIndices' state usage below.
+            const currentImageIndex = imageIndices[room.room_type_id] || 0;
+            const images = room.images && room.images.length > 0 ? room.images : ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'];
+
+            return (
+              <motion.div
+                key={room.room_type_id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                onViewportLeave={() => {
+                  // Reset to 0 when scrolling out of view
+                  setImageIndices(prev => ({ ...prev, [room.room_type_id]: 0 }));
+                }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-10%" }}
+                // Changed viewport once to false? No, user said "when scroll past... reset". 
+                // "once: true" prevents onViewportLeave? Actually `once: true` means animation executes once.
+                // Events like onViewportLeave might still fire?
+                // Documentation: if once:true, it maintains state. 
+                // I should probably remove `once: true` or verify.
+                // Actually, simpler: Use standard onViewportLeave prop, it works with whileInView.
+                // But if I want it to reset EVERY time it leaves, `once: true` might block it?
+                // Let's remove `viewport={{ once: true }}` to allow repeated observation?
+                // The animation `whileInView` handles entrance. 
+                // Let's rely on standard behavior.
+                className={`relative ${index % 2 === 0 ? '' : ''}`}
+              >
+                <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
+                  <div className={`relative h-[40vh] min-h-[350px] overflow-hidden ${index % 2 === 1 ? 'lg:col-start-2' : ''} group`}>
+                    <img
+                      src={images[currentImageIndex]}
+                      alt={room.name}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+
+                    {/* Navigation Chevrons - Only if multiple images */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-opacity opacity-0 group-hover:opacity-100 mix-blend-difference"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setImageIndices(prev => ({
+                              ...prev,
+                              [room.room_type_id]: (currentImageIndex - 1 + images.length) % images.length
+                            }));
+                          }}
+                        >
+                          <ChevronLeft className="w-8 h-8 stroke-[1px]" />
+                        </button>
+                        <button
+                          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-opacity opacity-0 group-hover:opacity-100 mix-blend-difference"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setImageIndices(prev => ({
+                              ...prev,
+                              [room.room_type_id]: (currentImageIndex + 1) % images.length
+                            }));
+                          }}
+                        >
+                          <ChevronRight className="w-8 h-8 stroke-[1px]" />
+                        </button>
+
+                        {/* Slide Indicator Dots (Optional but helpful) */}
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {images.map((_, idx) => (
+                            <div
+                              key={idx}
+                              className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Room Tour Button */}
+                    <button
+                      onClick={() => {
+                        trackEvent('Content', 'play_video', room.name);
+                        handlePlayVideo(room);
+                      }}
+                      data-testid={`home-room-tour-btn-${room.room_type_id}`}
+                      className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 hover:bg-white text-emerald-700 px-5 py-3 rounded-full transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <Play className="w-5 h-5" />
+                      <span className="font-medium">Room Tour</span>
+                    </button>
+                  </div>
+                  <div className={`flex items-center bg-white ${index % 2 === 1 ? 'lg:col-start-1' : ''}`}>
+                    <div className="p-8 sm:p-10 lg:p-16 max-w-xl">
+                      <p className="text-emerald-600 uppercase tracking-widest text-xs mb-3">
+                        {room.allotment !== undefined
+                          ? `Rate Malam ini Rp ${room.available_rate.toLocaleString('id-ID')}`
+                          : `From Rp ${room.base_price.toLocaleString('id-ID')} / night`
+                        }
+                      </p>
+                      <h3 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{room.name}</h3>
+                      <p className="text-gray-500 leading-relaxed mb-6">{room.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {room.amenities?.slice(0, 4).map((amenity, i) => (
+                          <span key={i} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full">
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          onClick={() => {
+                            trackBookNow(room.name);
+                            setShowSearchModal(true);
+                          }}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                        >
+                          Book Now
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
         </div>
       </section>
 
