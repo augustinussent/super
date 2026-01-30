@@ -87,7 +87,7 @@ async def init_default_data():
             "content": {
                 "title": "Spencer Green Hotel",
                 "subtitle": "Hotel View Pegunungandi Batu Malang untuk Liburan & Corporate Event",
-                "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920",
+                "image": "https://res.cloudinary.com/dgfjos8xa/image/upload/v1767362992/spencer-green-hotel-batu-malang-main-pool-view-building-night_u2ienp.webp",
                 "cta_text": "Book Now"
             },
             "updated_at": datetime.now(timezone.utc).isoformat()

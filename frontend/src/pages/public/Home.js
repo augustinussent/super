@@ -214,7 +214,7 @@ const Home = () => {
   const [heroContent, setHeroContent] = useState({
     title: 'Spencer Green Hotel',
     subtitle: 'Hotel view pegunungan di Batu Malang untuk Liburan & Corporate Event',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920'
+    image: 'https://res.cloudinary.com/dgfjos8xa/image/upload/v1767362992/spencer-green-hotel-batu-malang-main-pool-view-building-night_u2ienp.webp'
   });
   const [promoBanner, setPromoBanner] = useState({
     title: 'Special Weekend Offer',
