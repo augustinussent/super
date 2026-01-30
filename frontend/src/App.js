@@ -33,6 +33,7 @@ import Reviews from "./pages/admin/Reviews";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ActivityLogs from "./pages/admin/ActivityLogs";
 import MediaConverter from "./pages/admin/MediaConverter";
+import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 import PermissionGuard from "./components/PermissionGuard";
 
 import "./App.css";
@@ -74,6 +75,7 @@ function App() {
           {/* Admin Routes - Protected by PermissionGuard */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<PermissionGuard permKey="dashboard"><Dashboard /></PermissionGuard>} />
+            <Route path="analytics" element={<PermissionGuard permKey="dashboard"><AnalyticsDashboard /></PermissionGuard>} />
             <Route path="rooms" element={<PermissionGuard permKey="rooms"><RoomManagement /></PermissionGuard>} />
             <Route path="reservations" element={<PermissionGuard permKey="reservations"><Reservations /></PermissionGuard>} />
             <Route path="users" element={<PermissionGuard permKey="users"><Users /></PermissionGuard>} />

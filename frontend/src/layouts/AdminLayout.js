@@ -15,7 +15,8 @@ import {
   Settings,
   Shield,
   Image,
-  List
+  List,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,6 +39,7 @@ const AdminLayout = () => {
 
   const allMenuItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, permKey: 'dashboard' },
+    { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp, permKey: 'dashboard' },
     { name: 'Kelola Kamar', path: '/admin/rooms', icon: BedDouble, permKey: 'rooms' },
     { name: 'Reservasi', path: '/admin/reservations', icon: CalendarCheck, permKey: 'reservations' },
     { name: 'Pengguna', path: '/admin/users', icon: Users, permKey: 'users' },
