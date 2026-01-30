@@ -49,13 +49,16 @@ async def create_rate_plan(plan: RatePlanCreate, request: Request, user: dict = 
 
 @router.put("/admin/rate-plans/{rate_plan_id}")
 async def update_rate_plan(rate_plan_id: str, plan_update: dict, request: Request, user: dict = Depends(require_admin)):
-    existing = await db.rate_plans.find_one({"rate_plan_id": rate_plan_id})
+    existing = await db.rate_plans.find_one({"rate_plan_id": rate_plan_id}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Rate plan not found")
         
     # Prevent updating ID or Created At
     plan_update.pop("rate_plan_id", None)
     plan_update.pop("created_at", None)
+    
+    # Calculate changes before update
+    changes = get_changes(existing, plan_update)
     
     await db.rate_plans.update_one(
         {"rate_plan_id": rate_plan_id},
@@ -67,7 +70,7 @@ async def update_rate_plan(rate_plan_id: str, plan_update: dict, request: Reques
         action="update",
         resource="rate_plans",
         resource_id=rate_plan_id,
-        details={"updates": plan_update},
+        details={"name": existing.get("name"), "changes": changes},
         ip_address=request.client.host if request.client else None
     )
     

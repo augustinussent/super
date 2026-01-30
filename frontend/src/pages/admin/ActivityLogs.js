@@ -66,31 +66,67 @@ const ActivityLogs = () => {
 
     const formatDetails = (details) => {
         if (!details) return null;
+
+        const formatValue = (key, value) => {
+            if (value === null || value === undefined) return 'N/A';
+
+            // Boolean
+            if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+
+            // Currency fields
+            if (['price', 'rate', 'amount', 'total', 'discount_value'].some(k => key.includes(k)) && typeof value === 'number') {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+            }
+
+            // Date processing (simple check)
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+                try {
+                    return format(new Date(value), 'dd MMM yyyy HH:mm');
+                } catch (e) { return value; }
+            }
+
+            return String(value);
+        };
+
+        const renderValue = (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                // Handle "old" and "new" comparison specifically
+                if ('old' in value && 'new' in value) {
+                    return (
+                        <div className="bg-gray-50 p-2 rounded text-sm">
+                            <div className="flex items-center gap-2 text-red-600 line-through text-xs mb-1 opacity-70">
+                                <span className="w-8 font-semibold">Old:</span>
+                                {formatValue(key, value.old)}
+                            </div>
+                            <div className="flex items-center gap-2 text-emerald-600 font-medium">
+                                <span className="w-8 font-semibold">New:</span>
+                                {formatValue(key, value.new)}
+                            </div>
+                        </div>
+                    );
+                }
+                // Recursive for other objects
+                return (
+                    <div className="pl-4 border-l-2 border-gray-100">
+                        {Object.entries(value).map(([k, v]) => (
+                            <div key={k} className="mb-1">
+                                <span className="text-gray-500 text-xs mr-2">{k}:</span>
+                                {renderValue(k, v)}
+                            </div>
+                        ))}
+                    </div>
+                );
+            }
+            return formatValue(key, value);
+        };
+
         return (
-            <div className="space-y-2 text-sm">
+            <div className="space-y-3 text-sm">
                 {Object.entries(details).map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-3 gap-2 border-b pb-2 last:border-0 last:pb-0">
-                        <span className="font-medium text-gray-500 capitalize">{key.replace(/_/g, ' ')}:</span>
-                        <div className="col-span-2 text-gray-900 break-words">
-                            {typeof value === 'object' ? (
-                                <div className="bg-gray-50 p-2 rounded">
-                                    {value.old && (
-                                        <div className="flex gap-2 text-red-600 line-through text-xs mb-1">
-                                            <span className="w-8">Old:</span>
-                                            {JSON.stringify(value.old)}
-                                        </div>
-                                    )}
-                                    {value.new && (
-                                        <div className="flex gap-2 text-emerald-600 text-xs">
-                                            <span className="w-8">New:</span>
-                                            {JSON.stringify(value.new)}
-                                        </div>
-                                    )}
-                                    {!value.old && !value.new && JSON.stringify(value, null, 2)}
-                                </div>
-                            ) : (
-                                String(value)
-                            )}
+                    <div key={key} className="grid grid-cols-1 gap-1 border-b pb-2 last:border-0 last:pb-0">
+                        <span className="font-medium text-gray-700 capitalize">{key.replace(/_/g, ' ')}</span>
+                        <div className="text-gray-900 break-words">
+                            {renderValue(key, value)}
                         </div>
                     </div>
                 ))}

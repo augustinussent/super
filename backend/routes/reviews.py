@@ -1,16 +1,31 @@
-from fastapi import APIRouter, HTTPException, Depends
-
+from fastapi import APIRouter, HTTPException, Depends, Request
 from database import db
 from models.review import ReviewCreate, Review
 from services.auth import require_admin, require_super_admin
+from services.audit import log_activity, get_changes
 
 router = APIRouter(tags=["reviews"])
 
 @router.delete("/admin/reviews/{review_id}")
-async def delete_review(review_id: str, user: dict = Depends(require_super_admin)):
+async def delete_review(review_id: str, request: Request, user: dict = Depends(require_super_admin)):
+    # Get existing for logs
+    review = await db.reviews.find_one({"review_id": review_id}, {"_id": 0})
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+        
     result = await db.reviews.delete_one({"review_id": review_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
+    
+    # Log activity
+    await log_activity(
+        user=user,
+        action="delete",
+        resource="reviews",
+        resource_id=review_id,
+        details={"guest_name": review.get("guest_name"), "rating": review.get("rating")},
+        ip_address=request.client.host if request.client else None
+    )
     
     return {"message": "Review deleted permanently"}
 
@@ -20,7 +35,7 @@ async def get_visible_reviews():
     return reviews
 
 @router.post("/reviews")
-async def create_review(review: ReviewCreate):
+async def create_review(review: ReviewCreate, request: Request):
     review_doc = Review(
         guest_name=review.guest_name,
         guest_email=review.guest_email,
@@ -31,6 +46,10 @@ async def create_review(review: ReviewCreate):
     ).model_dump()
     
     await db.reviews.insert_one(review_doc)
+    
+    # Optional: Log new review submission? (Maybe not needed for system logs, or as "system" user)
+    # Skipping for now to focus on admin actions
+    
     return {"message": "Review submitted for approval"}
 
 @router.get("/admin/reviews")
@@ -39,11 +58,30 @@ async def get_all_reviews(user: dict = Depends(require_admin)):
     return reviews
 
 @router.put("/admin/reviews/{review_id}/visibility")
-async def toggle_review_visibility(review_id: str, is_visible: bool, user: dict = Depends(require_admin)):
+async def toggle_review_visibility(review_id: str, is_visible: bool, request: Request, user: dict = Depends(require_admin)):
+    # Get existing for logs
+    old_review = await db.reviews.find_one({"review_id": review_id}, {"_id": 0})
+    if not old_review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
     result = await db.reviews.update_one(
         {"review_id": review_id},
         {"$set": {"is_visible": is_visible}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
+        
+    # Log activity
+    await log_activity(
+        user=user,
+        action="update",
+        resource="reviews",
+        resource_id=review_id,
+        details={
+            "guest_name": old_review.get("guest_name"),
+            "changes": {"is_visible": {"old": old_review.get("is_visible"), "new": is_visible}}
+        },
+        ip_address=request.client.host if request.client else None
+    )
+    
     return {"message": "Review visibility updated"}
