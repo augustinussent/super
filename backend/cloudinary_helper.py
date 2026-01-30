@@ -27,8 +27,10 @@ MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
 async def upload_image(
     file_content: bytes,
     folder: str,
+    folder: str,
     eager_transforms: Optional[List[dict]] = None,
-    force_format: str = None
+    force_format: str = None,
+    public_id: str = None
 ) -> dict:
     """
     Upload an image to Cloudinary with automatic optimization.
@@ -38,6 +40,7 @@ async def upload_image(
         folder: Cloudinary folder path (e.g., "spencer-green/rooms")
         eager_transforms: List of eager transformations to apply
         force_format: Force specific format (e.g., "webp")
+        public_id: Optional custom public ID (for SEO naming)
     
     Returns:
         Dictionary containing upload response with public_id, secure_url, and metadata
@@ -51,6 +54,10 @@ async def upload_image(
             "quality": "auto",
             "fetch_format": "auto"
         }
+        
+        if public_id:
+            upload_params["public_id"] = public_id
+            upload_params["unique_filename"] = False # Don't append random chars if specific ID requested
         
         if force_format:
             upload_params["format"] = force_format

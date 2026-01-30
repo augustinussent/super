@@ -7,12 +7,15 @@ import { useAuth } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+import MediaConverter from '../pages/admin/MediaConverter';
+
 const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceType = 'image' }) => {
     const { getToken } = useAuth();
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [nextCursor, setNextCursor] = useState(null);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [view, setView] = useState('gallery'); // 'gallery' | 'optimizer'
 
     const fetchImages = async (cursor = null) => {
         try {
@@ -90,6 +93,38 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
         }
     };
 
+    // Switch to Optimizer view
+    const handleSwitchToOptimizer = () => {
+        setView('optimizer');
+    };
+
+    // Handle Optimizer success
+    const handleOptimizerSuccess = (mediaObj) => {
+        // Automatically select the new image and return
+        onSelect(mediaObj);
+        onClose();
+    };
+
+    if (view === 'optimizer') {
+        return (
+            <div className="flex flex-col h-[500px] p-4">
+                <div className="mb-4">
+                    <Button variant="ghost" className="mb-2 pl-0 hover:pl-2 transition-all" onClick={() => setView('gallery')}>
+                        ← Back to Gallery
+                    </Button>
+                    <h3 className="text-lg font-semibold">Image Optimizer (SEO)</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                    <MediaConverter
+                        embedded={true}
+                        onSuccess={handleOptimizerSuccess}
+                        onCancel={() => setView('gallery')}
+                    />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-[500px]">
             <div className="px-4 py-2 border-b flex justify-between items-center bg-gray-50/50">
@@ -138,8 +173,8 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
                                         )}
 
                                         <div className={`absolute top-2 right-2 p-1.5 rounded-full shadow-lg transition-all border ${selected
-                                                ? 'bg-emerald-500 border-emerald-500 text-white scale-100'
-                                                : 'bg-white/80 border-gray-300 text-transparent hover:bg-white scale-90 opacity-0 group-hover:opacity-100'
+                                            ? 'bg-emerald-500 border-emerald-500 text-white scale-100'
+                                            : 'bg-white/80 border-gray-300 text-transparent hover:bg-white scale-90 opacity-0 group-hover:opacity-100'
                                             }`}>
                                             <Check className="w-4 h-4" />
                                         </div>
@@ -171,9 +206,9 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
             </div>
 
             <div className="pt-4 flex justify-between items-center border-t mt-4">
-                <Button variant="secondary" onClick={onUpload} className="flex items-center gap-2">
+                <Button variant="secondary" onClick={handleSwitchToOptimizer} className="flex items-center gap-2">
                     <Upload className="w-4 h-4" />
-                    Upload Baru
+                    Upload Baru (Optimizer)
                 </Button>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={onClose}>Batal</Button>

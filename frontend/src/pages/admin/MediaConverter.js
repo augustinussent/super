@@ -5,11 +5,13 @@ import { Button } from '../../components/ui/button';
 import { Upload, FileImage, FileVideo, Check, Copy, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
-const MediaConverter = () => {
+const MediaConverter = ({ onSuccess, onCancel, embedded = false }) => {
     const { getToken } = useAuth();
     const [isUploading, setIsUploading] = useState(false);
     const [result, setResult] = useState(null);
     const [dragActive, setDragActive] = useState(false);
+    const [seoFilename, setSeoFilename] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -26,22 +28,34 @@ const MediaConverter = () => {
         e.stopPropagation();
         setDragActive(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleUpload(e.dataTransfer.files[0]);
+            selectFile(e.dataTransfer.files[0]);
         }
     };
 
     const handleChange = (e) => {
         e.preventDefault();
         if (e.target.files && e.target.files[0]) {
-            handleUpload(e.target.files[0]);
+            selectFile(e.target.files[0]);
         }
     };
 
-    const handleUpload = async (file) => {
+    const selectFile = (file) => {
+        setSelectedFile(file);
+        // Default SEO filename from original file (remove extension)
+        const nameWithoutExt = file.name.split('.').slice(0, -1).join('.');
+        setSeoFilename(nameWithoutExt.replace(/[^a-zA-Z0-9-_]/g, '-').toLowerCase());
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+
         setIsUploading(true);
         setResult(null);
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', selectedFile);
+        if (seoFilename) {
+            formData.append('filename', seoFilename);
+        }
 
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/media/convert`, {
@@ -59,7 +73,19 @@ const MediaConverter = () => {
 
             const data = await response.json();
             setResult(data);
-            toast.success(data.message);
+
+            // If callback provided, call it with result
+            if (onSuccess) {
+                // Construct standard media object
+                const mediaObj = {
+                    secure_url: data.url,
+                    public_id: data.public_id,
+                    resource_type: data.format === 'mp4' || data.format === 'webm' ? 'video' : 'image'
+                };
+                onSuccess(mediaObj);
+            } else {
+                toast.success(data.message);
+            }
         } catch (error) {
             console.error('Conversion error:', error);
             toast.error(error.message);
@@ -74,62 +100,87 @@ const MediaConverter = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Media Optimizer</h2>
-                    <p className="text-gray-500">Convert images to WebP and optimize videos automatically.</p>
+        <div className={embedded ? "" : "space-y-6"}>
+            {!embedded && (
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Media Optimizer</h2>
+                        <p className="text-gray-500">Convert images to WebP and optimize videos automatically.</p>
+                    </div>
                 </div>
-            </div>
+            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={`grid grid-cols-1 ${embedded ? 'gap-4' : 'lg:grid-cols-2 gap-6'}`}>
                 {/* Upload Area */}
                 <Card className="h-fit">
                     <CardHeader>
-                        <CardTitle>Upload Media</CardTitle>
+                        <CardTitle>Upload & Optimize</CardTitle>
                         <CardDescription>
-                            Support: JPG, PNG (converted to WebP) | MP4, MOV (optimized)
+                            Auto-convert to WebP. Rename for SEO before upload.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div
-                            className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${dragActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
-                                }`}
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={handleDrop}
-                            onClick={() => document.getElementById('converter-upload').click()}
-                        >
-                            <input
-                                id="converter-upload"
-                                type="file"
-                                className="hidden"
-                                onChange={handleChange}
-                                accept="image/*,video/*"
-                            />
-
-                            {isUploading ? (
+                        {!selectedFile ? (
+                            <div
+                                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${dragActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
+                                    }`}
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                                onClick={() => document.getElementById('converter-upload').click()}
+                            >
+                                <input
+                                    id="converter-upload"
+                                    type="file"
+                                    className="hidden"
+                                    onChange={handleChange}
+                                    accept="image/*,video/*"
+                                />
                                 <div className="flex flex-col items-center py-6">
-                                    <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mb-4" />
-                                    <p className="font-medium text-gray-900">Optimizing media...</p>
-                                    <p className="text-sm text-gray-500">Please wait, this might take a moment.</p>
+                                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                    <p className="font-medium text-gray-900">Click to upload</p>
                                 </div>
-                            ) : (
-                                <div className="flex flex-col items-center py-6">
-                                    <div className="w-16 h-16 bg-emerald-100/50 text-emerald-600 rounded-full flex items-center justify-center mb-4">
-                                        <Upload className="w-8 h-8" />
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border">
+                                    <FileImage className="w-8 h-8 text-emerald-600" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium truncate">{selectedFile.name}</p>
+                                        <p className="text-xs text-gray-500">{(selectedFile.size / 1024).toFixed(1)} KB</p>
                                     </div>
-                                    <p className="text-lg font-medium text-gray-900 mb-1">
-                                        Click to upload or drag and drop
-                                    </p>
-                                    <p className="text-sm text-gray-500 mb-4">
-                                        Images will be converted to WebP. Videos will be optimized.
-                                    </p>
-                                    <Button variant="outline" className="mt-2">Select File</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)}>
+                                        Change
+                                    </Button>
                                 </div>
-                            )}
-                        </div>
+
+                                <div>
+                                    <label className="text-xs font-medium text-gray-700 mb-1 block">SEO Filename (Optional)</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            value={seoFilename}
+                                            onChange={(e) => setSeoFilename(e.target.value)}
+                                            className="flex-1 px-3 py-2 border rounded-md text-sm"
+                                            placeholder="e.g. duluxe-room-balcony"
+                                        />
+                                        <span className="text-gray-400 text-sm">.webp</span>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-1">Use keywords separated by dashes.</p>
+                                </div>
+
+                                <div className="flex gap-2 justify-end pt-2">
+                                    {onCancel && (
+                                        <Button variant="outline" onClick={onCancel} disabled={isUploading}>Cancel</Button>
+                                    )}
+                                    <Button onClick={handleUpload} disabled={isUploading} className="bg-emerald-600">
+                                        {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                                        Optimize & Upload
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

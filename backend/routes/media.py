@@ -189,6 +189,7 @@ async def upload_content_image(
 @router.post("/convert")
 async def convert_media(
     file: UploadFile = File(...),
+    filename: Optional[str] = Form(None),
     user: dict = Depends(require_admin)
 ):
     """
@@ -205,7 +206,8 @@ async def convert_media(
             result = await upload_image(
                 file_content=content,
                 folder="optimized",
-                force_format="webp"
+                force_format="webp",
+                public_id=filename # Use provided filename as public_id (SEO)
             )
             return {
                 "message": "Image converted to WebP successfully",
