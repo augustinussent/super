@@ -6,75 +6,29 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Facilities = () => {
+  const [facilities, setFacilities] = useState([]);
   const [heroContent, setHeroContent] = useState(null);
-  const [content, setContent] = useState({});
+  const [infoContent, setInfoContent] = useState({});
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/content/facilities`);
-        const hero = response.data.find(c => c.section === 'hero');
+        // Fetch Facilities Page Content (Hero & Info)
+        const contentResponse = await axios.get(`${API_URL}/content/facilities`);
+        const hero = contentResponse.data.find(c => c.section === 'hero');
+        const info = contentResponse.data.find(c => c.section === 'info');
         if (hero) setHeroContent(hero.content);
+        if (info) setInfoContent(info.content);
 
-        // Map other sections
-        const contentMap = {};
-        response.data.forEach(item => {
-          contentMap[item.section] = item.content;
-        });
-        setContent(contentMap);
+        // Fetch Dynamic Facilities List
+        const facilitiesResponse = await axios.get(`${API_URL}/facilities`);
+        setFacilities(facilitiesResponse.data);
       } catch (error) {
-        console.error('Error fetching content:', error);
+        console.error('Error fetching facilities data:', error);
       }
     };
-    fetchContent();
+    fetchData();
   }, []);
-
-  const defaultFacilities = [
-    {
-      key: 'pool',
-      icon: Waves,
-      defaultName: 'Infinity Pool',
-      defaultDescription: 'Relax in our stunning infinity pool with panoramic mountain views. Open daily from 6 AM to 9 PM.',
-      defaultImage: 'https://images.unsplash.com/photo-1558239041-c5fc98b811a7?w=800'
-    },
-    {
-      key: 'spa',
-      icon: Sparkles,
-      defaultName: 'Spa & Wellness',
-      defaultDescription: 'Rejuvenate your body and mind with our traditional Javanese treatments and modern therapies.',
-      defaultImage: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800'
-    },
-    {
-      key: 'fitness',
-      icon: Dumbbell,
-      defaultName: 'Fitness Center',
-      defaultDescription: 'State-of-the-art equipment and personal training available. Open 24 hours for hotel guests.',
-      defaultImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'
-    },
-    {
-      key: 'restaurant',
-      icon: Utensils,
-      defaultName: 'Restaurant & Bar',
-      defaultDescription: 'Experience culinary excellence with our international cuisine and signature cocktails.',
-      defaultImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800'
-    },
-    {
-      key: 'garden',
-      icon: TreePine,
-      defaultName: 'Garden & Terrace',
-      defaultDescription: 'Beautiful landscaped gardens perfect for morning walks or evening relaxation.',
-      defaultImage: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800'
-    },
-    {
-      key: 'parking',
-      icon: Car,
-      defaultName: 'Parking & Transport',
-      defaultDescription: 'Complimentary parking and airport shuttle services available upon request.',
-      defaultImage: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=800'
-    }
-  ];
-
-  const infoContent = content['info'] || {};
 
   return (
     <div className="bg-emerald-50/30">
@@ -100,50 +54,57 @@ const Facilities = () => {
       {/* Facilities Grid */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {defaultFacilities.map((facility, index) => {
-              const Icon = facility.icon;
-              const itemContent = content[facility.key] || {};
-              const name = itemContent.name || facility.defaultName;
-              const description = itemContent.description || facility.defaultDescription;
-              const image = itemContent.image || facility.defaultImage;
+          {facilities.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p>Loading facilities...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {facilities.map((facility, index) => {
+                // Use default icon or generic one since we don't store icon name in DB yet
+                // Or we could map based on name keywords if we really want specific icons, 
+                // but for now a generic star or dot is safer, or just no icon.
+                // The original design had specific icons. 
+                // Let's use a generic Sparkles icon for all for now, or maybe map simple keywords.
+                const Icon = Sparkles;
 
-              return (
-                <motion.div
-                  key={facility.key}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="group bg-white rounded-xl overflow-hidden shadow-soft card-hover"
-                  data-testid={`facility-${index}`}
-                >
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    <img
-                      src={image}
-                      alt={name}
-                      className="w-full h-full object-cover img-zoom"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 flex items-center text-white">
-                      <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center mr-3">
-                        <Icon className="w-5 h-5" />
+                return (
+                  <motion.div
+                    key={facility.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group bg-white rounded-xl overflow-hidden shadow-soft card-hover"
+                    data-testid={`facility-${index}`}
+                  >
+                    <div className="aspect-[16/10] overflow-hidden relative">
+                      <img
+                        src={facility.image || 'https://images.unsplash.com/photo-1558239041-c5fc98b811a7?w=800'}
+                        alt={facility.name}
+                        className="w-full h-full object-cover img-zoom"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-4 left-4 flex items-center text-white">
+                        <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center mr-3">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <h3 className="font-display text-xl font-medium">{facility.name}</h3>
                       </div>
-                      <h3 className="font-display text-xl font-medium">{name}</h3>
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-600 leading-relaxed">{description}</p>
-                    {itemContent.hours && (
-                      <p className="text-emerald-600 text-sm mt-3 font-medium flex items-center">
-                        Open: {itemContent.hours}
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                    <div className="p-6">
+                      <p className="text-gray-600 leading-relaxed">{facility.description}</p>
+                      {facility.hours && (
+                        <p className="text-emerald-600 text-sm mt-3 font-medium flex items-center">
+                          Open: {facility.hours}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

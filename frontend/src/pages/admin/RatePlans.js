@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Tag, Percent, DollarSign, List } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, ChevronsUpDown } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -10,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Switch } from '../../components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../components/ui/command';
+import { Badge } from '../../components/ui/badge';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -22,7 +26,7 @@ const RatePlans = () => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        room_type_id: 'all',
+        room_type_ids: [], // Changed from room_type_id
         price_modifier_type: 'percent',
         price_modifier_val: '',
         is_active: true,
@@ -65,7 +69,8 @@ const RatePlans = () => {
         try {
             const payload = {
                 ...formData,
-                room_type_id: formData.room_type_id === 'all' ? null : formData.room_type_id,
+                room_type_ids: formData.room_type_ids, // Send array
+                room_type_id: formData.room_type_ids.length > 0 ? formData.room_type_ids[0] : null, // Legacy fallback handled by backend too but checking here
                 price_modifier_val: Number(formData.price_modifier_val),
                 conditions: formData.conditions ? formData.conditions.split(',').map(c => c.trim()).filter(c => c) : []
             };
@@ -91,7 +96,7 @@ const RatePlans = () => {
         setFormData({
             name: '',
             description: '',
-            room_type_id: 'all',
+            room_type_ids: [],
             price_modifier_type: 'percent',
             price_modifier_val: '',
             is_active: true,
@@ -101,10 +106,17 @@ const RatePlans = () => {
 
     const handleEdit = (plan) => {
         setEditingPlan(plan);
+        // Determine selected rooms: use room_type_ids if available, else fallback to room_type_id
+        let selectedIds = plan.room_type_ids || [];
+        if (selectedIds.length === 0 && plan.room_type_id) {
+            selectedIds = [plan.room_type_id];
+        }
+
         setFormData({
             name: plan.name,
             description: plan.description,
-            room_type_id: plan.room_type_id || 'all',
+            room_type_ids: selectedIds,
+            room_type_id: plan.room_type_id, // Keep legacy ref just in case
             price_modifier_type: plan.price_modifier_type,
             price_modifier_val: plan.price_modifier_val.toString(),
             is_active: plan.is_active,
@@ -128,11 +140,7 @@ const RatePlans = () => {
     const toggleActive = async (plan) => {
         try {
             await axios.put(`${API_URL}/admin/rate-plans/${plan.rate_plan_id}`, {
-                ...plan, // send all fields or just updates? PUT usually requires full object or PATCH for partial. 
-                // My backend route does $set so partial is fine if I send partial.
-                // But the backend route implementation of PUT: `plan_update: dict`. 
-                // It does `plan_update.pop("rate_plan_id", None)` then update_one $set.
-                // It seems safe to send just is_active.
+                ...plan,
                 is_active: !plan.is_active
             });
             toast.success('Status updated');
@@ -141,6 +149,19 @@ const RatePlans = () => {
             toast.error('Failed to update status');
         }
     };
+
+    const toggleRoomSelection = (roomId) => {
+        setFormData(prev => {
+            const currentIds = prev.room_type_ids;
+            if (currentIds.includes(roomId)) {
+                return { ...prev, room_type_ids: currentIds.filter(id => id !== roomId) };
+            } else {
+                return { ...prev, room_type_ids: [...currentIds, roomId] };
+            }
+        });
+    };
+
+    const isAllRooms = formData.room_type_ids.length === 0;
 
     if (isLoading) {
         return (
@@ -190,67 +211,80 @@ const RatePlans = () => {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            ratePlans.map((plan) => (
-                                <TableRow key={plan.rate_plan_id} data-testid={`plan-row-${plan.rate_plan_id}`}>
-                                    <TableCell>
-                                        <div className="font-medium text-gray-900">{plan.name}</div>
-                                        <div className="text-sm text-gray-500">{plan.description}</div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1 font-mono">
-                                            {plan.price_modifier_type === 'percent' ? (
-                                                <span className={plan.price_modifier_val >= 0 ? "text-emerald-600" : "text-emerald-600"}>
-                                                    {plan.price_modifier_val > 0 ? '+' : ''}{plan.price_modifier_val}%
-                                                </span>
-                                            ) : (
-                                                <span className={plan.price_modifier_val >= 0 ? "text-emerald-600" : "text-emerald-600"}>
-                                                    {plan.price_modifier_val > 0 ? '+' : ''}Rp {plan.price_modifier_val.toLocaleString('id-ID')}
-                                                    {plan.price_modifier_type === 'absolute_add' ? '/night' : '/total'}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {plan.room_type_id ? (
-                                            <span className="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs">
-                                                Specific Room
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs">
-                                                All Rooms
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Switch
-                                            checked={plan.is_active}
-                                            onCheckedChange={() => toggleActive(plan)}
-                                            data-testid={`toggle-plan-${plan.rate_plan_id}`}
-                                        />
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleEdit(plan)}
-                                                data-testid={`edit-plan-${plan.rate_plan_id}`}
-                                            >
-                                                <Edit2 className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDelete(plan.rate_plan_id)}
-                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                data-testid={`delete-plan-${plan.rate_plan_id}`}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                            ratePlans.map((plan) => {
+                                const appliesToIds = plan.room_type_ids?.length > 0
+                                    ? plan.room_type_ids
+                                    : (plan.room_type_id ? [plan.room_type_id] : []);
+
+                                return (
+                                    <TableRow key={plan.rate_plan_id} data-testid={`plan-row-${plan.rate_plan_id}`}>
+                                        <TableCell>
+                                            <div className="font-medium text-gray-900">{plan.name}</div>
+                                            <div className="text-sm text-gray-500">{plan.description}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1 font-mono">
+                                                {plan.price_modifier_type === 'percent' ? (
+                                                    <span className="text-emerald-600">
+                                                        {plan.price_modifier_val > 0 ? '+' : ''}{plan.price_modifier_val}%
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-emerald-600">
+                                                        {plan.price_modifier_val > 0 ? '+' : ''}Rp {plan.price_modifier_val.toLocaleString('id-ID')}
+                                                        {plan.price_modifier_type === 'absolute_add' ? '/night' : '/total'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {appliesToIds.length === 0 ? (
+                                                    <Badge variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-50">
+                                                        All Rooms
+                                                    </Badge>
+                                                ) : (
+                                                    appliesToIds.map(id => {
+                                                        const room = rooms.find(r => r.room_type_id === id);
+                                                        return (
+                                                            <Badge key={id} variant="secondary" className="text-xs">
+                                                                {room ? room.name : 'Unknown Room'}
+                                                            </Badge>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Switch
+                                                checked={plan.is_active}
+                                                onCheckedChange={() => toggleActive(plan)}
+                                                data-testid={`toggle-plan-${plan.rate_plan_id}`}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(plan)}
+                                                    data-testid={`edit-plan-${plan.rate_plan_id}`}
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(plan.rate_plan_id)}
+                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    data-testid={`delete-plan-${plan.rate_plan_id}`}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
                         )}
                     </TableBody>
                 </Table>
@@ -319,21 +353,69 @@ const RatePlans = () => {
                             </div>
 
                             <div className="md:col-span-2">
-                                <Label>Applies To</Label>
-                                <Select
-                                    value={formData.room_type_id}
-                                    onValueChange={(v) => setFormData({ ...formData, room_type_id: v })}
-                                >
-                                    <SelectTrigger data-testid="room-select">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Rooms</SelectItem>
-                                        {rooms.map(room => (
-                                            <SelectItem key={room.room_type_id} value={room.room_type_id}>{room.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Label className="mb-2 block">Applies To</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            className="w-full justify-between h-auto min-h-[40px]"
+                                        >
+                                            <div className="flex flex-wrap gap-1 text-left">
+                                                {formData.room_type_ids.length === 0
+                                                    ? "All Rooms"
+                                                    : formData.room_type_ids.map(id => {
+                                                        const room = rooms.find(r => r.room_type_id === id);
+                                                        return (
+                                                            <Badge key={id} variant="secondary" className="mr-1">
+                                                                {room?.name || id}
+                                                            </Badge>
+                                                        );
+                                                    })
+                                                }
+                                            </div>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                        <Command>
+                                            <CommandInput placeholder="Search room..." />
+                                            <CommandList>
+                                                <CommandEmpty>No room found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem
+                                                        onSelect={() => setFormData({ ...formData, room_type_ids: [] })}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                formData.room_type_ids.length === 0 ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        All Rooms (Global)
+                                                    </CommandItem>
+                                                    {rooms.map((room) => (
+                                                        <CommandItem
+                                                            key={room.room_type_id}
+                                                            onSelect={() => toggleRoomSelection(room.room_type_id)}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    formData.room_type_ids.includes(room.room_type_id) ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {room.name}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <p className="text-xs text-gray-500 mt-1">Select "All Rooms" to apply globally, or select specific rooms.</p>
                             </div>
 
                             <div className="md:col-span-2">

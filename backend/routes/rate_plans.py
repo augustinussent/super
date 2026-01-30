@@ -13,10 +13,11 @@ router = APIRouter(tags=["rate_plans"])
 async def get_rate_plans(room_type_id: str = None):
     query = {}
     if room_type_id:
-        # Fetch global plans (None) OR specific room plans
+        # Fetch global plans (None) OR specific room plans (legacy) OR specific room plans (new list)
         query["$or"] = [
-            {"room_type_id": None},
-            {"room_type_id": room_type_id}
+            {"room_type_id": None, "room_type_ids": {"$in": [None, []]}}, # Global
+            {"room_type_id": room_type_id}, # Legacy match
+            {"room_type_ids": room_type_id} # New list match
         ]
     
     plans = await db.rate_plans.find(query, {"_id": 0}).to_list(100)
@@ -29,7 +30,12 @@ async def get_all_rate_plans(user: dict = Depends(require_admin)):
 
 @router.post("/admin/rate-plans")
 async def create_rate_plan(plan: RatePlanCreate, request: Request, user: dict = Depends(require_admin)):
-    plan_doc = RatePlan(**plan.model_dump()).model_dump()
+    # Standardize: if room_type_id is set, add to room_type_ids
+    plan_dict = plan.model_dump()
+    if plan_dict.get("room_type_id") and plan_dict["room_type_id"] not in plan_dict["room_type_ids"]:
+        plan_dict["room_type_ids"].append(plan_dict["room_type_id"])
+    
+    plan_doc = RatePlan(**plan_dict).model_dump()
     
     await db.rate_plans.insert_one(plan_doc)
     
@@ -47,6 +53,13 @@ async def create_rate_plan(plan: RatePlanCreate, request: Request, user: dict = 
     
     return plan_doc
 
+def get_changes(existing: dict, update: dict) -> dict:
+    changes = {}
+    for key, value in update.items():
+        if key in existing and existing[key] != value:
+            changes[key] = {"old": existing[key], "new": value}
+    return changes
+
 @router.put("/admin/rate-plans/{rate_plan_id}")
 async def update_rate_plan(rate_plan_id: str, plan_update: dict, request: Request, user: dict = Depends(require_admin)):
     existing = await db.rate_plans.find_one({"rate_plan_id": rate_plan_id}, {"_id": 0})
@@ -57,6 +70,16 @@ async def update_rate_plan(rate_plan_id: str, plan_update: dict, request: Reques
     plan_update.pop("rate_plan_id", None)
     plan_update.pop("created_at", None)
     
+    # Sync legacy ID if ids list is updated
+    if "room_type_ids" in plan_update:
+        ids = plan_update["room_type_ids"]
+        if ids and len(ids) == 1:
+            plan_update["room_type_id"] = ids[0]
+        elif ids and len(ids) > 1:
+            plan_update["room_type_id"] = ids[0] # Just set to first one for legacy compat, or None? Let's verify usage.
+        elif not ids:
+             plan_update["room_type_id"] = None
+
     # Calculate changes before update
     changes = get_changes(existing, plan_update)
     

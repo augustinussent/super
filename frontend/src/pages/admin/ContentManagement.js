@@ -62,12 +62,70 @@ const ContentManagement = () => {
   const [editingOffer, setEditingOffer] = useState(null);
   const [showOfferModal, setShowOfferModal] = useState(false);
 
+  // Facilities state
+  const [facilities, setFacilities] = useState([]);
+  const [editingFacility, setEditingFacility] = useState(null);
+  const [showFacilityModal, setShowFacilityModal] = useState(false);
+
   const getToken = () => localStorage.getItem('token');
 
   useEffect(() => {
     fetchContent();
     fetchOffers();
+    fetchFacilities();
   }, []);
+
+  // Fetch facilities
+  const fetchFacilities = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/admin/facilities`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      setFacilities(response.data);
+    } catch (error) {
+      console.error('Error fetching facilities:', error);
+    }
+  };
+
+  const saveFacility = async (facilityData) => {
+    setIsSaving(true);
+    try {
+      if (editingFacility?.id) {
+        await axios.put(`${API_URL}/admin/facilities/${editingFacility.id}`, facilityData, {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        });
+        toast.success('Fasilitas berhasil diupdate');
+      } else {
+        await axios.post(`${API_URL}/admin/facilities`, facilityData, {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        });
+        toast.success('Fasilitas berhasil ditambahkan');
+      }
+      fetchFacilities();
+      setShowFacilityModal(false);
+      setEditingFacility(null);
+    } catch (error) {
+      toast.error('Gagal menyimpan fasilitas');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const deleteFacility = async (fid) => {
+    if (!window.confirm('Hapus fasilitas ini?')) return;
+    setIsSaving(true);
+    try {
+      await axios.delete(`${API_URL}/admin/facilities/${fid}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      toast.success('Fasilitas berhasil dihapus');
+      fetchFacilities();
+    } catch (error) {
+      toast.error('Gagal menghapus fasilitas');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Fetch special offers
   const fetchOffers = async () => {
@@ -217,6 +275,8 @@ const ContentManagement = () => {
     if (uploadTarget) {
       if (uploadTarget.context === 'offer') {
         setEditingOffer(prev => ({ ...prev, image: mediaData.secure_url }));
+      } else if (uploadTarget.context === 'facility') {
+        setEditingFacility(prev => ({ ...prev, image: mediaData.secure_url }));
       } else {
         updateField(uploadTarget.key, uploadTarget.field, mediaData.secure_url);
       }
@@ -661,14 +721,20 @@ const ContentManagement = () => {
           </ContentSection>
         </TabsContent>
 
-        {/* ==================== FACILITIES PAGE ==================== */}
+        {/* ==================== FACILITIES PAGE (DYNAMIC) ==================== */}
         <TabsContent value="facilities" className="space-y-6">
           <div className="sticky top-0 z-10 bg-emerald-50/95 backdrop-blur-sm py-3 -mt-3 -mx-1 px-1 border-b border-emerald-100 flex justify-between items-center">
             <span className="text-sm text-gray-600">Edit konten halaman Facilities</span>
-            <Button onClick={() => saveAllForPage('facilities')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-              <Save className="w-4 h-4 mr-2" />Simpan Semua Perubahan
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => saveAllForPage('facilities')} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />Simpan Hero
+              </Button>
+              <Button onClick={() => { setEditingFacility({}); setShowFacilityModal(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Plus className="w-4 h-4 mr-2" />Tambah Fasilitas
+              </Button>
+            </div>
           </div>
+
           <ContentSection title="Facilities Page Hero">
             <div className="space-y-4">
               <div>
@@ -693,54 +759,48 @@ const ContentManagement = () => {
             </div>
           </ContentSection>
 
-          {[
-            { key: 'pool', label: 'Infinity Pool' },
-            { key: 'spa', label: 'Spa & Wellness' },
-            { key: 'fitness', label: 'Fitness Center' },
-            { key: 'restaurant', label: 'Restaurant & Bar' },
-            { key: 'garden', label: 'Garden & Terrace' },
-            { key: 'parking', label: 'Parking & Transport' }
-          ].map((item) => (
-            <ContentSection key={item.key} title={`Fasilitas: ${item.label}`}>
-              <div className="space-y-4">
-                <div>
-                  <Label>Nama Fasilitas</Label>
-                  <Input
-                    value={getContent('facilities', item.key, 'name')}
-                    onChange={(e) => updateField(`facilities_${item.key}`, 'name', e.target.value)}
-                    placeholder={item.label}
-                  />
-                </div>
-                <div>
-                  <Label>Deskripsi</Label>
-                  <Textarea
-                    value={getContent('facilities', item.key, 'description')}
-                    onChange={(e) => updateField(`facilities_${item.key}`, 'description', e.target.value)}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label>Jam Operasional / Info Tambahan</Label>
-                  <Input
-                    value={getContent('facilities', item.key, 'hours')}
-                    onChange={(e) => updateField(`facilities_${item.key}`, 'hours', e.target.value)}
-                    placeholder="e.g. 06:00 - 22:00"
-                  />
-                </div>
-                <ImageField
-                  label="Gambar"
-                  value={getContent('facilities', item.key, 'image')}
-                  onChange={(e) => updateField(`facilities_${item.key}`, 'image', e.target.value)}
-                  onUpload={() => openMediaUpload(`facilities_${item.key}`, 'image')}
-                  altValue={getContent('facilities', item.key, 'imageAlt')}
-                  onAltChange={(e) => updateField(`facilities_${item.key}`, 'imageAlt', e.target.value)}
-                />
-                <Button onClick={() => saveContent('facilities', item.key, 'facility', content[`facilities_${item.key}`]?.content || {})} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                  <Save className="w-4 h-4 mr-2" />Simpan
-                </Button>
+          {/* Dynamic Facilities List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {facilities.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-gray-500 bg-white rounded-xl shadow-soft">
+                Belum ada fasilitas. Klik "Tambah Fasilitas" untuk memulai.
               </div>
-            </ContentSection>
-          ))}
+            ) : (
+              facilities.map((facility) => (
+                <div key={facility.id} className={`bg-white rounded-xl shadow-soft overflow-hidden border ${!facility.is_active ? 'opacity-60 border-gray-200' : 'border-emerald-100'}`}>
+                  <div className="relative h-40 bg-gray-100">
+                    {facility.image ? (
+                      <img src={facility.image} alt={facility.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">No Image</div>
+                    )}
+                    {!facility.is_active && (
+                      <div className="absolute inset-0 bg-gray-900/10 flex items-center justify-center">
+                        <span className="bg-gray-800 text-white text-xs px-2 py-1 rounded">Non-aktif</span>
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                      Urutan: {facility.order}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-semibold text-gray-900 mb-1">{facility.name}</h4>
+                    {facility.hours && <p className="text-xs text-emerald-600 font-medium mb-2">{facility.hours}</p>}
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">{facility.description}</p>
+
+                    <div className="flex gap-2 justify-end">
+                      <Button size="sm" variant="outline" onClick={() => { setEditingFacility(facility); setShowFacilityModal(true); }}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50" onClick={() => deleteFacility(facility.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
           <ContentSection title="Experience Complete Comfort (Info Bawah)">
             <div className="space-y-4">
@@ -1118,6 +1178,7 @@ const ContentManagement = () => {
             description={uploadTarget?.mediaType === 'video' ? 'Max 500MB, MP4/MOV' : 'Max 10MB, JPEG/PNG/WebP'}
             cloudinaryResourceType={uploadTarget?.mediaType === 'video' ? 'video' : 'image'}
             onUploadSuccess={handleMediaUpload}
+            onCloseDialog={() => setShowMediaUpload(false)}
           />
         </DialogContent>
       </Dialog>
@@ -1210,6 +1271,104 @@ const ContentManagement = () => {
             </div>
             <div className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="outline" onClick={() => setShowOfferModal(false)}>Batal</Button>
+              <Button type="submit" disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="w-4 h-4 mr-2" />{isSaving ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+      {/* Facility Edit Modal */}
+      <Dialog open={showFacilityModal} onOpenChange={(v) => { setShowFacilityModal(v); if (!v) setEditingFacility(null); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingFacility?.id ? 'Edit Fasilitas' : 'Tambah Fasilitas'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            saveFacility({
+              name: formData.get('name'),
+              description: formData.get('description'),
+              hours: formData.get('hours'),
+              image: editingFacility?.image || formData.get('image'),
+              is_active: formData.get('is_active') === 'on',
+              order: parseInt(formData.get('order') || '0')
+            });
+          }} className="space-y-4">
+            <div>
+              <Label>Nama Fasilitas</Label>
+              <Input
+                name="name"
+                defaultValue={editingFacility?.name || ''}
+                placeholder="Infinity Pool"
+                required
+              />
+            </div>
+            <div>
+              <Label>Deskripsi</Label>
+              <Textarea
+                name="description"
+                defaultValue={editingFacility?.description || ''}
+                placeholder="Deskripsi fasilitas..."
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label>Jam Operasional / Info</Label>
+              <Input
+                name="hours"
+                defaultValue={editingFacility?.hours || ''}
+                placeholder="06:00 - 22:00"
+              />
+            </div>
+            <div>
+              <Label>Gambar Fasilitas</Label>
+              <div className="flex gap-2">
+                <Input
+                  name="image"
+                  value={editingFacility?.image || ''}
+                  onChange={(e) => setEditingFacility(prev => ({ ...prev, image: e.target.value }))}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setUploadTarget({ context: 'facility', mediaType: 'image' });
+                    setShowMediaUpload(true);
+                  }}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Pilih
+                </Button>
+              </div>
+              {editingFacility?.image && (
+                <div className="mt-2">
+                  <img src={editingFacility?.image} alt="Preview" className="w-full h-40 object-cover rounded-lg border" />
+                </div>
+              )}
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Label>Urutan</Label>
+                <Input
+                  type="number"
+                  name="order"
+                  defaultValue={editingFacility?.order || 0}
+                />
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <Switch
+                  name="is_active"
+                  defaultChecked={editingFacility?.is_active ?? true}
+                />
+                <Label>Aktif</Label>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" variant="outline" onClick={() => setShowFacilityModal(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Save className="w-4 h-4 mr-2" />{isSaving ? 'Menyimpan...' : 'Simpan'}
               </Button>

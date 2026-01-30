@@ -5,7 +5,8 @@ import uuid
 
 class RatePlan(BaseModel):
     rate_plan_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    room_type_id: Optional[str] = None # If None, applies to all rooms (unless logic dictates otherwise)
+    room_type_id: Optional[str] = None # Legacy: Single room
+    room_type_ids: List[str] = [] # New: Multiple rooms (if empty && room_type_id is None => all rooms)
     name: str
     description: str = ""
     price_modifier_type: Literal["percent", "absolute_add", "absolute_total"]
@@ -16,6 +17,7 @@ class RatePlan(BaseModel):
 
 class RatePlanCreate(BaseModel):
     room_type_id: Optional[str] = None
+    room_type_ids: List[str] = []
     name: str
     description: str = ""
     price_modifier_type: Literal["percent", "absolute_add", "absolute_total"]
