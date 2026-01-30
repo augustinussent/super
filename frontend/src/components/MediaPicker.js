@@ -17,7 +17,7 @@ const MediaPicker = ({ onSelect, onClose }) => {
     const fetchImages = async (cursor = null) => {
         try {
             setLoading(true);
-            let url = `${API_URL}/media/gallery`;
+            let url = `${API_URL}/api/media/gallery`;
             if (cursor) {
                 url += `?next_cursor=${cursor}`;
             }
