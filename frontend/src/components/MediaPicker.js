@@ -9,18 +9,69 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const MediaPicker = ({ onSelect, onClose, onUpload }) => {
     const { getToken } = useAuth();
-    // ... state ...
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [nextCursor, setNextCursor] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
 
-    // ... fetchImages ...
+    const fetchImages = async (cursor = null) => {
+        try {
+            setLoading(true);
+            let url = `${API_URL}/api/media/gallery`;
+            if (cursor) {
+                url += `?next_cursor=${cursor}`;
+            }
 
-    // ... handleSelect ...
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch images');
+            }
+
+            const data = await response.json();
+
+            if (cursor) {
+                setImages(prev => [...prev, ...data.resources]);
+            } else {
+                setImages(data.resources);
+            }
+
+            setNextCursor(data.next_cursor);
+        } catch (error) {
+            console.error('Error fetching gallery:', error);
+            toast.error('Gagal memuat galeri media');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchImages();
+    }, []);
+
+    const handleSelect = (image) => {
+        setSelectedImage(image);
+    };
+
+    const handleConfirm = () => {
+        if (selectedImage) {
+            onSelect({
+                secure_url: selectedImage.secure_url,
+                public_id: selectedImage.public_id,
+                resource_type: selectedImage.resource_type
+            });
+            onClose();
+        }
+    };
 
     return (
         <div className="flex flex-col h-[500px]">
-            {/* ... ScrollArea ... */}
             <div className="flex-1 min-h-0 relative">
                 <ScrollArea className="h-full w-full rounded-md border p-4">
-                    {/* ... content ... */}
                     {images.length === 0 && !loading ? (
                         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
                             <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
