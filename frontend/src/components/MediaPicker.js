@@ -92,6 +92,19 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
 
     return (
         <div className="flex flex-col h-[500px]">
+            <div className="px-4 py-2 border-b flex justify-between items-center bg-gray-50/50">
+                <p className="text-sm text-gray-600">
+                    {multiple
+                        ? "Mode: Pilih Banyak (Klik untuk memilih beberapa)"
+                        : "Mode: Pilih Satu (Klik untuk memilih)"}
+                </p>
+                {multiple && selectedItems.length > 0 && (
+                    <span className="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                        {selectedItems.length} terpilih
+                    </span>
+                )}
+            </div>
+
             <div className="flex-1 min-h-0 relative">
                 <ScrollArea className="h-full w-full rounded-md border p-4">
                     {images.length === 0 && !loading ? (
@@ -124,10 +137,16 @@ const MediaPicker = ({ onSelect, onClose, onUpload, multiple = false, resourceTy
                                             />
                                         )}
 
+                                        <div className={`absolute top-2 right-2 p-1.5 rounded-full shadow-lg transition-all border ${selected
+                                                ? 'bg-emerald-500 border-emerald-500 text-white scale-100'
+                                                : 'bg-white/80 border-gray-300 text-transparent hover:bg-white scale-90 opacity-0 group-hover:opacity-100'
+                                            }`}>
+                                            <Check className="w-4 h-4" />
+                                        </div>
+
+                                        {/* Selection overlay for better visibility */}
                                         {selected && (
-                                            <div className="absolute top-2 right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
-                                                <Check className="w-3 h-3" />
-                                            </div>
+                                            <div className="absolute inset-0 bg-emerald-500/20 pointer-events-none" />
                                         )}
                                     </div>
                                 )

@@ -972,6 +972,8 @@ const RoomManagement = () => {
             }
             acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
             maxFileSize={10 * 1024 * 1024}
+            isMultiple={true}
+            maxFiles={10}
             title="Upload Foto Kamar"
             description="Max 10MB. Nama file akan otomatis disesuaikan dengan nama kamar."
             onUploadSuccess={handleImageUpload}

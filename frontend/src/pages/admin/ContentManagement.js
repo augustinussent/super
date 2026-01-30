@@ -1112,6 +1112,7 @@ const ContentManagement = () => {
             maxFileSize={uploadTarget?.mediaType === 'video' ? 500 * 1024 * 1024 : 10 * 1024 * 1024}
             title={uploadTarget?.mediaType === 'video' ? 'Upload Video' : 'Upload Image'}
             description={uploadTarget?.mediaType === 'video' ? 'Max 500MB, MP4/MOV' : 'Max 10MB, JPEG/PNG/WebP'}
+            cloudinaryResourceType={uploadTarget?.mediaType === 'video' ? 'video' : 'image'}
             onUploadSuccess={handleMediaUpload}
           />
         </DialogContent>
