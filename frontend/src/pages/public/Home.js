@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves, Tag as TagIcon, AlertCircle } from 'lucide-react';
+import { Calendar, Users, Search, Star, Play, X, ChevronLeft, ChevronRight, Tag, ArrowRight, Pause, Volume2, VolumeX, Maximize2, Images, Check, MapPin, Coffee, Wifi, Utensils, Waves, Tag as TagIcon, AlertCircle, ChevronsDown } from 'lucide-react';
 import { format, addDays, isBefore, startOfToday } from 'date-fns';
 import axios from 'axios';
 import { trackEvent, trackBookNow, trackViewRoom } from '../../utils/analytics';
@@ -576,6 +576,39 @@ const Home = () => {
             </Button>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator - Bottom Center */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 cursor-pointer text-white/70 hover:text-white"
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+            y: [0, 8, 0]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          whileHover={{
+            y: 12,
+            scale: 1.1,
+            transition: { duration: 0.2 }
+          }}
+          onClick={() => {
+            const searchSection = document.getElementById('search-modal-trigger') || document.body;
+            // Scroll down slightly or to next section
+            window.scrollTo({
+              top: window.innerHeight - 80,
+              behavior: 'smooth'
+            });
+          }}
+        >
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] uppercase tracking-widest font-light opacity-0 hover:opacity-100 transition-opacity">Scroll</span>
+            <ChevronsDown className="w-8 h-8 stroke-[1px]" />
+          </div>
+        </motion.div>
 
         {/* Desktop Search Modal (Restored Horizontal Layout) */}
         <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
