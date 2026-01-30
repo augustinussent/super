@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from database import db
 from models.promo import PromoCode
+from services.auth import require_admin
 from services.audit import log_activity, get_changes
 
 router = APIRouter(prefix="/admin/promo-codes", tags=["promo"])
