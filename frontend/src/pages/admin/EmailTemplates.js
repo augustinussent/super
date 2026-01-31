@@ -46,8 +46,8 @@ const EmailPreview = ({ config }) => {
         <div className="bg-gray-100 p-4 rounded-lg overflow-auto max-h-[800px] border">
             <div className="bg-white mx-auto max-w-[640px] shadow-lg text-left" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 {/* Header */}
-                <div style={{ backgroundColor: '#059669', padding: '16px 24px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <img src={config.logo_url} alt="Logo" style={{ maxWidth: '150px' }} />
+                <div style={{ backgroundColor: '#059669', padding: '10px 24px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <img src={config.logo_url} alt="Logo" style={{ maxHeight: '40px', width: 'auto' }} />
                     <div className="text-right">
                         <span className="block text-xs font-bold">{config.header_text_top}</span>
                         <span className="block text-xs opacity-80">{config.header_text_bottom}</span>
@@ -205,7 +205,7 @@ const EmailTemplates = () => {
     // Default config matching backend
     const [config, setConfig] = useState({
         subject_template: "Konfirmasi Reservasi - {booking_code}",
-        logo_url: "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel",
+        logo_url: "https://res.cloudinary.com/dgfjos8xa/image/upload/v1769523647/logo_spencer_green_hotel_batu_malang_512_inv_h0zm3e.png",
         hero_image_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80",
         header_text_top: "SPENCER GREEN HOTEL",
         header_text_bottom: "Batu, Jawa Timur",

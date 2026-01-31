@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Default Indonesian Template
 DEFAULT_EMAIL_TEMPLATE = {
     "subject_template": "Konfirmasi Reservasi - {booking_code}",
-    "logo_url": "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel",
+    "logo_url": "https://res.cloudinary.com/dgfjos8xa/image/upload/v1769523647/logo_spencer_green_hotel_batu_malang_512_inv_h0zm3e.png",
     "hero_image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80",
     "header_text_top": "SPENCER GREEN HOTEL",
     "header_text_bottom": "Batu, Jawa Timur",
@@ -205,10 +205,10 @@ async def send_reservation_email(reservation: dict, room_type: dict, is_resend: 
         check_out_str = reservation['check_out']
 
     # Logo and Hero
-    logo_url = config.get("logo_url", "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel")
+    logo_url = config.get("logo_url", "https://res.cloudinary.com/dgfjos8xa/image/upload/v1769523647/logo_spencer_green_hotel_batu_malang_512_inv_h0zm3e.png")
     hero_url = config.get("hero_image_url", "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80")
     
-    logo_html = f'<img src="{logo_url}" alt="Spencer Green Hotel" style="max-width: 200px; height: auto;">'
+    logo_html = f'<img src="{logo_url}" alt="Spencer Green Hotel" style="max-height: 40px; width: auto;">'
 
     subject_prefix = "[RESENT] " if is_resend else ""
     
@@ -275,7 +275,7 @@ async def send_reservation_email(reservation: dict, room_type: dict, is_resend: 
         <style>
             body {{ font-family: 'Nunito', 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f4f4f5; }}
             .container {{ max-width: 640px; margin: 0 auto; background-color: #ffffff; }}
-            .header {{ background-color: #059669; padding: 16px 24px; color: white; display: flex; align-items: center; justify-content: space-between; }}
+            .header {{ background-color: #059669; padding: 10px 24px; color: white; display: flex; align-items: center; justify-content: space-between; }}
             .hero-image {{ width: 100%; height: auto; display: block; }}
             .content {{ padding: 24px; }}
             .greeting {{ margin-top: 24px; margin-bottom: 24px; color: #374151; line-height: 1.6; }}
