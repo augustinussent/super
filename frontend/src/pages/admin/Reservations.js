@@ -26,6 +26,16 @@ const Reservations = () => {
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Edit Feature States
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+
+  useEffect(() => {
+    if (showDetailModal) {
+      setIsEditing(false); // Reset edit mode when modal opens
+    }
+  }, [showDetailModal]);
+
   useEffect(() => {
     fetchReservations();
   }, []);
@@ -133,15 +143,7 @@ const Reservations = () => {
     );
   }
 
-  return (
-  const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState({});
 
-  useEffect(() => {
-    if (showDetailModal) {
-      setIsEditing(false); // Reset edit mode when modal opens
-    }
-  }, [showDetailModal]);
 
   const handleEditClick = () => {
     setEditFormData({ ...selectedReservation });
