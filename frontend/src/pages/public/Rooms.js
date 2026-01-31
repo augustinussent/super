@@ -277,7 +277,7 @@ const Rooms = () => {
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920'})` }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://res.cloudinary.com/dgfjos8xa/image/upload/v1767761007/spencer-green/rooms/d90dbafa-5eff-4edd-8f13-f12eea0631bf/file_lpq9af.jpg'})` }}
         >
           <div className="absolute inset-0 bg-black/25" />
         </div>

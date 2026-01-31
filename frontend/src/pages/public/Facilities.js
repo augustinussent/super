@@ -36,7 +36,7 @@ const Facilities = () => {
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroContent?.image || 'https://images.unsplash.com/photo-1558239041-c5fc98b811a7?w=1920'})` }}
+          style={{ backgroundImage: `url(${heroContent?.image || 'https://res.cloudinary.com/dgfjos8xa/image/upload/v1767362983/spencer-green-hotel-batu-malang-main-pool_udaykk.jpg'})` }}
         >
           <div className="absolute inset-0 bg-black/25" />
         </div>

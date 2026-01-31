@@ -97,7 +97,7 @@ const Wedding = () => {
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroContent.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920'})` }}
+          style={{ backgroundImage: `url(${heroContent.image || 'https://res.cloudinary.com/dgfjos8xa/image/upload/v1767362987/spencer-green-hotel-batu-malang-main--exterior-depan_phqxpf.webp'})` }}
         >
           <div className="absolute inset-0 bg-black/25" />
         </div>
