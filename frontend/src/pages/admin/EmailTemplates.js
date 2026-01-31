@@ -47,15 +47,15 @@ const EmailPreview = ({ config }) => {
             <div className="bg-white mx-auto max-w-[640px] shadow-lg text-left" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 {/* Header */}
                 <div style={{ backgroundColor: '#059669', padding: '16px 24px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <img src="https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel" alt="Logo" style={{ maxWidth: '150px' }} />
+                    <img src={config.logo_url} alt="Logo" style={{ maxWidth: '150px' }} />
                     <div className="text-right">
                         <span className="block text-xs font-bold">{config.header_text_top}</span>
-                        <span className="block text-[10px] opacity-80">{config.header_text_bottom}</span>
+                        <span className="block text-xs opacity-80">{config.header_text_bottom}</span>
                     </div>
                 </div>
 
                 {/* Hero Image */}
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80" alt="Hotel" className="w-full h-auto min-h-[200px] bg-gray-200" />
+                <img src={config.hero_image_url} alt="Hotel" className="w-full h-auto min-h-[200px] bg-gray-200" />
 
                 {/* Content */}
                 <div className="p-6">
@@ -205,6 +205,8 @@ const EmailTemplates = () => {
     // Default config matching backend
     const [config, setConfig] = useState({
         subject_template: "Konfirmasi Reservasi - {booking_code}",
+        logo_url: "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel",
+        hero_image_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80",
         header_text_top: "SPENCER GREEN HOTEL",
         header_text_bottom: "Batu, Jawa Timur",
         greeting_template: "Hai {guest_name}!",
@@ -378,6 +380,24 @@ const EmailTemplates = () => {
                                 placeholder="Konfirmasi Reservasi - {booking_code}"
                             />
                             <p className="text-xs text-gray-500">Gunakan placeholders: {'{booking_code}'}, {'{guest_name}'}</p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>URL Logo Hotel</Label>
+                            <Input
+                                value={config.logo_url || ''}
+                                onChange={e => updateField('logo_url', e.target.value)}
+                                placeholder="https://..."
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>URL Gambar Utama (Hero)</Label>
+                            <Input
+                                value={config.hero_image_url || ''}
+                                onChange={e => updateField('hero_image_url', e.target.value)}
+                                placeholder="https://..."
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

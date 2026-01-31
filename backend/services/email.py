@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 # Default Indonesian Template
 DEFAULT_EMAIL_TEMPLATE = {
     "subject_template": "Konfirmasi Reservasi - {booking_code}",
+    "logo_url": "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel",
+    "hero_image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80",
     "header_text_top": "SPENCER GREEN HOTEL",
     "header_text_bottom": "Batu, Jawa Timur",
     "greeting_template": "Hai {guest_name}!",
@@ -202,8 +204,11 @@ async def send_reservation_email(reservation: dict, room_type: dict, is_resend: 
         check_in_str = reservation['check_in']
         check_out_str = reservation['check_out']
 
-    # Logo
-    logo_html = '<img src="https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel" alt="Spencer Green Hotel" style="max-width: 200px; height: auto;">'
+    # Logo and Hero
+    logo_url = config.get("logo_url", "https://placehold.co/200x80/059669/ffffff?text=Spencer+Green+Hotel")
+    hero_url = config.get("hero_image_url", "https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80")
+    
+    logo_html = f'<img src="{logo_url}" alt="Spencer Green Hotel" style="max-width: 200px; height: auto;">'
 
     subject_prefix = "[RESENT] " if is_resend else ""
     
@@ -305,7 +310,10 @@ async def send_reservation_email(reservation: dict, room_type: dict, is_resend: 
                 </div>
             </div>
             
-            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?fit=crop&w=1200&q=80" alt="Hotel" class="hero-image" style="background-color: #e5e7eb; min-height: 200px;">
+                </div>
+            </div>
+            
+            <img src="{hero_url}" alt="Hotel" class="hero-image" style="background-color: #e5e7eb; min-height: 200px;">
             
             <div class="content">
                 {resend_banner}
