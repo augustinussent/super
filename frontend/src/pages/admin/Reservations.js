@@ -134,6 +134,57 @@ const Reservations = () => {
   }
 
   return (
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+
+  useEffect(() => {
+    if (showDetailModal) {
+      setIsEditing(false); // Reset edit mode when modal opens
+    }
+  }, [showDetailModal]);
+
+  const handleEditClick = () => {
+    setEditFormData({ ...selectedReservation });
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditFormData({});
+  };
+
+  const handleCreateChange = (e, field) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // Validate or transform if needed
+      await axios.put(`${API_URL}/admin/reservations/${selectedReservation.reservation_id}`, {
+        guest_name: editFormData.guest_name,
+        guest_email: editFormData.guest_email,
+        guest_phone: editFormData.guest_phone,
+        check_in: editFormData.check_in,
+        check_out: editFormData.check_out,
+        guests: parseInt(editFormData.guests),
+        nights: parseInt(editFormData.nights),
+        special_requests: editFormData.special_requests,
+        total_amount: parseInt(editFormData.total_amount)
+      });
+
+      toast.success('Reservation details updated');
+      setIsEditing(false);
+      fetchReservations(); // Refresh list to show new data
+      setShowDetailModal(false);
+    } catch (error) {
+      toast.error('Failed to update reservation: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  return (
     <div data-testid="reservations-page">
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-gray-900">Daftar Reservasi</h1>
@@ -261,66 +312,119 @@ const Reservations = () => {
 
           {selectedReservation && (
             <div className="space-y-6">
-              <div className="bg-emerald-50 rounded-lg p-4">
-                <p className="text-sm text-emerald-600">Kode Booking</p>
-                <p className="text-xl font-bold text-emerald-800">{selectedReservation.booking_code}</p>
+              <div className="flex justify-between items-center bg-emerald-50 rounded-lg p-4">
+                <div>
+                  <p className="text-sm text-emerald-600">Kode Booking</p>
+                  <p className="text-xl font-bold text-emerald-800">{selectedReservation.booking_code}</p>
+                </div>
+                {!isEditing ? (
+                  <Button variant="outline" size="sm" onClick={handleEditClick}>Edit Data</Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={handleCancelEdit}>Batal</Button>
+                    <Button size="sm" onClick={handleSaveChanges} className="bg-emerald-600 text-white">Simpan</Button>
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Nama Tamu</p>
-                  <p className="font-medium">{selectedReservation.guest_name}</p>
+              {isEditing ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-500">Nama Tamu</label>
+                    <Input value={editFormData.guest_name} onChange={(e) => handleCreateChange(e, 'guest_name')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Email</label>
+                    <Input value={editFormData.guest_email} onChange={(e) => handleCreateChange(e, 'guest_email')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Telepon</label>
+                    <Input value={editFormData.guest_phone} onChange={(e) => handleCreateChange(e, 'guest_phone')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Check-in</label>
+                    <Input type="date" value={editFormData.check_in} onChange={(e) => handleCreateChange(e, 'check_in')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Check-out</label>
+                    <Input type="date" value={editFormData.check_out} onChange={(e) => handleCreateChange(e, 'check_out')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Jumlah Tamu</label>
+                    <Input type="number" value={editFormData.guests} onChange={(e) => handleCreateChange(e, 'guests')} />
+                  </div>
+                  <div className="col-span-1">
+                    <label className="text-xs text-gray-500">Malam</label>
+                    <Input type="number" value={editFormData.nights} onChange={(e) => handleCreateChange(e, 'nights')} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-500">Permintaan Khusus</label>
+                    <Input value={editFormData.special_requests} onChange={(e) => handleCreateChange(e, 'special_requests')} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-500 font-bold">Total Amount (Override)</label>
+                    <Input type="number" value={editFormData.total_amount} onChange={(e) => handleCreateChange(e, 'total_amount')} />
+                    <p className="text-[10px] text-gray-400 mt-1">Ubah manual jika ada koreksi harga.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{selectedReservation.guest_email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Telepon</p>
-                  <p className="font-medium">{selectedReservation.guest_phone}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Tipe Kamar</p>
-                  <p className="font-medium">{selectedReservation.room_type_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Check-in</p>
-                  <p className="font-medium">{format(new Date(selectedReservation.check_in), 'dd MMM yyyy')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Check-out</p>
-                  <p className="font-medium">{format(new Date(selectedReservation.check_out), 'dd MMM yyyy')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Jumlah Tamu</p>
-                  <p className="font-medium">{selectedReservation.guests} orang</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Jumlah Malam</p>
-                  <p className="font-medium">{selectedReservation.nights} malam</p>
-                </div>
-              </div>
-
-              {selectedReservation.special_requests && (
-                <div>
-                  <p className="text-sm text-gray-500">Permintaan Khusus</p>
-                  <p className="font-medium">{selectedReservation.special_requests}</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Nama Tamu</p>
+                    <p className="font-medium">{selectedReservation.guest_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="font-medium">{selectedReservation.guest_email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Telepon</p>
+                    <p className="font-medium">{selectedReservation.guest_phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Tipe Kamar</p>
+                    <p className="font-medium">{selectedReservation.room_type_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Check-in</p>
+                    <p className="font-medium">{format(new Date(selectedReservation.check_in), 'dd MMM yyyy')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Check-out</p>
+                    <p className="font-medium">{format(new Date(selectedReservation.check_out), 'dd MMM yyyy')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Jumlah Tamu</p>
+                    <p className="font-medium">{selectedReservation.guests} orang</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Jumlah Malam</p>
+                    <p className="font-medium">{selectedReservation.nights} malam</p>
+                  </div>
+                  {selectedReservation.special_requests && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-500">Permintaan Khusus</p>
+                      <p className="font-medium">{selectedReservation.special_requests}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total</span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    Rp {selectedReservation.total_amount.toLocaleString('id-ID')}
-                  </span>
+              {!isEditing && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total</span>
+                    <span className="text-2xl font-bold text-emerald-600">
+                      Rp {selectedReservation.total_amount.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  {selectedReservation.discount_amount > 0 && (
+                    <p className="text-sm text-emerald-500 text-right">
+                      Diskon: Rp {selectedReservation.discount_amount.toLocaleString('id-ID')}
+                    </p>
+                  )}
                 </div>
-                {selectedReservation.discount_amount > 0 && (
-                  <p className="text-sm text-emerald-500 text-right">
-                    Diskon: Rp {selectedReservation.discount_amount.toLocaleString('id-ID')}
-                  </p>
-                )}
-              </div>
+              )}
 
               <div>
                 <p className="text-sm text-gray-500 mb-2">Ubah Status</p>

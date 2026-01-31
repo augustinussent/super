@@ -265,6 +265,41 @@ async def update_reservation_status(reservation_id: str, status: str, request: R
         
     return {"message": "Status updated"}
 
+@router.put("/admin/reservations/{reservation_id}")
+async def update_reservation_details(reservation_id: str, updates: dict, request: Request, user: dict = Depends(require_admin)):
+    """Update reservation details manually"""
+    reservation = await db.reservations.find_one({"reservation_id": reservation_id})
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+        
+    allowed_fields = [
+        "guest_name", "guest_email", "guest_phone", 
+        "check_in", "check_out", "guests", 
+        "special_requests", "total_amount", "nights"
+    ]
+    
+    update_data = {k: v for k, v in updates.items() if k in allowed_fields}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
+    
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.reservations.update_one(
+        {"reservation_id": reservation_id},
+        {"$set": update_data}
+    )
+    
+    await log_activity(
+        user=user,
+        action="update_details",
+        resource="reservations",
+        resource_id=reservation_id,
+        details={"updates": update_data},
+        ip_address=request.client.host if request.client else None
+    )
+    
+    return {"message": "Reservation details updated"}
+
 @router.post("/admin/reservations/{reservation_id}/resend-email")
 async def resend_reservation_email(reservation_id: str, request: Request, user: dict = Depends(require_admin)):
     """Resend reservation confirmation email to guest"""

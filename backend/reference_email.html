@@ -1,0 +1,956 @@
+<!-- 
+SILAKAN PASTE (TEMPEL) KODE HTML ATAU TEXT DARI EMAIL CONTOH FAVE HOTEL DI SINI.
+SAYA AKAN MENGGUNAKANNYA SEBAGAI REFERENSI UNTUK MENGUBAH TEMPLATE EMAIL SISTEM.
+-->
+Delivered-To: xxxx@gmail.com
+Received: by 2002:a2e:b531:0:b0:37b:9881:af96 with SMTP id z17csp1837860ljm;
+Tue, 27 Jan 2026 20:40:31 -0800 (PST)
+X-Received: by 2002:a17:907:d16:b0:b89:fb0b:65e3 with SMTP id a640c23a62f3a-b8dab37f259mr248218466b.47.1769575230950;
+Tue, 27 Jan 2026 20:40:30 -0800 (PST)
+ARC-Seal: i=2; a=rsa-sha256; t=1769575230; cv=pass;
+d=google.com; s=arc-20240605;
+b=HpNZ7afN92SXk/LUdy0T959Lpt1REKVnPw8TjAkDjKIaVgPqCeRh3sioC81U6zlbT8
+mmHMwX3uAlvDw1sdEzmb1moEINMayXARkg1+TkbV6BkCCDWpeNKcjN6fmWlY2tBNNLVA
+peJo0fC0rl391KYaLu9oRhs3kLD8qtapkgVBovlVFidmMVbr1cCgMwTfFN8jHWIrxXv1
+vlslbohNAZWSioQco0nP2dCfBis3h0ZwIFWUpU+ZF4uQKHym585CMEJB1wLR6sJXtJem
+t+IKG+wbfioHU3s6ZcH4I7Eficj7Zaq6jenPQaHoptmj0zWqlXEw+T/96tRWP6tdALHI
+6keg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+:dkim-signature;
+bh=ZDccCXXwubrNh5Ra7S+ahkova2pABMI3rloV2ZvUFo4=;
+fh=FwVE1sYq7OB0RPMJPLFLBGgSL9GJG7ekSk9AWWbMHSw=;
+b=ThYVpnvSyvkKcD11oNdT3zAENd8SpRZFQHlmFWY/JpP8Rily9bnrwoln3b3nFQiEZC
+yOnsNrKV1KxyPi+w0vEM8iG6oKNEiwYXgIzvoGLi887PKUC9cxN1N2RNm4oiSd0tEqYu
++++hLMk1bsCNV9fS7JwgHi87xE+WTTSRUrgzPPmZkQ1lIAWfaWXYpIU1O1rzE4Xt2vqa
+zduoyGDk0rXcBDCqWAlMeMSjt+PkQgmjM1YxKDIwWr45FWwAXpvZFeKO0zv6r7rUFaem
+PAUU473Z1w+f+ZCRKYpEFVChb24uobuWoT7bqL/ae7D+vt0o+I6MrLlvTSB39xrTWcBw
+GjJw==;
+dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+dkim=pass header.i=@gmail.com header.s=20230601 header.b=XFPxHcQI;
+arc=pass (i=1);
+spf=pass (google.com: domain of xxxx@gmail.com designates 209.85.220.41 as permitted sender)
+smtp.mailfrom=xxxx@gmail.com;
+dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+dara=pass header.i=@gmail.com
+Return-Path: <xxxx@gmail.com>
+    Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+    by mx.google.com with SMTPS id a640c23a62f3a-b8dbee8c33fsor34235266b.3.2026.01.27.20.40.30
+    for <xxxx@gmail.com>
+        (Google Transport Security);
+        Tue, 27 Jan 2026 20:40:30 -0800 (PST)
+        Received-SPF: pass (google.com: domain of xxxx@gmail.com designates 209.85.220.41 as permitted sender)
+        client-ip=209.85.220.41;
+        Authentication-Results: mx.google.com;
+        dkim=pass header.i=@gmail.com header.s=20230601 header.b=XFPxHcQI;
+        arc=pass (i=1);
+        spf=pass (google.com: domain of xxxx@gmail.com designates 209.85.220.41 as permitted sender)
+        smtp.mailfrom=xxxx@gmail.com;
+        dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+        dara=pass header.i=@gmail.com
+        ARC-Seal: i=1; a=rsa-sha256; t=1769575230; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AaU1Hs40TgNGxpj4cJ4JgPonrqMXUXIUVul62Zg035ZWySO6DfNzvhWL/Wg8zX9g+U
+        bkzEjij5oLPT0C1VQhNKqfaHuQKjc9h5e3zXk97RWbzVR0dlg2Kifdv2YpyDU1FMCX56
+        rop6C6Y9wwf5IrwfUVnAyxQWy0DNzhqKXeizDHvdPrsxb1w/hSSHDXIN/hwE6tPNQ2Xw
+        6ngvAVmK4+thAS2uvPlA7re65r26CeWfZPciTWDiq58llK/9d/mQWkq6A7yXX266KES8
+        MG/aAKmAaG5BjW9fo+XI7S9B8uSIIkcgq/WPxcGvMNz670HZQpCXraETt9S18lWuXyvQ
+        6y2Q==
+        ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+        :dkim-signature;
+        bh=ZDccCXXwubrNh5Ra7S+ahkova2pABMI3rloV2ZvUFo4=;
+        fh=FwVE1sYq7OB0RPMJPLFLBGgSL9GJG7ekSk9AWWbMHSw=;
+        b=g0zZs+UGdsc1feA0KWqka1xSxhIVnneoHktHj84VUWNe+qdRA8DrGOyI7+qq20/zPW
+        DyiiSEnfu1FWci6xH4756uQC/DF7kkKPb4axUGMsW0nYYGiEnOIOFTIrRM706i2+0BFB
+        1d6CJacNMe8C5GNyQHd/dHk3thtF1CvoCyl5gakw8UAbBGZX0SQqM4yOrl+8K0dPg65x
+        vQFqJIoKnsg9qWK6en5xl+48a8IuS125z0LmiDekGs1PTqzZD9RXHO2hXLmQtI+EZbtO
+        +i+kuRR5/bB4f6+sUhpfyQJ1U1i2WWtaXBGJkljity3KUc/NGa5gAmWLJS67CS4XONaO
+        aYrQ==;
+        dara=google.com
+        ARC-Authentication-Results: i=1; mx.google.com; arc=none
+        DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769575230; x=1770180030; dara=google.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+        :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZDccCXXwubrNh5Ra7S+ahkova2pABMI3rloV2ZvUFo4=;
+        b=XFPxHcQIuO0XiPr4lyYwEwyuqCAyOET+AzFTv3X9aLARynMSnY4glpfy9PUMf1kFud
+        5fK7U8JzThMLlRSg9sNG7Hcu+oTb69NAtsB2oTK23NRw0ko19dX+w8xOslcg48bS15oX
+        F1uAy/LivugaL+BPuI35KxdKi5VXBnO9eD/6x1+gBhuuBQb4l+S6WnUq1hwCMs0DHpJ7
+        f8BiVETdU3ZOHSwCqMPrkQNiZc3XI9vWmliL9l6DsAEA3PvY1IkPkUuufmoSz+p7wsqa
+        aeE3FCwRQsZAjRNUJX4eyJMWCpdoOTuKlhN2p7rlG2Y4oNrwJxePNArVbtOly47cGlVP
+        p2fQ==
+        X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769575230; x=1770180030;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+        :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+        :reply-to;
+        bh=ZDccCXXwubrNh5Ra7S+ahkova2pABMI3rloV2ZvUFo4=;
+        b=l2A57i+OA3GwD2NmnW2EfHMXeGzhy0VkAodgUDfP16HRw4lsqtoxJIi+IcuVyBJsNE
+        aU8C6uRBMR8N159aLrl72Vkc08G1GlirNAgGKE2U4erraPFP6fdvyab6BAiiJSgTcuDB
+        d4PfrKJ7f4dj9mFoK6f1sMkf6SwwJ9688SXYng6EJIRMkthBtRY6d5SCRFhfTShz4Xay
+        jaYUfAibHoxAzsNfHXSg1Tpi9xirBTyTX7AlRiXpqV0Mgbqhc9RY6n+i99gZLDQytP/U
+        1bID65jI9JALVHHsyzY96DMfm0vZu9U0/q61mkr+nEVArfZu5nohF2bTHuI8eoP3GL1X
+        D5oA==
+        X-Gm-Message-State: AOJu0YwDe2CGk48FNQahcrtGgCkvTuOkfcb1n3VFsVKZ03exbt27Q0NM
+        s4akXHGrXAw3oadMWzvINkiSz1h1HBuI1mst6lP7+Tlj8kG1l3oAOq2oUqbHMUJKhcj5c57JlaE
+        z/fe2i9Bs9Kzthw9SCznjKkYL6rOk/yqR8g==
+        X-Gm-Gg: AZuq6aJWn0Xg/xYk6evknsZxpNDi7BXWKrQjWGoLxqKswvaCXxR1bf/qDbLsER4GN89
+        8NmfSL/R5DA60drbqxXq9jWQNGIOBdx+c2REyyW0OQeDVgZ0kwOtsOjoq5D5IRfLO/ETMSd8Q/S
+        58DTNdEOOpR1FqqidxLS7H+frwIP9cjvo8RUt2V6dK5yY1Yemgel8+B3qRptjfd+vGyim7hhyPG
+        TIkhOZwuSueVQn09zQx3ZWnM4jDoTXWNGbI8Ak0X6+yxhj+poM/o+oR5RD7UMX05FpX2O36SB8b 589nLijoGOBbQD9lD4m+g76AN5w=
+        X-Received: by 2002:a17:907:7289:b0:b88:5d85:47c with SMTP id
+        a640c23a62f3a-b8dab1bc003mr282902866b.26.1769575229993; Tue, 27 Jan 2026 20:40:29 -0800 (PST)
+        MIME-Version: 1.0
+        References: <SB-IREV3tL2xDNJScj0006117f9@sb-irev3.simplebooking.local>
+            In-Reply-To: <SB-IREV3tL2xDNJScj0006117f9@sb-irev3.simplebooking.local>
+                From: xxxx <xxxx@gmail.com>
+                    Date: Wed, 28 Jan 2026 11:40:19 +0700
+                    X-Gm-Features: AZwV_Qh-w3Mj4lZ5mdPxGJBHWySRh2OJQk5G1vKQ0DdJQn7qWHx3TAwoqirnIJk
+                    Message-ID: <CAH_YxrwZ5omAQTK6fwonLCf66070i7Khq6BQpK4XoYtyNUt7ow@mail.gmail.com>
+                        Subject: Fwd: favehotel Rungkut Surabaya - Booking Confirmation - 2025022238284285
+                        To: "xxxx@gmail.com" <xxxx@gmail.com>
+                            Content-Type: multipart/alternative; boundary="000000000000fcb40b06496b5694"
+
+                            --000000000000fcb40b06496b5694
+                            Content-Type: text/plain; charset="UTF-8"
+                            Content-Transfer-Encoding: quoted-printable
+
+                            ---------- Forwarded message ---------
+                            From: favehotel Rungkut Surabaya <reservation@simplebooking.it>
+                                Date: Sat, 22 Feb 2025, 09.39
+                                Subject: favehotel Rungkut Surabaya - Booking Confirmation -
+                                2025022238284285
+                                To: xxxx <xxxx@gmail.com>
+
+
+                                    [image: Logo]
+                                    [image: Banner Image]
+                                    *Hi Mr./Ms. Saifuddin !*
+
+                                    We are thrilled that you have chosen to stay with us and experience the
+                                    vibrant and positive energy with us and soak up the awesome vibes at
+                                    everyone's favorite hotel! Welcome to favehotel, where we're all about
+                                    spreading positivity, making new friends, and creating a laid-back and
+                                    hassle-free atmosphere. We totally dig embracing new experiences and
+                                    diverse perspectives, all while ensuring our valued guests have an absolute
+                                    blast!
+
+                                    Here are all the deets about your booking:
+                                    *favehotel Rungkut Surabaya*
+                                    <https:
+                                        //www.google.com/maps/dir//favehotel+Rungkut+Surabaya,Jl+Raya+Kaliru=ngkut+No+23-25,Surabaya>
+                                        <https: //www.favehotels.com/en/hotel/view/89/favehotel-rungkut>
+                                            *Reservation Number* *2025022238284285*
+                                            *Check-in*
+                                            *22 Feb 2025* *Check-out*
+                                            *23 Feb 2025*
+                                            *Guests*
+                                            *2 Persons* *Stay*
+                                            *1 Nights*
+                                            *Reservation under*
+                                            xxxx
+                                            *Contact Number*
+                                            081xxxxxxxx
+                                            *Email*
+                                            xxxx@gmail.com
+
+                                            At favehotel, we totally get that you deserve the absolute best. That's why
+                                            we've got you covered with squeaky-clean, fresh-as-a-daisy facilities,
+                                            along with a team of friendly peeps always ready to assist you. We take
+                                            major pride in keeping up our rad brand standards, offering a consistently
+                                            awesome experience for all our guests.
+
+                                            Our spaces are all about that trendy, minimalist vibe, with vibrant brand
+                                            colors that scream youthful energy and adventurous spirit. We've created an
+                                            environment that blends cool style, affordable rates, and an ultra-friendly
+                                            atmosphere, making us the go-to choice for all the hip and happening
+                                            travelers out there. So get ready to have a blast at favehotel =E2=80=93 it=
+                                            's gonna
+                                            be epic!
+                                            *Reservation details*
+                                            *Room*
+                                            *Room type:* Superior Room (2 Adults)
+                                            *Q.ty:* 1
+                                            *Meal plan:* Breakfast Included
+                                            *Rate plan:* Staff Rate
+                                            *Offer applied:* Staff Rate
+                                            Employee membership will be tied to work email and give any Archipelago
+                                            employee 50%OFF. This is not to be given to non-employees like friends and
+                                            extended family and will be checked with ID upon arrival to the hotel.
+                                            *Period* *Price* *Total*
+                                            22 Feb - 1 night 263,520 IDR 263,520 IDR
+                                            Room total 263,520 IDR
+                                            *Total Rooms: *263,520 IDR
+                                            *Additional services*
+                                            *Price* *Total*
+                                            20% F&B Discount 0 IDR
+                                            free 0 IDR
+                                            Total additional services 0 IDR
+                                            *Total amount : * 263520 IDR (Taxes included)
+                                            Please transfer payment to:
+                                            Holder: PT. Papan Inti Manajemen IBAN: 788-095-1909 SWIFT/BIC: CENAIDJA
+                                            Notes: Bank Central Asia
+                                            *Deposit Required:* 263,520 IDR
+                                            *Important Notes:*
+
+                                            - Payment via bank transfer must be completed within 24 hours of making
+                                            the booking.
+                                            - Kindly send a copy of the proof of bank transfer and the confirmation
+                                            letter to: rungkutinfo@favehotels.com
+                                            - Failure to provide proof of payment before check-in will result in the
+                                            cancellation of the reservation. In such cases, the walk-in rate will ap=
+                                            ply
+                                            during check-in.
+
+                                            *Cancellation Policy*
+                                            Terms and Conditions:
+                                            - The total price of the reservation will be charged on the day of booking
+                                            and it is not refundable.
+                                            - Not allowed for cancellations at any time.
+                                            - Failure to arrive at your hotel will be treated as a No-Show and no
+                                            refund will be given.
+
+                                            Reservation with no guarantee provided only hold until 3 PM on the day of
+                                            arrival. Please send us the guarantee reservation before 15:00 on the day
+                                            of arrival if you will be check in after 3 PM, otherwise the reservation
+                                            will be cancelled accordingly without any notification.
+                                            Modify / Cancel this Reservation
+                                            <https:
+                                                //bookings.favehotels.com/ibe/reservations/edit?hid=3D4074&lang=3DEN=&guid=3D778BAE5D-C1B6-4DB2-8570-32C5177B3A29>
+                                                Should you need to make any modifications or cancel your reservation,
+                                                please inform us at your earliest convenience. Our team is available to
+                                                assist you. You can reach us via email at rungkutinfo@favehotels.com.
+                                                Kindly provide your reservation number for seamless assistance.
+                                                Thank you for choosing favehotel. We look forward to welcoming you and
+                                                providing you with a memorable, fun, and friendly stay.
+                                                *Best regards,*
+
+                                                Reservations
+                                                *Get membership app now*
+                                                <https: //www.facebook.com/favehotels />
+                                                <https: //www.instagram.com/favehotels />
+                                                <https: //twitter.com/favehotels>
+
+                                                    <https: //apps.apple.com/id/app/archipelago-membership/id1099092329>
+                                                        <https:
+                                                            //play.google.com/store/apps/details?id=3Dcom.archipelagointernation=al.hotels>
+                                                            favehotels.com
+                                                            <https: //www.favehotels.com />
+
+                                                            --000000000000fcb40b06496b5694
+                                                            Content-Type: text/html; charset="UTF-8"
+                                                            Content-Transfer-Encoding: quoted-printable
+
+                                                            <div dir=3D"auto"></div><br>
+                                                            <div class=3D"gmail_quote
+                                                                gmail_quote_container="><div dir=3D" ltr"
+                                                                class=3D"gmail_attr">---------- Forwarded message
+                                                                ------=
+                                                                ---<br>From: <strong class=3D"gmail_sendername"
+                                                                    dir=3D"auto">favehotel Rung=
+                                                                    kut Surabaya</strong> <span dir=3D"auto">&lt;<a
+                                                                        href=3D"mailto:reservation@=simplebooking.it">reservation@simplebooking.it</a>&gt;</span><br>Date:
+                                                                Sat,=
+                                                                22 Feb 2025, 09.39<br>Subject: favehotel Rungkut
+                                                                Surabaya - Booking Confir=
+                                                                mation - 2025022238284285<br>To: xxxx &lt;<a
+                                                                    href=3D"mailto:asep.=saifuddin08@gmail.com">xxxx@gmail.com</a>&gt;<br>
+                                                            </div><br><br>=
+                                                            <u></u>
+
+
+
+
+
+
+                                                            <div
+                                                                style=3D"font-family:Nunito,Verdana,sans-serif;font-size:18px;line-hei=ght:32px;margin:0">
+                                                                <div
+                                                                    style=3D"max-width:640px;margin-left:auto;margin-right:auto">
+                                                                    <div class=3D"m_-5356867146163906743bg-main"
+                                                                        style=3D"box-sizing:border-b=ox;height:64px;background-color:#8b254f;color:#fff;padding:16px
+                                                                        24px">
+                                                                        <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1/BrandPa=ges/Icon/sbt-fave-white.png"
+                                                                            alt=3D"Logo" height=3D"32">
+                                                                    </div>
+                                                                    <div style=3D"padding:16px 24px">
+                                                                        <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1/BrandPa=ges/Homepage/sb_template_main.jpg"
+                                                                            alt=3D"Banner Image" width=3D"100%"
+                                                                            heig=ht=3D"auto">
+                                                                        <div style=3D"margin-top:32px">
+                                                                            <b>Hi Mr./Ms. Saifuddin !</b>
+                                                                            <p>
+                                                                                We are thrilled that you have chosen to
+                                                                                stay with us and experience=
+                                                                                the vibrant and positive energy with us
+                                                                                and soak up the awesome vibes at e=
+                                                                                veryone&#39;s favorite hotel! Welcome to
+                                                                                favehotel, where we&#39;re all abo=
+                                                                                ut spreading positivity, making new
+                                                                                friends, and creating a laid-back and h=
+                                                                                assle-free atmosphere. We totally dig
+                                                                                embracing new experiences and diverse=
+                                                                                perspectives, all while ensuring our
+                                                                                valued guests have an absolute blast!
+                                                                            </p>
+                                                                            <p>
+                                                                                Here are all the deets about your
+                                                                                booking:
+                                                                            </p>
+                                                                        </div>
+                                                                        <table height=3D"128"
+                                                                            class=3D"m_-5356867146163906743mt-6"
+                                                                            style=3D"wid=th:100%;border-spacing:0;color:inherit;margin-top:24px">
+                                                                            <tr>
+                                                                                <td width=3D"66%"
+                                                                                    style=3D"padding-right:24px">
+                                                                                    <b>favehotel Rungkut=
+                                                                                        Surabaya</b></td>
+                                                                                <td width=3D"33%"
+                                                                                    class=3D"m_-5356867146163906743bg-main
+                                                                                    m_-5356867=146163906743ta-center"
+                                                                                    style=3D"color:#fff"
+                                                                                    align=3D"center"
+                                                                                    bgcolor=3D"#8b=254f">
+                                                                                    <img style=3D"border:0;display:block;Margin-left:auto;Margin-righ=t:auto;max-width:130px"
+                                                                                        src=3D"https://cdn.sbcdn.it/fu/newbooking_tmpl/6481=04_IMG_ALG.png"
+                                                                                        alt=3D"">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </table>
+                                                                        <div style=3D"height:24px;margin-top:24px"
+                                                                            class=3D"m_-5356867146163906=743mt-6">
+                                                                            <a href=3D"https://www.google.com/maps/dir//favehotel+Rungkut+Surabay=a,Jl+Raya+Kalirungkut+No+23-25,Surabaya"
+                                                                                class=3D"m_-5356867146163906743lin=k-fancy"
+                                                                                style=3D"text-decoration:none;color:inherit"
+                                                                                target=3D"_blank" rel==3D"noreferrer">
+                                                                                <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1/Bra=ndPages/Icon/sbt-maps-fave.png"
+                                                                                    style=3D"height:100%">
+                                                                            </a>
+                                                                            <a href=3D"https://www.favehotels.com/en/hotel/view/89/favehotel-rung=kut"
+                                                                                class=3D"m_-5356867146163906743link-fancy
+                                                                                m_-5356867146163906743ms-3"=style=3D"text-decoration:none;color:inherit;margin-left:12px"
+                                                                                target=3D"_bl=ank"
+                                                                                rel=3D"noreferrer"><img
+                                                                                    src=3D"https://cdn0.astonhotelsinternational.c=om/Images/v1/BrandPages/Icon/sbt-website-fave.png"
+                                                                                    style=3D"height:100%"></= a>
+                                                                        </div>
+                                                                        <table class=3D"m_-5356867146163906743color-grey
+                                                                            m_-5356867146163906743=mt-6"
+                                                                            style=3D"width:100%;border-spacing:0;color:#d6d6d6;margin-top:24px">
+                                                                            <tr>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    w=idth=3D"192"
+                                                                                    style=3D"border-top-width:1px;border-top-color:currentColor;bo=rder-top-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Reservation
+                                                                                        Number</b>
+                                                                                </td>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4
+                                                                                    m_=-5356867146163906743ta-end"
+                                                                                    style=3D"border-top-width:1px;border-top-color:=currentColor;border-top-style:solid;padding:16px"
+                                                                                    align=3D"end">
+                                                                                    <b class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-53568671461639=06743fs-21"
+                                                                                        style=3D"color:initial;font-size:21px">2025022238284285</b>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    w=idth=3D"50%"
+                                                                                    style=3D"border-top-width:1px;border-top-color:currentColor;bo=rder-top-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Check-in</b><br>
+                                                                                    <b class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-53568671461639=06743fs-24"
+                                                                                        style=3D"color:initial;font-size:24px">22
+                                                                                        Feb 2025</b>
+                                                                                </td>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743bl
+                                                                                    m_-5=356867146163906743pa-4"
+                                                                                    width=3D"50%">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Check-out</b><br>
+                                                                                    <b class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-53568671461639=06743fs-24"
+                                                                                        style=3D"color:initial;font-size:24px">23
+                                                                                        Feb 2025</b>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    w=idth=3D"50%"
+                                                                                    style=3D"border-top-width:1px;border-top-color:currentColor;bo=rder-top-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Guests</b><br>
+                                                                                    <b class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-53568671461639=06743fs-24"
+                                                                                        style=3D"color:initial;font-size:24px">2
+                                                                                        Persons</b>
+                                                                                </td>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743bl
+                                                                                    m_-5=356867146163906743pa-4"
+                                                                                    width=3D"50%"
+                                                                                    style=3D"border-top-width:1px;border-=top-color:currentColor;border-top-style:solid;border-left-width:1px;border-=left-color:currentColor;border-left-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Stay</b><br>
+                                                                                    <b class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-53568671461639=06743fs-24"
+                                                                                        style=3D"color:initial;font-size:24px">1
+                                                                                        Nights</b>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    w=idth=3D"50%"
+                                                                                    style=3D"border-top-width:1px;border-top-color:currentColor;bo=rder-top-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Reservation
+                                                                                        under</b><br>
+                                                                                    <div class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-535686714616=3906743fs-16"
+                                                                                        style=3D"color:initial;font-size:16px">
+                                                                                        xxxx </div>
+                                                                                </td>
+                                                                                <td class=3D"m_-5356867146163906743bt
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    w=idth=3D"50%"
+                                                                                    style=3D"border-top-width:1px;border-top-color:currentColor;bo=rder-top-style:solid;padding:16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Contact
+                                                                                        Number</b><br>
+                                                                                    <div class=3D"m_-5356867146163906743color-initial
+                                                                                        m_-535686714616=3906743fs-16"
+                                                                                        style=3D"color:initial;font-size:16px">
+                                                                                        <div></div>
+                                                                                        <div>081xxxxxxxx</div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td class=3D"m_-5356867146163906743bb
+                                                                                    m_-5356867146163906743pa-4"
+                                                                                    c=olspan=3D"2"
+                                                                                    style=3D"border-bottom-width:1px;border-bottom-color:currentCo=lor;border-bottom-style:solid;padding:0
+                                                                                    16px 16px">
+                                                                                    <b class=3D"m_-5356867146163906743color-alt
+                                                                                        m_-535686714616390674=3fs-14
+                                                                                        m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"color:#939598;text-tr=ansform:uppercase;font-size:14px">Email</b><br>
+                                                                                    <a href=3D"mailto:xxxx@gmail.com"
+                                                                                        class=3D"m_-5356867=146163906743fs-16"
+                                                                                        style=3D"font-size:16px"
+                                                                                        target=3D"_blank"
+                                                                                        rel=3D"norefe=rrer">xxxx@gmail.com</a>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </table>
+                                                                        <div style=3D"margin-top:32px">
+                                                                            <p>
+                                                                                At favehotel, we totally get that you
+                                                                                deserve the absolute best. Th=
+                                                                                at&#39;s why we&#39;ve got you covered
+                                                                                with squeaky-clean, fresh-as-a-daisy=
+                                                                                facilities, along with a team of
+                                                                                friendly peeps always ready to assist
+                                                                                you=
+                                                                                . We take major pride in keeping up our
+                                                                                rad brand standards, offering a con=
+                                                                                sistently awesome experience for all our
+                                                                                guests.
+                                                                            </p>
+                                                                            <p>
+                                                                                Our spaces are all about that trendy,
+                                                                                minimalist vibe, with vibrant=
+                                                                                brand colors that scream youthful energy
+                                                                                and adventurous spirit. We&#39;ve=
+                                                                                created an environment that blends cool
+                                                                                style, affordable rates, and an ul=
+                                                                                tra-friendly atmosphere, making us the
+                                                                                go-to choice for all the hip and hap=
+                                                                                pening travelers out there. So get ready
+                                                                                to have a blast at favehotel =E2=
+                                                                                =80=93 it&#39;s gonna be epic!
+                                                                            </p>
+                                                                        </div>
+                                                                        <div style=3D"margin-top:48px"
+                                                                            class=3D"m_-5356867146163906743reservati=on-details">
+                                                                            <b class=3D"m_-5356867146163906743fs-24"
+                                                                                style=3D"font-size:24px">Res=
+                                                                                ervation details</b>
+                                                                            <div class=3D"m_-5356867146163906743ba"
+                                                                                style=3D"margin-top:20px;padd=ing:12px;border:1px
+                                                                                solid currentColor">
+                                                                                <div>
+                                                                                    <table
+                                                                                        class=3D"m_-5356867146163906743rooms_detail_title_table=" cellpadding=3D"
+                                                                                        0" cellspacing=3D"0"
+                                                                                        width=3D"100%"
+                                                                                        style=3D"margin-top:15=px;border-spacing:0;border-collapse:collapse;vertical-align:top">
+                                                                                        <tbody>
+                                                                                            <tr=>
+                                                                                                <td
+                                                                                                    style=3D"background-color:#e9e9e9;word-break:break-word;border-collapse=:collapse!important;vertical-align:top;padding:10px;font-family:Lato,Tahoma=,sans-serif">
+                                                                                                    <span
+                                                                                                        style=3D"color:#000000;font-size:16px;line-height:19px"><strong>Room
+                                                                                                            <= /strong>
+                                                                                                                </span>
+                                                                                                </td>
+                                                                                                </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table
+                                                                                        class=3D"m_-5356867146163906743tab-camere-top"
+                                                                                        cellpadding=3D"0"
+                                                                                        cel=lspacing=3D"0"
+                                                                                        width=3D"100%"
+                                                                                        style=3D"margin-top:15px;border-spacing:0;bor=der-collapse:collapse;vertical-align:top">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style=3D"color:#000000;font-size:14px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;vertical-align:top;padding:5px;whi=te-space:pre-line;font-family:Lato,Tahoma,sans-serif">
+                                                                                                    <strong>Room
+                                                                                                        type:</strong>
+                                                                                                    Superior Room (2
+                                                                                                    Adults)<br>
+                                                                                                    <strong>Q.ty:</strong>
+                                                                                                    1<br>
+                                                                                                    <strong>Meal
+                                                                                                        plan:</strong>
+                                                                                                    Breakfast
+                                                                                                    Included<br>
+                                                                                                    <strong>Rate
+                                                                                                        plan:</strong>
+                                                                                                    Staff Rate<br>
+                                                                                                    <strong>Offer
+                                                                                                        applied:</strong>
+                                                                                                    Staff Rate <br>
+                                                                                                    Employee membership
+                                                                                                    will be=
+                                                                                                    tied to work email
+                                                                                                    and give any
+                                                                                                    Archipelago employee
+                                                                                                    50%OFF. This is not
+                                                                                                    t=
+                                                                                                    o be given to
+                                                                                                    non-employees like
+                                                                                                    friends and extended
+                                                                                                    family and will be
+                                                                                                    ch=
+                                                                                                    ecked with ID upon
+                                                                                                    arrival to the
+                                                                                                    hotel.
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <div style=3D"padding:5px">
+                                                                                        <table cellpadding=3D"0"
+                                                                                            cellspacing=3D"0"
+                                                                                            width==3D"100%"
+                                                                                            style=3D"margin-top:5px;border-spacing:0;border-collapse:collapse=;vertical-align:top;border:solid
+                                                                                            1px #ccc">
+                                                                                            <tbody>
+                                                                                                <tr>
+                                                                                                    <th style=3D"text-align:left;color:#000000;font-size:14px;line-height:19px;=word-break:break-word;border-collapse:collapse!important;vertical-align:top=;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        <strong>Period</strong>
+                                                                                                    </th>
+                                                                                                    <th style=3D"text-align:right;color:#000000;font-size:14px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        <strong>Price</strong>
+                                                                                                    </th>
+                                                                                                    <th style=3D"text-align:right;color:#000000;font-size:14px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        <strong>Total</strong>
+                                                                                                    </th>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td style=3D"color:#000000;font-size:14px;line-height:19px;word-break:b=reak-word;border-collapse:collapse!important;vertical-align:top;padding:4px=6px;border:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        22 Feb - 1 n=
+                                                                                                        ight</td>
+                                                                                                    <td style=3D"text-align:right;color:#000000;font-size:14px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;border:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:Lato,Tahoma,sans-serif"=>
+                                                                                                        263,520 IDR</td>
+                                                                                                    <td style=3D"text-align:right;color:#000000;font-size:14px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;border:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:Lato,Tahoma,sans-serif"=>
+                                                                                                        263,520 IDR</td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td colspan=3D"2"
+                                                                                                        valign=3D"middle"
+                                                                                                        style=3D"text-align:right;vertical-=align:middle;color:#000000;font-size:14px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;padding:4px
+                                                                                                        6px;border:solid
+                                                                                                        1px
+                                                                                                        #=ccc;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        Room total</td>
+                                                                                                    <td valign=3D"middle"
+                                                                                                        style=3D"text-align:right;vertical-align:middle;color=:#000000;font-size:14px;line-height:19px;word-break:break-word;border-colla=pse:collapse!important;padding:4px
+                                                                                                        6px;border:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:La=to,Tahoma,sans-serif">
+                                                                                                        263,520 IDR</td>
+                                                                                                </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                    <table
+                                                                                        class=3D"m_-5356867146163906743tab-camere-top"
+                                                                                        cellpadding=3D"0"
+                                                                                        cel=lspacing=3D"0"
+                                                                                        width=3D"100%"
+                                                                                        style=3D"margin-top:15px;border-spacing:0;bor=der-collapse:collapse;vertical-align:top">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style=3D"color:#000000;font-size:13px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;vertical-align:top;padding:5px;fon=t-family:Lato,Tahoma,sans-serif">
+                                                                                                    <strong>Total Rooms:
+                                                                                                    </strong>263,520
+                                                                                                    IDR<br>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                                <div
+                                                                                    class=3D"m_-5356867146163906743services-detail">
+                                                                                    <div
+                                                                                        style=3D"=margin-top:10px;padding:5px">
+                                                                                        <strong>Additional
+                                                                                            services</strong>
+                                                                                        <table cellpadding=3D"0"
+                                                                                            cellspacing=3D"0"
+                                                                                            width=3D"100%"
+                                                                                            style=3D"margin-t=op:5px;border-spacing:0;border-collapse:collapse;vertical-align:top;border:=solid
+                                                                                            1px #ccc">
+                                                                                            <tbody>
+                                                                                                <tr>
+                                                                                                    <th style=3D"text-align:left;color:#000000;font-size:13px;line-height:19px;=word-break:break-word;border-collapse:collapse!important;vertical-align:top=;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        </t= h>
+                                                                                                    <th style=3D"min-width:70px;text-align:right;color:#000000;font-size:14px;l=ine-height:19px;word-break:break-word;border-collapse:collapse!important;ve=rtical-align:top;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma=,sans-serif">
+                                                                                                        <strong>Price</strong>
+                                                                                                    </th>
+                                                                                                    <th style=3D"text-align:right;color:#000000;font-size:14px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;white-space:nowrap;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        <s= trong>
+                                                                                                            Total</strong>
+                                                                                                    </th>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td style=3D"color:#000000;font-size:13px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;vertical-align:top;padding:4px
+                                                                                                        6px=;border-top:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        20% F&amp;B=
+                                                                                                        Discount</td>
+                                                                                                    <td style=3D"text-align:right;color:#000000;font-size:13px;line-height:19px=;word-break:break-word;border-collapse:collapse!important;vertical-align:to=p;padding:4px
+                                                                                                        6px;border-top:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:Lato,Tahoma,sans-se=rif">
+                                                                                                        0 IDR <br><span
+                                                                                                            style=3D"font-size:.8em;line-height:.8em;color:#999">f=
+                                                                                                            ree</span>
+                                                                                                    </td>
+                                                                                                    <td style=3D"white-space:nowrap;text-align:right;color:#000000;font-size:13=px;line-height:19px;word-break:break-word;border-collapse:collapse!importan=t;vertical-align:top;padding:4px
+                                                                                                        6px;border-top:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-family:=Lato,Tahoma,sans-serif">
+                                                                                                        0 IDR</td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td colspan=3D"2"
+                                                                                                        valign=3D"middle"
+                                                                                                        style=3D"text-align:right;vertical-alig=n:middle;color:#000000;font-size:14px;line-height:19px;word-break:break-wor=d;border-collapse:collapse!important;padding:4px
+                                                                                                        6px;border-top:solid
+                                                                                                        1px
+                                                                                                        #=ccc;font-family:Lato,Tahoma,sans-serif">
+                                                                                                        Total additional
+                                                                                                        services</td>
+                                                                                                    <td valign=3D"middle"
+                                                                                                        style=3D"text-align:right;vertical-align:middle;color=:#000000;font-size:13px;line-height:19px;word-break:break-word;border-colla=pse:collapse!important;padding:4px
+                                                                                                        6px;border-top:solid
+                                                                                                        1px
+                                                                                                        #ccc;font-famil=y:Lato,Tahoma,sans-serif">
+                                                                                                        0 IDR</td>
+                                                                                                </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>=09
+                                                                                </div>
+                                                                                <div>
+                                                                                    <table cellpadding=3D"0"
+                                                                                        cellspacing=3D"0" width=3D"100%"
+                                                                                        styl=e=3D"margin-top:15px;border-spacing:0;border-collapse:collapse;vertical-ali=gn:top">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style=3D"color:#000000;font-size:14px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;vertical-align:top;padding:5px;fon=t-family:Lato,Tahoma,sans-serif">
+                                                                                                    <strong>Total amount
+                                                                                                        : </strong>
+                                                                                                    263520 IDR (Taxes
+                                                                                                    included)<br>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                                <div></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class=3D"m_-5356867146163906743pa-4
+                                                                            m_-5356867146163906743bg-main=m_-5356867146163906743fs-24
+                                                                            m_-5356867146163906743fw-medium
+                                                                            m_-535686714616=3906743mt-6"
+                                                                            style=3D"background-color:#8b254f;color:#fff;font-weight:500;f=ont-size:24px;margin-top:24px;padding:16px">
+                                                                            Please transfer payment to:</di= v>
+                                                                            <div class=3D"m_-5356867146163906743color-main
+                                                                                m_-5356867146163906743ba=m_-5356867146163906743pa-4"
+                                                                                style=3D"color:#8b254f;padding:16px;border:1px=solid
+                                                                                currentColor">
+                                                                                <div class=3D"m_-5356867146163906743color-initial"
+                                                                                    style=3D"color:ini=tial;white-space:pre-wrap">
+                                                                                    <table cellpadding=3D"0"
+                                                                                        cellspacing=3D"0"
+                                                                                        width==3D"100%"
+                                                                                        style=3D"margin-top:15px;border-spacing:0;border-collapse:collaps=e;vertical-align:top">
+                                                                                        =09<tbody>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style=3D"color:#000000;font-size:14px;line-height:19px;word-break:break=-word;border-collapse:collapse!important;vertical-align:top;padding:5px;fon=t-family:Lato,Tahoma,sans-serif">
+                                                                                                    Holder: PT. Papan
+                                                                                                    Inti Manajemen
+
+                                                                                                    IBAN: 788-095-1909
+
+                                                                                                    SWIFT/BIC: CENAIDJA
+
+                                                                                                    Notes: Bank Central
+                                                                                                    Asia
+
+                                                                                                    <strong><br>Deposit
+                                                                                                        Required:</strong>
+                                                                                                    263,520 IDR <br>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                                <div style=3D"color:initial;font-size:14px"
+                                                                                    class=3D"m_-5356867146163=906743color-initial
+                                                                                    m_-5356867146163906743fs-14">
+                                                                                    <b class=3D"m_-5356867146163906743text-uppercase"
+                                                                                        style=3D"text-tra=nsform:uppercase">Important
+                                                                                        Notes:</b>
+                                                                                    <ul
+                                                                                        style=3D"line-height:24px;padding-left:16px;margin:0">
+                                                                                        <li style=3D"margin-top:12px">
+                                                                                            Payment via bank transfer
+                                                                                            must be completed within 24
+                                                                                            hours of =
+                                                                                            making the booking.
+                                                                                        </li>
+                                                                                        <li style=3D"margin-top:12px">
+                                                                                            Kindly send a copy of the
+                                                                                            proof of bank transfer and
+                                                                                            the confir=
+                                                                                            mation letter to:
+                                                                                            <a href=3D"mailto:rungkutinfo@favehotels.com"
+                                                                                                target=3D"_blank"=rel=3D"noreferrer">rungkutinfo@favehotels.com</a>
+                                                                                        </li>
+                                                                                        <li style=3D"margin-top:12px">
+                                                                                            Failure to provide proof of
+                                                                                            payment before check-in will
+                                                                                            result=
+                                                                                            in the cancellation of the
+                                                                                            reservation. In such cases,
+                                                                                            the walk-in rate wi=
+                                                                                            ll apply during check-in.
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div style=3D"margin-top:40px">
+                                                                                <b class=3D"m_-5356867146163906743fs-24"
+                                                                                    style=3D"font-size:24px">Can=
+                                                                                    cellation Policy</b>
+                                                                                <div class=3D"m_-5356867146163906743ba
+                                                                                    m_-5356867146163906743pa-4
+                                                                                    m_-=5356867146163906743fs-16"
+                                                                                    style=3D"line-height:24px;margin-top:20px;font-si=ze:16px;padding:16px;border:1px
+                                                                                    solid currentColor">Terms and
+                                                                                    Conditions: <= br>- The total price
+                                                                                        of the reservation will be
+                                                                                        charged on the day of booki=
+                                                                                        ng and it is not
+                                                                                        refundable.<br>- Not allowed for
+                                                                                        cancellations at any time=
+                                                                                        .<br>- Failure to arrive at your
+                                                                                        hotel will be treated as a
+                                                                                        No-Show and no =
+                                                                                        refund will be
+                                                                                        given.<br><br>Reservation with
+                                                                                        no guarantee provided only ho=
+                                                                                        ld until 3 PM on the day of
+                                                                                        arrival. Please send us the
+                                                                                        guarantee reservati=
+                                                                                        on before 15:00 on the day of
+                                                                                        arrival if you will be check in
+                                                                                        after 3 PM, o=
+                                                                                        therwise the reservation will be
+                                                                                        cancelled accordingly without
+                                                                                        any notifica=
+                                                                                        tion.<br></div>
+                                                                                <div class=3D"m_-5356867146163906743cancellation-button"
+                                                                                    style=3D"mar=gin-top:16px">
+                                                                                    <div style=3D"margin:15px 0px">
+                                                                                        <a style=3D"padding:5px
+                                                                                            10px;background-color:#fbcaca;border:solid
+                                                                                            1px
+                                                                                            #bbb=;border-radius:5px;color:#000;text-decoration:none"
+                                                                                            href=3D"https://booking=s.favehotels.com/ibe/reservations/edit?hid=3D4074&amp;lang=3DEN&amp;guid=3D=778BAE5D-C1B6-4DB2-8570-32C5177B3A29"
+                                                                                            target=3D"_blank"
+                                                                                            rel=3D"noreferrer">=
+                                                                                            Modify / Cancel this
+                                                                                            Reservation</a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div style=3D"margin-top:20px">
+                                                                                Should you need to make any
+                                                                                modifications or cancel your
+                                                                                reservation,=
+                                                                                please inform us at your earliest
+                                                                                convenience. Our team is available to
+                                                                                as=
+                                                                                sist you. You can reach us via email at
+                                                                                <a href=3D"mailto:rungkutinfo@faveh=otels.com"
+                                                                                    target=3D"_blank"
+                                                                                    rel=3D"noreferrer">rungkutinfo@favehotels.com
+                                                                                    <= /a>. Kindly provide your
+                                                                                        reservation number for seamless
+                                                                                        assistance.
+                                                                            </div>
+                                                                            <div style=3D"margin-top:32px">
+                                                                                Thank you for choosing favehotel. We
+                                                                                look forward to welcoming you an=
+                                                                                d providing you with a memorable, fun,
+                                                                                and friendly stay.
+                                                                            </div>
+                                                                            <div style=3D"margin-top:64px">
+                                                                                <b>Best regards,</b><br><br>
+                                                                                Reservations
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class=3D"m_-5356867146163906743bg-main
+                                                                            m_-5356867146163906743mt-6"
+                                                                            s=tyle=3D"background-color:#8b254f;color:#fff;margin-top:24px;padding:24px">
+                                                                            <table
+                                                                                style=3D"width:100%;border-spacing:0;color:inherit">
+                                                                                <tr>
+                                                                                    <td width=3D"60%"><b>Get membership
+                                                                                            app now</b></td>
+                                                                                    <td class=3D"m_-5356867146163906743ta-end"
+                                                                                        width=3D"40%" height=3D"=20"
+                                                                                        align=3D"end">
+                                                                                        <a href=3D"https://www.facebook.com/favehotels/"
+                                                                                            class=3D"m_-5356=867146163906743link-fancy"
+                                                                                            style=3D"text-decoration:none;color:inherit"
+                                                                                            tar=get=3D"_blank"
+                                                                                            rel=3D"noreferrer">
+                                                                                            <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1=/BrandPages/Icon/sbt-facebook-white.png"
+                                                                                                style=3D"height:100%">
+                                                                                        </a>
+                                                                                        <a href=3D"https://www.instagram.com/favehotels/"
+                                                                                            class=3D"m_-535=6867146163906743link-fancy
+                                                                                            m_-5356867146163906743ms-3"
+                                                                                            style=3D"text-decora=tion:none;color:inherit;margin-left:12px"
+                                                                                            target=3D"_blank"
+                                                                                            rel=3D"noreferr=er">
+                                                                                            <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1=/BrandPages/Icon/sbt-instagram-white.png"
+                                                                                                style=3D"height:100%">
+                                                                                        </a>
+                                                                                        <a href=3D"https://twitter.com/favehotels"
+                                                                                            class=3D"m_-5356867146=163906743link-fancy
+                                                                                            m_-5356867146163906743ms-3"
+                                                                                            style=3D"text-decoration:no=ne;color:inherit;margin-left:12px"
+                                                                                            target=3D"_blank"
+                                                                                            rel=3D"noreferrer">
+                                                                                            <img src=3D"https://cdn0.astonhotelsinternational.com/Images/v1=/BrandPages/Icon/sbt-twitter-white.png"
+                                                                                                style=3D"height:100%">
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                            <table
+                                                                                style=3D"margin-top:12px;width:100%;border-spacing:0;color:inher=it">
+                                                                                <tr>
+                                                                                    <td width=3D"60%">
+                                                                                        <div style=3D"height:32px">
+                                                                                            <a href=3D"https://apps.apple.com/id/app/archipelago-membership=/id1099092329"
+                                                                                                class=3D"m_-5356867146163906743link-fancy"
+                                                                                                style=3D"text-dec=oration:none;color:inherit"
+                                                                                                target=3D"_blank"
+                                                                                                rel=3D"noreferrer">
+                                                                                                <img src=3D"https://cdn0.astonhotelsinternational.com/Images/=v1/BrandPages/Icon/sbt-appstore-white.png"
+                                                                                                    style=3D"height:100%">
+                                                                                            </a>
+                                                                                            <a href=3D"https://play.google.com/store/apps/details?id=3Dcom.=archipelagointernational.hotels"
+                                                                                                class=3D"m_-5356867146163906743link-fancy"=style=3D"text-decoration:none;color:inherit"
+                                                                                                target=3D"_blank"
+                                                                                                rel=3D"nore=ferrer">
+                                                                                                <img src=3D"https://cdn0.astonhotelsinternational.com/Images/=v1/BrandPages/Icon/sbt-googleplay-white.png"
+                                                                                                    style=3D"margin-left:8px;heigh=t:100%">
+                                                                                            </a>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td width=3D"40%"
+                                                                                        class=3D"m_-5356867146163906743ta-end"
+                                                                                        align=3D"e=nd">
+                                                                                        <a href=3D"https://www.favehotels.com/"
+                                                                                            class=3D"m_-5356867146163=906743link-fancy
+                                                                                            m_-5356867146163906743text-uppercase
+                                                                                            m_-535686714616390674=3fs-11
+                                                                                            m_-5356867146163906743fw-medium"
+                                                                                            style=3D"text-transform:uppercase;f=ont-weight:500;font-size:11px;text-decoration:none;color:inherit"
+                                                                                            target=3D="_blank"
+                                                                                            rel=3D"noreferrer">favehotels.com</a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            --000000000000fcb40b06496b5694--

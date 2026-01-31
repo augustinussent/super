@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
+  Mail,
   BedDouble,
   CalendarCheck,
   Users,
@@ -64,6 +65,7 @@ const AdminLayout = () => {
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
+    { name: 'Template Email', path: '/admin/email-templates', icon: Mail, permKey: 'content' },
     { name: 'Media Optimizer', path: '/admin/media-converter', icon: Image, permKey: 'content' },
     { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];
@@ -117,8 +119,8 @@ const AdminLayout = () => {
                   key={child.path}
                   to={child.path}
                   className={`block py-2 text-sm transition-colors ${location.pathname === child.path
-                      ? 'text-white font-medium'
-                      : 'text-emerald-300 hover:text-white'
+                    ? 'text-white font-medium'
+                    : 'text-emerald-300 hover:text-white'
                     }`}
                 >
                   {child.name}
