@@ -51,16 +51,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => {
-    return user?.role === 'admin' || user?.role === 'superadmin';
+    const userRole = user?.role?.toLowerCase();
+    return userRole === 'admin' || userRole === 'superadmin';
   };
 
   // Check if user has specific permission
   const hasPermission = (permKey) => {
     if (!user) return false;
+    const userRole = user.role?.toLowerCase();
     // Superadmin has all permissions
-    if (user.role === 'superadmin') return true;
+    if (userRole === 'superadmin') return true;
     // Admin also has all permissions by default
-    if (user.role === 'admin') return true;
+    if (userRole === 'admin') return true;
     // Check specific permission for staff
     return user.permissions?.[permKey] === true;
   };
@@ -68,8 +70,9 @@ export const AuthProvider = ({ children }) => {
   // Check if user has any admin access (for accessing admin layout)
   const hasAnyAdminAccess = () => {
     if (!user) return false;
+    const userRole = user.role?.toLowerCase();
     // Admin and superadmin always have access
-    if (['admin', 'superadmin'].includes(user.role)) return true;
+    if (['admin', 'superadmin'].includes(userRole)) return true;
     // Staff can access if they have at least one permission
     const perms = user.permissions || {};
     return Object.values(perms).some(v => v === true);
