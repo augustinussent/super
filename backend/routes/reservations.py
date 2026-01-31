@@ -281,7 +281,7 @@ async def resend_reservation_email(reservation_id: str, request: Request, user: 
     logger.info(f"Attempting to resend email for reservation {reservation_id} to {reservation['guest_email']}")
     
     try:
-        success = await send_reservation_email(reservation, room)
+        success = await send_reservation_email(reservation, room, is_resend=True)
         logger.info(f"Resend email result for {reservation_id}: {success}")
     except Exception as e:
         logger.error(f"Error resending email for {reservation_id}: {str(e)}")

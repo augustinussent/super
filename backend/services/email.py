@@ -94,7 +94,7 @@ async def send_email(to_email: str, subject: str, html_content: str):
     # Only use SMTP if Resend is not configured
     return await send_email_smtp(to_email, subject, html_content)
 
-async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
+async def send_reservation_email(reservation: dict, room_type: dict, is_resend: bool = False) -> bool:
     """
     Send reservation confirmation email and log the result to database.
     Returns True if email was sent successfully, False otherwise.
@@ -102,6 +102,17 @@ async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
     whatsapp_doc = await db.site_content.find_one({"section": "contact", "content_type": "whatsapp"}, {"_id": 0})
     wa_number = whatsapp_doc.get("content", {}).get("number", "6281130700206") if whatsapp_doc else "6281130700206"
     
+    hotel_email = "reservasi@spencergreenhotel.com"
+    
+    subject_prefix = "[RESENT] " if is_resend else ""
+    resend_banner = ""
+    if is_resend:
+        resend_banner = """
+        <div style="background: #fff3cd; color: #856404; padding: 15px; margin-bottom: 20px; border: 1px solid #ffeeba; border-radius: 4px; text-align: center;">
+            <strong>Notice:</strong> This is a resent copy of your reservation confirmation.
+        </div>
+        """
+
     html_content = f"""
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;">
         <div style="background: #059669; padding: 30px; text-align: center;">
@@ -109,6 +120,7 @@ async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
             <p style="color: #d1fae5; margin: 10px 0 0 0;">Batu, East Java</p>
         </div>
         <div style="padding: 30px;">
+            {resend_banner}
             <h2 style="color: #059669;">Reservation Confirmation</h2>
             <p>Dear {reservation['guest_name']},</p>
             <p>Thank you for your reservation. Here are your booking details:</p>
@@ -123,16 +135,32 @@ async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
                     <td style="padding: 12px; border: 1px solid #e5e7eb;">{room_type.get('name', 'N/A')}</td>
                 </tr>
                 <tr style="background: #f0fdf4;">
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Rate Plan</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation.get('rate_plan_name', 'Standard')}</td>
+                </tr>
+                <tr>
                     <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Check-in</strong></td>
                     <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation['check_in']}</td>
                 </tr>
-                <tr>
+                <tr style="background: #f0fdf4;">
                     <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Check-out</strong></td>
                     <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation['check_out']}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Nights</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation.get('nights', 1)}</td>
                 </tr>
                 <tr style="background: #f0fdf4;">
                     <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Guests</strong></td>
                     <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation['guests']}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Phone</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation.get('guest_phone', '-')}</td>
+                </tr>
+                <tr style="background: #f0fdf4;">
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Special Requests</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb;">{reservation.get('special_requests', '-') or '-'}</td>
                 </tr>
                 <tr>
                     <td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>Total Amount</strong></td>
@@ -160,28 +188,46 @@ async def send_reservation_email(reservation: dict, room_type: dict) -> bool:
     </div>
     """
     
-    success = await send_email(
+    # Send to Guest
+    guest_subject = f"{subject_prefix}Reservation Confirmation - {reservation['booking_code']}"
+    guest_success = await send_email(
         to_email=reservation['guest_email'],
-        subject=f"Reservation Confirmation - {reservation['booking_code']}",
+        subject=guest_subject,
+        html_content=html_content
+    )
+
+    # Send copy to Hotel
+    hotel_subject = f"{subject_prefix}[NEW BOOKING] {reservation['booking_code']} - {reservation['guest_name']}"
+    hotel_success = await send_email(
+        to_email=hotel_email,
+        subject=hotel_subject,
         html_content=html_content
     )
     
+    success = guest_success and hotel_success
+
     # Log email send attempt to database
     from datetime import datetime, timezone
     email_log = {
         "reservation_id": reservation.get('reservation_id'),
         "booking_code": reservation.get('booking_code'),
         "to_email": reservation['guest_email'],
-        "subject": f"Reservation Confirmation - {reservation['booking_code']}",
-        "status": "sent" if success else "failed",
+        "cc_email": hotel_email,
+        "subject": guest_subject,
+        "is_resend": is_resend,
+        "status": "sent" if success else "partial_failure" if (guest_success or hotel_success) else "failed",
+        "details": {
+            "guest_sent": guest_success,
+            "hotel_sent": hotel_success
+        },
         "sent_at": datetime.now(timezone.utc).isoformat()
     }
     await db.email_logs.insert_one(email_log)
     
     if success:
-        logger.info(f"Reservation email sent successfully to {reservation['guest_email']} for booking {reservation['booking_code']}")
+        logger.info(f"Reservation email ({'resent' if is_resend else 'initial'}) sent successfully to {reservation['guest_email']} and hotel for booking {reservation['booking_code']}")
     else:
-        logger.error(f"Failed to send reservation email to {reservation['guest_email']} for booking {reservation['booking_code']}")
+        logger.error(f"Failed to send full reservation emails. Guest: {guest_success}, Hotel: {hotel_success}")
     
     return success
 
