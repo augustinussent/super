@@ -65,7 +65,7 @@ const AdminLayout = () => {
     { name: 'Kode Promo', path: '/admin/promo-codes', icon: Tag, permKey: 'promo' },
     { name: 'Review', path: '/admin/reviews', icon: Star, permKey: 'reviews' },
     { name: 'Konten', path: '/admin/content', icon: FileText, permKey: 'content' },
-    { name: 'Template Email', path: '/admin/email-templates', icon: Mail, permKey: 'content' },
+    { name: 'Template Email', path: '/admin/email-templates', icon: Mail, permKey: 'email_config' },
     { name: 'Media Optimizer', path: '/admin/media-converter', icon: Image, permKey: 'content' },
     { name: 'Activity Logs', path: '/admin/logs', icon: Shield, permKey: 'logs' },
   ];

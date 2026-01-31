@@ -21,22 +21,23 @@ const PERMISSIONS_LIST = [
   { key: 'reviews', label: 'Reviews', description: 'Moderasi review tamu' },
   { key: 'promo', label: 'Promo Codes', description: 'Kelola kode promo' },
   { key: 'users', label: 'Pengguna', description: 'Kelola user & hak akses' },
-  { key: 'gallery', label: 'Gallery', description: 'Kelola foto & video' }
+  { key: 'gallery', label: 'Gallery', description: 'Kelola foto & video' },
+  { key: 'email_config', label: 'Email Config', description: 'Kelola template & pengaturan email' }
 ];
 
 // Default permissions by role
 const DEFAULT_PERMISSIONS = {
   superadmin: {
     dashboard: true, rooms: true, reservations: true, content: true,
-    reviews: true, promo: true, users: true, gallery: true
+    reviews: true, promo: true, users: true, gallery: true, email_config: true
   },
   admin: {
     dashboard: true, rooms: true, reservations: true, content: true,
-    reviews: true, promo: true, users: false, gallery: true
+    reviews: true, promo: true, users: false, gallery: true, email_config: true
   },
   staff: {
     dashboard: true, rooms: false, reservations: true, content: false,
-    reviews: false, promo: false, users: false, gallery: false
+    reviews: false, promo: false, users: false, gallery: false, email_config: false
   }
 };
 
@@ -92,7 +93,7 @@ const Users = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email) {
       toast.error('Nama dan email wajib diisi');
       return;
@@ -105,7 +106,7 @@ const Users = () => {
 
     try {
       if (editingUser) {
-        const updateData = { 
+        const updateData = {
           name: formData.name,
           email: formData.email,
           role: formData.role,
@@ -114,7 +115,7 @@ const Users = () => {
         if (formData.password) {
           updateData.password = formData.password;
         }
-        
+
         await axios.put(`${API_URL}/admin/users/${editingUser.user_id}`, updateData, {
           headers: { Authorization: `Bearer ${getToken()}` }
         });
@@ -125,7 +126,7 @@ const Users = () => {
         });
         toast.success('User baru berhasil dibuat');
       }
-      
+
       setShowModal(false);
       setEditingUser(null);
       setFormData({ name: '', email: '', password: '', role: 'staff', permissions: { ...DEFAULT_PERMISSIONS.staff } });
@@ -234,13 +235,12 @@ const Users = () => {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      user.role === 'superadmin' ? 'bg-purple-100 text-purple-800' :
-                      user.role === 'admin' ? 'bg-emerald-100 text-emerald-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {user.role === 'superadmin' ? 'Super Admin' : 
-                       user.role === 'admin' ? 'Admin' : 'Staff'}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'superadmin' ? 'bg-purple-100 text-purple-800' :
+                        user.role === 'admin' ? 'bg-emerald-100 text-emerald-800' :
+                          'bg-gray-100 text-gray-800'
+                      }`}>
+                      {user.role === 'superadmin' ? 'Super Admin' :
+                        user.role === 'admin' ? 'Admin' : 'Staff'}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -347,16 +347,15 @@ const Users = () => {
               <p className="text-sm text-gray-500 mb-4">
                 Pilih fitur yang dapat diakses oleh user ini
               </p>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 {PERMISSIONS_LIST.map((perm) => (
                   <div
                     key={perm.key}
-                    className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                      formData.permissions[perm.key] 
-                        ? 'border-emerald-200 bg-emerald-50' 
+                    className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${formData.permissions[perm.key]
+                        ? 'border-emerald-200 bg-emerald-50'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <Checkbox
                       id={`perm-${perm.key}`}
@@ -365,7 +364,7 @@ const Users = () => {
                       data-testid={`perm-${perm.key}`}
                     />
                     <div className="flex-1">
-                      <label 
+                      <label
                         htmlFor={`perm-${perm.key}`}
                         className="text-sm font-medium cursor-pointer flex items-center gap-2"
                       >
@@ -387,8 +386,8 @@ const Users = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setFormData({ 
-                  ...formData, 
+                onClick={() => setFormData({
+                  ...formData,
                   permissions: Object.fromEntries(PERMISSIONS_LIST.map(p => [p.key, true]))
                 })}
               >
@@ -398,8 +397,8 @@ const Users = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setFormData({ 
-                  ...formData, 
+                onClick={() => setFormData({
+                  ...formData,
                   permissions: Object.fromEntries(PERMISSIONS_LIST.map(p => [p.key, false]))
                 })}
               >
@@ -409,8 +408,8 @@ const Users = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setFormData({ 
-                  ...formData, 
+                onClick={() => setFormData({
+                  ...formData,
                   permissions: { ...DEFAULT_PERMISSIONS[formData.role] }
                 })}
               >

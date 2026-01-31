@@ -10,6 +10,7 @@ class UserPermissions(BaseModel):
     promo: bool = False
     users: bool = False
     gallery: bool = False
+    email_config: bool = False
 
 class UserCreate(BaseModel):
     email: EmailStr

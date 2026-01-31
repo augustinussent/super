@@ -285,7 +285,7 @@ const EmailTemplates = () => {
     };
 
     const handleSave = async () => {
-        if (!hasPermission('content')) {
+        if (!hasPermission('email_config')) {
             toast.error('Anda tidak memiliki izin untuk menyimpan konten.');
             return;
         }
