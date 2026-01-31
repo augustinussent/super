@@ -199,21 +199,6 @@ const EmailPreview = ({ config }) => {
 const EmailTemplates = () => {
     const { getToken, hasPermission } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [scale, setScale] = useState(1);
-
-    // Scale adjustment for smaller screens
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 1400) {
-                setScale(0.85); // Auto-scale for laptops
-            } else {
-                setScale(1);
-            }
-        };
-        handleResize(); // Initial check
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     // Default config matching backend
     const [config, setConfig] = useState({
@@ -594,30 +579,10 @@ const EmailTemplates = () => {
                             <Eye className="w-5 h-5" />
                             Live Preview
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Zoom:</span>
-                            <input
-                                type="range"
-                                min="0.5"
-                                max="1.0"
-                                step="0.05"
-                                value={scale}
-                                onChange={(e) => setScale(parseFloat(e.target.value))}
-                                className="w-24"
-                            />
-                            <span className="text-xs text-gray-600 w-8">{Math.round(scale * 100)}%</span>
-                        </div>
                     </div>
 
-                    <div className="flex-1 overflow-auto p-4 flex justify-center bg-gray-100/50">
-                        <div
-                            style={{
-                                transform: `scale(${scale})`,
-                                transformOrigin: 'top center',
-                                width: '640px', // Fixed width for the email simulator
-                                transition: 'transform 0.2s ease'
-                            }}
-                        >
+                    <div className="flex-1 overflow-auto p-4 bg-gray-100/50">
+                        <div className="mx-auto" style={{ width: '640px' }}>
                             <div className="bg-white shadow-xl rounded-b-lg overflow-hidden">
                                 <EmailPreview config={config} />
                             </div>
