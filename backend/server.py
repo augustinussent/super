@@ -3,7 +3,8 @@ from starlette.middleware.cors import CORSMiddleware
 import logging
 
 from config import CORS_ORIGINS
-from database import close_db
+from config import CORS_ORIGINS
+from prisma_client import connect_db, disconnect_db
 from routes import (
     auth_router,
     rooms_router,
@@ -58,6 +59,10 @@ async def root():
 # Include API router in main app
 app.include_router(api_router)
 
+@app.on_event("startup")
+async def startup_db_client():
+    await connect_db()
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    await close_db()
+    await disconnect_db()

@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-py"
+  interface = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  STAFF
+  ADMIN
+}
+
+enum RoomStatus {
+  AVAILABLE
+  BOOKED
+  MAINTENANCE
+  CLEANING
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings  Booking[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Room {
+  id          String     @id @default(uuid())
+  number      String     @unique
+  type        String // e.g., "Deluxe", "Suite"
+  price       Float
+  description String?
+  status      RoomStatus @default(AVAILABLE)
+  capacity    Int        @default(2)
+  amenities   String[] // Stored as array of strings
+  images      String[] // Cloudinary URLs
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  bookings Booking[]
+
+  @@map("rooms")
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String? // Nullable for guest checkouts
+  roomId      String
+  checkIn     DateTime
+  checkOut    DateTime
+  totalPrice  Float
+  status      BookingStatus @default(PENDING)
+  guestName   String // For non-registered or registered users
+  guestEmail  String?
+  guestPhone  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User? @relation(fields: [userId], references: [id])
+  room Room  @relation(fields: [roomId], references: [id])
+
+  payment Payment?
+
+  @@map("bookings")
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  bookingId     String   @unique
+  amount        Float
+  method        String // "MIDTRANS", "CASH", "TRANSFER"
+  status        String // "PENDING", "PAID", "FAILED"
+  transactionId String? // External ID from Midtrans/Xendit
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String // e.g., "CHECK_IN", "UPDATE_PRICE"
+  details   Json? // Store extra context
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
