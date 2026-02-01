@@ -49,7 +49,7 @@ const Login = () => {
       {/* Left Side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
-          src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200"
+          src="https://res.cloudinary.com/dgfjos8xa/image/upload/v1767362992/spencer-green-hotel-batu-malang-main-pool-view-building-night_u2ienp.webp"
           alt="Spencer Green Hotel"
           className="absolute inset-0 w-full h-full object-cover"
         />
