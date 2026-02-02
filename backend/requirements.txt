@@ -71,7 +71,7 @@ pathspec==0.12.1
 pillow==12.1.0
 platformdirs==4.5.1
 pluggy==1.6.0
-prisma==0.13.1
+prisma
 propcache==0.4.1
 proto-plus==1.27.0
 protobuf==5.29.5
